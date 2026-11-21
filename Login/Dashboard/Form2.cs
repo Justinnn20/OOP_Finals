@@ -201,6 +201,10 @@ namespace Login
             // Checkout
             btnCheckout.Click += (s, e) =>
             {
+                using var customerInfo = new CustomerInfoForm();
+                if (customerInfo.ShowDialog(this) != DialogResult.OK)
+                    return;
+
                 decimal orderAmount = _cartController.CurrentOrder.Total;
                 if (_cartController.Checkout(out string msg))
                 {
@@ -211,7 +215,12 @@ namespace Login
 
                     if (_cartController.LastCompletedOrder != null)
                     {
-                        using var receipt = new OrderReceiptForm(_cartController.LastCompletedOrder);
+                        using var receipt = new OrderReceiptForm(
+                            _cartController.LastCompletedOrder,
+                            "Admin",
+                            customerInfo.PurchaserName,
+                            customerInfo.YearLevel,
+                            customerInfo.College);
                         receipt.ShowDialog(this);
                     }
 

@@ -30,13 +30,24 @@ namespace Login
 
         private readonly Order _order;
         private readonly string _cashier;
+        private readonly string _purchaserName;
+        private readonly string _yearLevel;
+        private readonly string _college;
         private readonly Panel _receipt;
         private readonly int _contentEnd;   // y where the receipt text (and stamp) ends
 
-        public OrderReceiptForm(Order order, string cashierName = "Cashier")
+        public OrderReceiptForm(
+            Order order,
+            string cashierName = "Cashier",
+            string purchaserName = "",
+            string yearLevel = "",
+            string college = "")
         {
             _order = order;
             _cashier = cashierName;
+            _purchaserName = purchaserName;
+            _yearLevel = yearLevel;
+            _college = college;
             _contentEnd = MeasureContentEnd();
 
             int paperHeight = _contentEnd + ButtonsSpace;
@@ -170,10 +181,12 @@ namespace Login
             DrawCentered(g, "UNIVERSITY OF MAKATI COOP", titleFont, brush, 18, 18);
             DrawCentered(g, _order.OrderId + " · " + _order.CreatedAt.ToString("MM/dd/yy, h:mm tt"), small, brush, 34, 16);
             DrawCentered(g, "Cashier · " + _cashier, small, brush, 48, 16);
-            g.DrawLine(dashPen, 20, 72, 286, 72);
+            DrawCentered(g, _purchaserName, small, brush, 62, 16);
+            DrawCentered(g, _yearLevel + " · " + _college, small, brush, 76, 16);
+            g.DrawLine(dashPen, 20, 98, 286, 98);
 
             // Items
-            int y = 82;
+            int y = 108;
             foreach (var item in _order.Items)
             {
                 DrawLeft(g, item.Product.Name + " ×" + item.Quantity, itemFont, brush, 20, y, 168, 18);
