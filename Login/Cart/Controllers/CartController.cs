@@ -59,6 +59,17 @@ namespace Login.Controllers
             OrderUpdated?.Invoke(CurrentOrder);
         }
 
+        /// <summary>
+        /// Nagdaragdag ng uniform. Iisang product line lang ang gamit kahit ilang size ang piliin.
+        /// </summary>
+        public void AddUniformItem(Product product, string size, int qty)
+        {
+            if (product == null || string.IsNullOrWhiteSpace(size)) return;
+
+            // Iisang product lang ang nasa cart kahit ilang size ang piliin.
+            AddItem(product, qty);
+        }
+
         public bool AddItemByBarcode(string input, out string message)
         {
             var parseResult = _barcodeParser.Parse(input);
@@ -206,4 +217,3 @@ namespace Login.Controllers
         }
     }
 }
-
