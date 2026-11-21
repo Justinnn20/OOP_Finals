@@ -38,9 +38,6 @@ namespace Login
             this.pnlScroll = new RoundedPanel();
             this.lblSignIn = new System.Windows.Forms.Label();
             this.lblSignInSub = new System.Windows.Forms.Label();
-            this.lblRole = new System.Windows.Forms.Label();
-            this.btnCashier = new RoundedButton();
-            this.btnAdmin = new RoundedButton();
             this.lblUser = new System.Windows.Forms.Label();
             this.pnlUser = new RoundedPanel();
             this.txtUser = new System.Windows.Forms.TextBox();
@@ -234,14 +231,11 @@ namespace Login
             this.pnlScroll.Controls.Add(this.lblPass);
             this.pnlScroll.Controls.Add(this.pnlUser);
             this.pnlScroll.Controls.Add(this.lblUser);
-            this.pnlScroll.Controls.Add(this.btnAdmin);
-            this.pnlScroll.Controls.Add(this.btnCashier);
-            this.pnlScroll.Controls.Add(this.lblRole);
             this.pnlScroll.Controls.Add(this.lblSignInSub);
             this.pnlScroll.Controls.Add(this.lblSignIn);
-            this.pnlScroll.Location = new System.Drawing.Point(688, 133);
+            this.pnlScroll.Location = new System.Drawing.Point(688, 155);
             this.pnlScroll.Name = "pnlScroll";
-            this.pnlScroll.Size = new System.Drawing.Size(440, 502);
+            this.pnlScroll.Size = new System.Drawing.Size(440, 430);
             this.pnlScroll.TabIndex = 17;
             this.pnlScroll.TabStop = false;
 
@@ -249,7 +243,7 @@ namespace Login
             this.lblSignIn.BackColor = System.Drawing.Color.Transparent;
             this.lblSignIn.Font = new System.Drawing.Font("Cinzel", 19F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSignIn.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(16)))), ((int)(((byte)(32)))));
-            this.lblSignIn.Location = new System.Drawing.Point(30, 28);
+            this.lblSignIn.Location = new System.Drawing.Point(30, 26);
             this.lblSignIn.Name = "lblSignIn";
             this.lblSignIn.TabIndex = 0;
             this.lblSignIn.Text = "SIGN IN";
@@ -257,50 +251,17 @@ namespace Login
             this.lblSignInSub.BackColor = System.Drawing.Color.Transparent;
             this.lblSignInSub.Font = new System.Drawing.Font("Cormorant Garamond", 13F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSignInSub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblSignInSub.Location = new System.Drawing.Point(32, 68);
+            this.lblSignInSub.Location = new System.Drawing.Point(32, 64);
             this.lblSignInSub.Name = "lblSignInSub";
             this.lblSignInSub.Size = new System.Drawing.Size(376, 24);
             this.lblSignInSub.TabIndex = 1;
-            this.lblSignInSub.Text = "Choose your role, then show your credentials.";
-
-            this.lblRole.AutoSize = true;
-            this.lblRole.BackColor = System.Drawing.Color.Transparent;
-            this.lblRole.Font = new System.Drawing.Font("Cinzel", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRole.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblRole.Location = new System.Drawing.Point(32, 106);
-            this.lblRole.Name = "lblRole";
-            this.lblRole.TabIndex = 2;
-            this.lblRole.Text = "I AM A";
-
-            this.btnCashier.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(16)))), ((int)(((byte)(32)))));
-            this.btnCashier.CornerRadius = 21;
-            this.btnCashier.FillBottom = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(15)))), ((int)(((byte)(26)))));
-            this.btnCashier.FillTop = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(15)))), ((int)(((byte)(26)))));
-            this.btnCashier.Font = new System.Drawing.Font("Cinzel", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCashier.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(230)))), ((int)(((byte)(184)))));
-            this.btnCashier.Location = new System.Drawing.Point(32, 126);
-            this.btnCashier.Name = "btnCashier";
-            this.btnCashier.Size = new System.Drawing.Size(184, 42);
-            this.btnCashier.TabIndex = 3;
-            this.btnCashier.Text = "CASHIER";
-            this.btnCashier.Click += new System.EventHandler(this.btnCashier_Click);
-
-            this.btnAdmin.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(16)))), ((int)(((byte)(32)))));
-            this.btnAdmin.CornerRadius = 21;
-            this.btnAdmin.Font = new System.Drawing.Font("Cinzel", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnAdmin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(16)))), ((int)(((byte)(32)))));
-            this.btnAdmin.Location = new System.Drawing.Point(224, 126);
-            this.btnAdmin.Name = "btnAdmin";
-            this.btnAdmin.Size = new System.Drawing.Size(184, 42);
-            this.btnAdmin.TabIndex = 4;
-            this.btnAdmin.Text = "ADMIN";
-            this.btnAdmin.Click += new System.EventHandler(this.btnAdmin_Click);
+            this.lblSignInSub.Text = "Enter your credentials to access the bookstore portal.";
 
             this.lblUser.AutoSize = true;
             this.lblUser.BackColor = System.Drawing.Color.Transparent;
             this.lblUser.Font = new System.Drawing.Font("Cinzel", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUser.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblUser.Location = new System.Drawing.Point(32, 186);
+            this.lblUser.Location = new System.Drawing.Point(32, 104);
             this.lblUser.Name = "lblUser";
             this.lblUser.TabIndex = 5;
             this.lblUser.Text = "USERNAME";
@@ -310,7 +271,7 @@ namespace Login
             this.pnlUser.FillBottom = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(243)))), ((int)(((byte)(214)))));
             this.pnlUser.FillTop = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(243)))), ((int)(((byte)(214)))));
             this.pnlUser.Controls.Add(this.txtUser);
-            this.pnlUser.Location = new System.Drawing.Point(32, 206);
+            this.pnlUser.Location = new System.Drawing.Point(32, 124);
             this.pnlUser.Name = "pnlUser";
             this.pnlUser.Size = new System.Drawing.Size(376, 46);
             this.pnlUser.TabIndex = 6;
@@ -329,7 +290,7 @@ namespace Login
             this.lblPass.BackColor = System.Drawing.Color.Transparent;
             this.lblPass.Font = new System.Drawing.Font("Cinzel", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPass.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblPass.Location = new System.Drawing.Point(32, 268);
+            this.lblPass.Location = new System.Drawing.Point(32, 184);
             this.lblPass.Name = "lblPass";
             this.lblPass.TabIndex = 7;
             this.lblPass.Text = "PASSWORD";
@@ -340,7 +301,7 @@ namespace Login
             this.pnlPass.FillTop = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(243)))), ((int)(((byte)(214)))));
             this.pnlPass.Controls.Add(this.btnShowPass);
             this.pnlPass.Controls.Add(this.txtPass);
-            this.pnlPass.Location = new System.Drawing.Point(32, 288);
+            this.pnlPass.Location = new System.Drawing.Point(32, 204);
             this.pnlPass.Name = "pnlPass";
             this.pnlPass.Size = new System.Drawing.Size(376, 46);
             this.pnlPass.TabIndex = 8;
@@ -374,7 +335,7 @@ namespace Login
             this.chkRemember.BackColor = System.Drawing.Color.Transparent;
             this.chkRemember.Font = new System.Drawing.Font("Cormorant Garamond", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkRemember.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(16)))), ((int)(((byte)(32)))));
-            this.chkRemember.Location = new System.Drawing.Point(32, 350);
+            this.chkRemember.Location = new System.Drawing.Point(32, 270);
             this.chkRemember.Name = "chkRemember";
             this.chkRemember.TabIndex = 9;
             this.chkRemember.Text = "Keep me signed in";
@@ -383,7 +344,7 @@ namespace Login
             this.lblForgot.BackColor = System.Drawing.Color.Transparent;
             this.lblForgot.Font = new System.Drawing.Font("Cormorant Garamond", 12.5F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblForgot.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblForgot.Location = new System.Drawing.Point(212, 350);
+            this.lblForgot.Location = new System.Drawing.Point(212, 270);
             this.lblForgot.Name = "lblForgot";
             this.lblForgot.Size = new System.Drawing.Size(196, 24);
             this.lblForgot.TabIndex = 10;
@@ -396,29 +357,28 @@ namespace Login
             this.btnSignIn.FillTop = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(200)))), ((int)(((byte)(75)))));
             this.btnSignIn.Font = new System.Drawing.Font("Cinzel", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSignIn.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(15)))), ((int)(((byte)(26)))));
-            this.btnSignIn.Location = new System.Drawing.Point(32, 390);
+            this.btnSignIn.Location = new System.Drawing.Point(32, 310);
             this.btnSignIn.Name = "btnSignIn";
-            this.btnSignIn.Size = new System.Drawing.Size(376, 52);
+            this.btnSignIn.Size = new System.Drawing.Size(376, 50);
             this.btnSignIn.TabIndex = 11;
-            this.btnSignIn.Text = "ENTER AS CASHIER";
+            this.btnSignIn.Text = "SIGN IN";
             this.btnSignIn.Click += new System.EventHandler(this.btnSignIn_Click);
 
             this.lblRoleNote.BackColor = System.Drawing.Color.Transparent;
             this.lblRoleNote.Font = new System.Drawing.Font("Cormorant Garamond", 12.5F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblRoleNote.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
-            this.lblRoleNote.Location = new System.Drawing.Point(32, 458);
+            this.lblRoleNote.Location = new System.Drawing.Point(32, 376);
             this.lblRoleNote.Name = "lblRoleNote";
             this.lblRoleNote.Size = new System.Drawing.Size(376, 24);
             this.lblRoleNote.TabIndex = 12;
-            this.lblRoleNote.Text = "Cashiers ring up sales and check stock.";
+            this.lblRoleNote.Text = "UMak Cooperative Bookstore Management System";
             this.lblRoleNote.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // ---------------- LoginPage (the form) ----------------
             this.AcceptButton = this.btnSignIn;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(8)))), ((int)(((byte)(16)))));
-            this.ClientSize = new System.Drawing.Size(1200, 720);
+            this.ClientSize = new System.Drawing.Size(1280, 720);
             this.Controls.Add(this.pnlRod);
             this.Controls.Add(this.pnlScroll);
             this.Controls.Add(this.pnlChipMerch);
@@ -468,9 +428,6 @@ namespace Login
         private RoundedPanel pnlScroll;
         private System.Windows.Forms.Label lblSignIn;
         private System.Windows.Forms.Label lblSignInSub;
-        private System.Windows.Forms.Label lblRole;
-        private RoundedButton btnCashier;
-        private RoundedButton btnAdmin;
         private System.Windows.Forms.Label lblUser;
         private RoundedPanel pnlUser;
         private System.Windows.Forms.TextBox txtUser;

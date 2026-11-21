@@ -75,6 +75,9 @@ namespace Login
 
             pnlOrder = new Panel();
             lblOrderTitle = new Label();
+            btnHoldOrder = new Button();
+            btnClearCart = new Button();
+            pnlCartContainer = new Panel();
             lblBlank = new Label();
             rbNone = new RadioButton();
             rbScholar = new RadioButton();
@@ -102,6 +105,7 @@ namespace Login
             pnlBarcode = new Panel();
             lblBarcodeHint = new Label();
             txtBarcode = new TextBox();
+            btnAddBarcode = new Button();
             lblShelves = new Label();
             btnAddItem = new Button();
             lblHint = new Label();
@@ -395,6 +399,9 @@ namespace Login
             // 
             pnlOrder.BackColor = ParchmentBg;
             pnlOrder.Controls.Add(lblOrderTitle);
+            pnlOrder.Controls.Add(btnHoldOrder);
+            pnlOrder.Controls.Add(btnClearCart);
+            pnlOrder.Controls.Add(pnlCartContainer);
             pnlOrder.Controls.Add(lblBlank);
             pnlOrder.Controls.Add(rbNone);
             pnlOrder.Controls.Add(rbScholar);
@@ -420,11 +427,50 @@ namespace Login
             lblOrderTitle.AutoSize = true;
             lblOrderTitle.Font = new Font("Georgia", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblOrderTitle.ForeColor = DarkText;
-            lblOrderTitle.Location = new Point(20, 20);
+            lblOrderTitle.Location = new Point(16, 16);
             lblOrderTitle.Name = "lblOrderTitle";
-            lblOrderTitle.Size = new Size(140, 23);
+            lblOrderTitle.Size = new Size(160, 23);
             lblOrderTitle.TabIndex = 0;
             lblOrderTitle.Text = "ORDER SCROLL";
+            // 
+            // btnHoldOrder
+            // 
+            btnHoldOrder.BackColor = Color.FromArgb(244, 227, 178);
+            btnHoldOrder.Cursor = Cursors.Hand;
+            btnHoldOrder.FlatAppearance.BorderColor = GoldAccent;
+            btnHoldOrder.FlatStyle = FlatStyle.Flat;
+            btnHoldOrder.Font = new Font("Georgia", 8.5F, FontStyle.Bold);
+            btnHoldOrder.ForeColor = DarkText;
+            btnHoldOrder.Location = new Point(16, 46);
+            btnHoldOrder.Name = "btnHoldOrder";
+            btnHoldOrder.Size = new Size(146, 28);
+            btnHoldOrder.TabIndex = 12;
+            btnHoldOrder.Text = "Hold";
+            btnHoldOrder.UseVisualStyleBackColor = false;
+            // 
+            // btnClearCart
+            // 
+            btnClearCart.BackColor = Color.FromArgb(244, 227, 178);
+            btnClearCart.Cursor = Cursors.Hand;
+            btnClearCart.FlatAppearance.BorderColor = GoldAccent;
+            btnClearCart.FlatStyle = FlatStyle.Flat;
+            btnClearCart.Font = new Font("Georgia", 8.5F, FontStyle.Bold);
+            btnClearCart.ForeColor = DarkText;
+            btnClearCart.Location = new Point(168, 46);
+            btnClearCart.Name = "btnClearCart";
+            btnClearCart.Size = new Size(146, 28);
+            btnClearCart.TabIndex = 13;
+            btnClearCart.Text = "Clear Cart";
+            btnClearCart.UseVisualStyleBackColor = false;
+            // 
+            // pnlCartContainer
+            // 
+            pnlCartContainer.AutoScroll = true;
+            pnlCartContainer.BackColor = Color.Transparent;
+            pnlCartContainer.Location = new Point(16, 80);
+            pnlCartContainer.Name = "pnlCartContainer";
+            pnlCartContainer.Size = new Size(308, 340);
+            pnlCartContainer.TabIndex = 14;
             // 
             // lblBlank
             // 
@@ -654,6 +700,7 @@ namespace Login
             pnlBarcode.BackColor = PanelDark;
             pnlBarcode.Controls.Add(lblBarcodeHint);
             pnlBarcode.Controls.Add(txtBarcode);
+            pnlBarcode.Controls.Add(btnAddBarcode);
             pnlBarcode.Location = new Point(20, 76);
             pnlBarcode.Name = "pnlBarcode";
             pnlBarcode.Size = new Size(610, 46);
@@ -678,8 +725,23 @@ namespace Login
             txtBarcode.ForeColor = CreamText;
             txtBarcode.Location = new Point(130, 10);
             txtBarcode.Name = "txtBarcode";
-            txtBarcode.Size = new Size(466, 25);
+            txtBarcode.Size = new Size(392, 25);
             txtBarcode.TabIndex = 0;
+            // 
+            // btnAddBarcode
+            // 
+            btnAddBarcode.BackColor = GoldAccent;
+            btnAddBarcode.Cursor = Cursors.Hand;
+            btnAddBarcode.FlatAppearance.BorderSize = 0;
+            btnAddBarcode.FlatStyle = FlatStyle.Flat;
+            btnAddBarcode.Font = new Font("Georgia", 9F, FontStyle.Bold);
+            btnAddBarcode.ForeColor = DarkText;
+            btnAddBarcode.Location = new Point(530, 9);
+            btnAddBarcode.Name = "btnAddBarcode";
+            btnAddBarcode.Size = new Size(68, 27);
+            btnAddBarcode.TabIndex = 2;
+            btnAddBarcode.Text = "Add /";
+            btnAddBarcode.UseVisualStyleBackColor = false;
             // 
             // lblShelves
             // 
@@ -733,16 +795,16 @@ namespace Login
             // 
             // Form2
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.None;
             BackColor = MaroonBg;
-            ClientSize = new Size(1200, 760);
+            ClientSize = new Size(1280, 720);
             Controls.Add(pnlMain);
             Controls.Add(pnlOrder);
             Controls.Add(pnlSide);
             Controls.Add(topBar);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            MinimumSize = new Size(1000, 650);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
             Name = "Form2";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "UMak Coop - Wizarding POS";
@@ -840,6 +902,9 @@ namespace Login
 
         private Panel pnlOrder;
         private Label lblOrderTitle;
+        private Button btnHoldOrder;
+        private Button btnClearCart;
+        private Panel pnlCartContainer;
         private Label lblBlank;
         private RadioButton rbNone;
         private RadioButton rbScholar;
@@ -867,6 +932,7 @@ namespace Login
         private Panel pnlBarcode;
         private Label lblBarcodeHint;
         private TextBox txtBarcode;
+        private Button btnAddBarcode;
         private Label lblShelves;
         private Button btnAddItem;
         private Label lblHint;

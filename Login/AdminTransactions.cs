@@ -361,11 +361,11 @@ namespace Login
             }
             else if (clicked == btnNavInventory)
             {
-                MessageBox.Show("Navigate to AdminInventory", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminInventory());
             }
             else if (clicked == btnNavReports)
             {
-                MessageBox.Show("Navigate to AdminReports", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminReports());
             }
         }
 
@@ -382,7 +382,9 @@ namespace Login
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.CenterScreen;
+            targetForm.StartPosition = FormStartPosition.Manual;
+            targetForm.Location = this.Location;
+            targetForm.Size = this.Size;
             targetForm.Show();
             this.Hide();
             targetForm.FormClosed += (s, args) => this.Close();
