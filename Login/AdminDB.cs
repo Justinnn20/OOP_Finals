@@ -212,7 +212,7 @@ namespace Login
             }
             else if (clicked == btnNavSettings)
             {
-                MessageBox.Show("Navigate to Settings Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminSettings());
             }
         }
 
@@ -223,11 +223,16 @@ namespace Login
 
             if (result == DialogResult.Yes)
             {
-                // TODO: I-uncomment at palitan ng pangalan ng Login form niyo
-                // Form1 loginForm = new Form1();
-                // loginForm.Show();
-                this.Close();
+                SwitchForm(new LoginPage());
             }
+        }
+
+        private void SwitchForm(Form targetForm)
+        {
+            targetForm.StartPosition = FormStartPosition.CenterScreen;
+            targetForm.Show();
+            this.Hide();
+            targetForm.FormClosed += (s, args) => this.Close();
         }
 
         // ==========================================================
