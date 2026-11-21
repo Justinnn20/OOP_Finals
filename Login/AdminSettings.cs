@@ -253,7 +253,7 @@ namespace Login
             }
             else if (clicked == btnNavTransactions)
             {
-                MessageBox.Show("Navigate to Transactions Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminTransactions());
             }
             else if (clicked == btnNavReports)
             {
