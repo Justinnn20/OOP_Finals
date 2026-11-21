@@ -2,6 +2,8 @@ using UMakCoop.Services;
 
 namespace UMakCoop.Models
 {
+    // OOP: Inheritance and polymorphism. CashPayment is a Payment child class
+    // that provides cash-specific implementations of the abstract members.
     public class CashPayment : Payment
     {
         /// <summary>Guards against a typo like 5000000 instead of 500.</summary>

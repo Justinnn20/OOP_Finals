@@ -9,6 +9,8 @@ using Login.Models;
 
 namespace Login
 {
+    // MVC: View. Form2 displays the dashboard and forwards user actions to the
+    // CartController; it is also composed of controls and a CartController object.
     public partial class Form2 : Form
     {
         private Button[] tabs = Array.Empty<Button>();
@@ -207,7 +209,12 @@ namespace Login
                     lblSalesValue.Text = $"₱{_totalSalesToday:N0}";
                     lblOrdersValue.Text = _totalOrdersToday.ToString();
 
-                    MessageBox.Show(msg, "Checkout Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (_cartController.LastCompletedOrder != null)
+                    {
+                        using var receipt = new OrderReceiptForm(_cartController.LastCompletedOrder);
+                        receipt.ShowDialog(this);
+                    }
+
                     txtCash.Text = "0";
                     rbNone.Checked = true;
                     rbCash.Checked = true;

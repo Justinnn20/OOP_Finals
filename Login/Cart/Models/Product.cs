@@ -1,5 +1,7 @@
 namespace Login.Models
 {
+    // OOP: Model class. Product encapsulates the information and display behavior
+    // for one item in the store catalog.
     public class Product
     {
         public string Sku { get; set; } = string.Empty;

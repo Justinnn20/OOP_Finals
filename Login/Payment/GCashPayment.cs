@@ -2,6 +2,8 @@ using System.Linq;
 
 namespace UMakCoop.Models
 {
+    // OOP: Inheritance and polymorphism. GCashPayment is another Payment child class
+    // with its own validation and receipt behavior.
     public class GCashPayment : Payment
     {
         public const int ReferenceLength = 13;

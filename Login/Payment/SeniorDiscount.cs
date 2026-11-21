@@ -1,6 +1,8 @@
 namespace UMakCoop.Models
 {
     /// <summary>20% for Senior Citizens. The cashier must enter the Senior Citizen ID number.</summary>
+    // OOP: Inheritance and polymorphism. This child class supplies Senior Citizen-specific
+    // values through the properties defined by Discount.
     public class SeniorDiscount : Discount
     {
         public override string Name { get { return "Senior Citizen"; } }

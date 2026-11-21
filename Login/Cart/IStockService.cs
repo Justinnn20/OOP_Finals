@@ -4,6 +4,8 @@ namespace UMakCoop.Services
     /// Contract between Checkout (Module 6) and Inventory (Module 3).
     /// The Product/Inventory owner implements this. Module 6 only calls it.
     /// </summary>
+    // OOP: Abstraction. The interface defines stock operations without requiring
+    // the checkout code to know which inventory implementation is being used.
     public interface IStockService
     {
         bool HasStock(int productId, int quantity);

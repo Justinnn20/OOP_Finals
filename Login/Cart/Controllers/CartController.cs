@@ -5,6 +5,8 @@ using Login.Models;
 
 namespace Login.Controllers
 {
+    // MVC: Controller. This class receives cart actions from the view and updates
+    // the Order model without drawing controls or directly managing the screen.
     public class CartController
     {
         private readonly List<Product> _catalog = new();
@@ -12,9 +14,12 @@ namespace Login.Controllers
         private readonly BarcodeParser _barcodeParser = new();
 
         public Order CurrentOrder { get; private set; } = new();
+        public Order? LastCompletedOrder { get; private set; }
         public IReadOnlyList<Order> HeldOrders => _heldOrders.AsReadOnly();
         public IReadOnlyList<Product> Catalog => _catalog.AsReadOnly();
 
+        // OOP: Events provide loose coupling so views can react to model changes
+        // without the controller needing to know the view's implementation.
         public event Action<Order>? OrderUpdated;
         public event Action<Order>? OrderHeld;
         public event Action<Order>? OrderRecalled;
@@ -188,6 +193,7 @@ namespace Login.Controllers
             }
 
             CurrentOrder.Status = OrderStatus.Completed;
+            LastCompletedOrder = CurrentOrder;
             decimal total = CurrentOrder.Total;
             decimal change = CurrentOrder.Change;
             string orderId = CurrentOrder.OrderId;

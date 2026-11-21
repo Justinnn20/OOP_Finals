@@ -4,9 +4,12 @@ using System.Linq;
 
 namespace Login.Models
 {
+    // OOP: Encapsulation. The order owns its items and calculates totals
+    // through properties and methods instead of exposing calculation logic elsewhere.
     public class Order
     {
         public string OrderId { get; }
+        // OOP: Composition. An Order is composed of multiple OrderItem objects.
         public List<OrderItem> Items { get; } = new();
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public DateTime CreatedAt { get; } = DateTime.Now;

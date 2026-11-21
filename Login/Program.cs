@@ -11,7 +11,26 @@ namespace Login
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new LoginPage());
+
+            var loginPage = new LoginPage();
+            loginPage.LoginRequested += (sender, e) =>
+            {
+                if (loginPage.Username != "admin" || loginPage.Password != "admin123")
+                {
+                    loginPage.ShowError("Invalid username or password.");
+                    return;
+                }
+
+                loginPage.Hide();
+                using (var mainForm = new Form2())
+                {
+                    mainForm.ShowDialog(loginPage);
+                }
+
+                loginPage.Close();
+            };
+
+            Application.Run(loginPage);
         }
     }
 }

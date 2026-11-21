@@ -2,8 +2,11 @@ using System;
 
 namespace Login.Models
 {
+    // OOP: Encapsulation. Quantity has a private setter and can only be changed
+    // through controlled methods such as Increment, Decrement, and SetQuantity.
     public class OrderItem
     {
+        // OOP: Composition. Each order item contains the Product being purchased.
         public Product Product { get; }
         public int Quantity { get; private set; }
         public decimal UnitPrice { get; }
