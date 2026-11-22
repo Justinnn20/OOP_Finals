@@ -1,7 +1,7 @@
 namespace UMakCoop.Models
 {
-    // OOP: Inheritance and polymorphism. NoDiscount reuses the Discount contract
-    // while providing a zero-rate implementation.
+    // OOP: Child class — inheritance and polymorphism. NoDiscount inherits from
+    // the Discount parent class while providing a zero-rate implementation.
     public class NoDiscount : Discount
     {
         public override string Name { get { return "None"; } }

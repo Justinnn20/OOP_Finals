@@ -62,37 +62,6 @@ namespace Login
             if (handler != null)
             {
                 handler(this, EventArgs.Empty);
-                return;
-            }
-
-            // Direct fallback authentication
-            if (Username.Equals("admin", StringComparison.OrdinalIgnoreCase) && Password == "admin123")
-            {
-                this.Hide();
-                var adminForm = new AdminDB();
-                adminForm.StartPosition = FormStartPosition.CenterScreen;
-                adminForm.Show();
-                adminForm.FormClosed += (s, args) =>
-                {
-                    txtPass.Clear();
-                    this.Show();
-                };
-            }
-            else if (Username.Equals("staff", StringComparison.OrdinalIgnoreCase) && Password == "staff123")
-            {
-                this.Hide();
-                var staffForm = new Form2();
-                staffForm.StartPosition = FormStartPosition.CenterScreen;
-                staffForm.Show();
-                staffForm.FormClosed += (s, args) =>
-                {
-                    txtPass.Clear();
-                    this.Show();
-                };
-            }
-            else
-            {
-                ShowError("Invalid username or password. Please try again.");
             }
         }
 

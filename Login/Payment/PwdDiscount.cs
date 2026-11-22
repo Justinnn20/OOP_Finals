@@ -1,8 +1,8 @@
 namespace UMakCoop.Models
 {
     /// <summary>20% for Persons with Disability. The cashier must enter the PWD ID number.</summary>
-    // OOP: Inheritance and polymorphism. This child class supplies PWD-specific
-    // values through the properties defined by Discount.
+    // OOP: Child class — inheritance and polymorphism. PwdDiscount inherits
+    // from the Discount parent class and supplies PWD-specific rules.
     public class PwdDiscount : Discount
     {
         public override string Name { get { return "PWD"; } }

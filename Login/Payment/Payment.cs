@@ -3,8 +3,8 @@ using System;
 namespace UMakCoop.Models
 {
     /// <summary>Abstract base for every way a customer can pay.</summary>
-    // OOP: Abstraction and inheritance. This parent defines the common payment contract
-    // that child payment classes must implement.
+    // OOP: Parent class — abstraction and inheritance. Payment defines the common
+    // contract that every payment child class must implement.
     public abstract class Payment
     {
         protected Payment(decimal amountDue)

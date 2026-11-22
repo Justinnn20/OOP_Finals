@@ -18,6 +18,13 @@ namespace Login
         private static readonly string[] UniformSizes = { "S", "M", "L", "XL" };
 
         private Button[] tabs = Array.Empty<Button>();
+        private readonly Dictionary<Button, (Color Left, Color Right)> _tabColors = new();
+        private Button? _selectedTab;
+        private Button? _hotTab;
+        private readonly Font _sideFont = AppFonts.Heading(10f, FontStyle.Bold);
+        private const float SideTracking = 1.6f;
+        private const int SideWidth = 60;
+        private const int SideTabWidth = 44;
         private readonly CartController _cartController = new();
         private decimal _totalSalesToday = 0m;
         private int _totalOrdersToday = 0;
@@ -50,40 +57,157 @@ namespace Login
 
         private void SetupSidebar()
         {
-            // Cashier side lang: itago ang mga tab na hindi kailangan
-            btnTabAll.Visible = false;     // Dashboard
-            btnStockIn.Visible = false;    // Stock-In & Release
+            btnStockIn.Visible = false;
 
-            tabs = new[]
+            pnlSide.MinimumSize = new Size(SideWidth, 0);
+            pnlSide.MaximumSize = new Size(SideWidth, 0);
+            pnlSide.Width = SideWidth;
+            pnlSide.BackColor = Color.FromArgb(42, 15, 24);
+            pnlSide.Paint += (s, e) =>
             {
-                btnTabBooks, btnTabUniforms, btnTabSupplies, btnTransactionLogs
+                using var line = new Pen(Color.FromArgb(160, CoopTheme.GoldBright), 2f);
+                e.Graphics.DrawLine(line, 0, 1, pnlSide.Width, 1);
             };
 
-            // I-reposition ang nakikitang tabs para walang puwang
-            int top = 16;
-            foreach (var tab in tabs)
+            tabs = new[] { btnTabAll, btnTabBooks, btnTabUniforms, btnTabSupplies, btnTransactionLogs };
+
+            int CountOf(string? category) => string.IsNullOrEmpty(category)
+                ? _cartController.Catalog.Count()
+                : _cartController.Catalog.Count(p => string.Equals(p.Category, category, StringComparison.OrdinalIgnoreCase));
+
+            var red = (Left: Color.FromArgb(135, 27, 43), Right: Color.FromArgb(79, 21, 33));
+            var gold = (Left: Color.FromArgb(104, 76, 25), Right: Color.FromArgb(62, 45, 19));
+            var green = (Left: Color.FromArgb(30, 72, 51), Right: Color.FromArgb(17, 41, 30));
+
+            var setup = new (Button btn, string caption, (Color Left, Color Right) colors)[]
             {
-                tab.Location = new Point(0, top);
-                top += 50;
+                (btnTabAll,          $"ALL {CountOf(null)}",                  red),
+                (btnTabBooks,        $"BOOKS {CountOf("Books & Manuals")}",    gold),
+                (btnTabUniforms,     $"UNIFORMS {CountOf("Uniforms")}",        green),
+                (btnTabSupplies,     $"SUPPLIES {CountOf("School Supplies")}", gold),
+                (btnTransactionLogs, "LOGS",                                  red),
+            };
+
+            int top = 18;
+            using (var graphics = CreateGraphics())
+            {
+                foreach (var (button, caption, colors) in setup)
+                {
+                    int length = (int)Math.Ceiling(SpacedWidth(graphics, caption)) + 36;
+
+                    button.Tag = caption;
+                    button.Text = string.Empty;
+                    button.Visible = true;
+                    button.TabStop = false;
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.FlatAppearance.BorderSize = 0;
+                    button.FlatAppearance.MouseOverBackColor = pnlSide.BackColor;
+                    button.FlatAppearance.MouseDownBackColor = pnlSide.BackColor;
+                    button.Padding = Padding.Empty;
+                    button.Size = new Size(SideTabWidth, length);
+                    button.Location = new Point((SideWidth - SideTabWidth) / 2, top);
+                    top += length + 12;
+
+                    _tabColors[button] = colors;
+                    button.Paint += PaintSideTab;
+                    button.MouseEnter += (s, e) => { _hotTab = button; button.Invalidate(); };
+                    button.MouseLeave += (s, e) => { _hotTab = null; button.Invalidate(); };
+                }
             }
 
+            btnTabAll.Click += (s, e) => { SelectTab(btnTabAll); ShowCategory(null); };
             btnTabBooks.Click += (s, e) => { SelectTab(btnTabBooks); ShowCategory("Books & Manuals"); };
             btnTabUniforms.Click += (s, e) => { SelectTab(btnTabUniforms); ShowCategory("Uniforms"); };
             btnTabSupplies.Click += (s, e) => { SelectTab(btnTabSupplies); ShowCategory("School Supplies"); };
             btnTransactionLogs.Click += (s, e) => { SelectTab(btnTransactionLogs); ShowTransactionLogs(); };
 
-            SelectTab(null);
+            SelectTab(btnTabAll);
             ShowCategory(null);
         }
 
         private void SelectTab(Button? selected)
         {
-            foreach (Button tab in tabs)
+            _selectedTab = selected;
+            foreach (Button tab in tabs) tab.Invalidate();
+        }
+
+        private void PaintSideTab(object? sender, PaintEventArgs e)
+        {
+            var button = (Button)sender!;
+            var graphics = e.Graphics;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+            graphics.Clear(pnlSide.BackColor);
+
+            bool selected = button == _selectedTab;
+            bool hot = button == _hotTab;
+            var baseColors = _tabColors[button];
+            Color left;
+            Color right;
+            Color border;
+            Color textColor;
+            if (selected)
             {
-                bool isSelected = tab == selected;
-                tab.BackColor = isSelected ? Color.FromArgb(255, 213, 79) : Color.FromArgb(30, 10, 14);
-                tab.ForeColor = isSelected ? Color.FromArgb(60, 20, 25) : Color.FromArgb(245, 230, 200);
+                left = Color.FromArgb(237, 195, 88);
+                right = Color.FromArgb(214, 162, 27);
+                border = Color.FromArgb(240, 205, 110);
+                textColor = CoopTheme.Brown;
             }
+            else
+            {
+                float lift = hot ? 0.14f : 0f;
+                left = Mix(baseColors.Left, Color.White, lift);
+                right = Mix(baseColors.Right, Color.White, lift);
+                border = Color.FromArgb(110, 232, 185, 35);
+                textColor = CoopTheme.Cream;
+            }
+
+            var rect = new Rectangle(0, 0, button.Width - 1, button.Height - 1);
+            using var path = CreateRoundedRectanglePath(rect, 9);
+            using (var brush = new LinearGradientBrush(rect, left, right, LinearGradientMode.Horizontal))
+                graphics.FillPath(brush, path);
+            using (var pen = new Pen(border, 1f))
+                graphics.DrawPath(pen, path);
+
+            string caption = (string)button.Tag!;
+            float length = SpacedWidth(graphics, caption);
+            graphics.TranslateTransform(button.Width / 2f, button.Height / 2f);
+            graphics.RotateTransform(-90f);
+            DrawSpaced(graphics, caption, textColor, -length / 2f, -_sideFont.Height / 2f);
+            graphics.ResetTransform();
+        }
+
+        private float SpacedWidth(Graphics graphics, string text)
+        {
+            float total = 0f;
+            using var format = StringFormat.GenericTypographic;
+            foreach (char character in text) total += SideCharWidth(graphics, character, format) + SideTracking;
+            return total - SideTracking;
+        }
+
+        private void DrawSpaced(Graphics graphics, string text, Color color, float x, float y)
+        {
+            using var format = StringFormat.GenericTypographic;
+            using var brush = new SolidBrush(color);
+            foreach (char character in text)
+            {
+                if (character != ' ') graphics.DrawString(character.ToString(), _sideFont, brush, x, y, format);
+                x += SideCharWidth(graphics, character, format) + SideTracking;
+            }
+        }
+
+        private float SideCharWidth(Graphics graphics, char character, StringFormat format)
+        {
+            if (character == ' ') return _sideFont.Size * 0.9f;
+            return graphics.MeasureString(character.ToString(), _sideFont, PointF.Empty, format).Width;
+        }
+
+        private static Color Mix(Color first, Color second, float amount)
+        {
+            return Color.FromArgb(
+                (int)(first.R + (second.R - first.R) * amount),
+                (int)(first.G + (second.G - first.G) * amount),
+                (int)(first.B + (second.B - first.B) * amount));
         }
 
         private void ShowCategory(string? category)

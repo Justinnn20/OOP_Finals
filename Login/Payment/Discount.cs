@@ -3,8 +3,8 @@ using System;
 namespace UMakCoop.Models
 {
     /// <summary>Abstract base for every discount. Subclasses decide their own name, rate and eligibility.</summary>
-    // OOP: Abstraction and inheritance. This parent class defines the shared discount
-    // behavior while child classes provide the rules for each discount type.
+    // OOP: Parent class — abstraction and inheritance. Discount defines shared
+    // discount behavior for all discount child classes.
     public abstract class Discount
     {
         public abstract string Name { get; }
