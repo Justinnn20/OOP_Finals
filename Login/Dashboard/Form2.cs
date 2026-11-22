@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -9,47 +11,72 @@ using Login.Models;
 
 namespace Login
 {
-    // MVC: View. Form2 displays the dashboard and forwards user actions to the
-    // CartController; it is also composed of controls and a CartController object.
+    // MVC: View. Form2 displays the POS and forwards user actions to the
+    // CartController. Transaction Logs are built in Form2.TransactionLogs.cs.
     public partial class Form2 : Form
     {
+        private static readonly string[] UniformSizes = { "S", "M", "L", "XL" };
+
         private Button[] tabs = Array.Empty<Button>();
         private readonly CartController _cartController = new();
         private decimal _totalSalesToday = 0m;
         private int _totalOrdersToday = 0;
+        private string? _currentCategory = null;
+
+        /// <summary>
+        /// Pangalan ng naka-login na cashier. I-set mula sa login form bago ipakita ang Form2.
+        /// </summary>
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string CashierName { get; set; } = "Ana";
 
         public Form2()
         {
             InitializeComponent();
-            SetupTabs();
+            lblUserName.Text = CashierName;
+
+            SetupSidebar();
             SetupCartEvents();
             SetupPillRadioPaint();
             SetupActionButtonsPaint();
             SetupBarcodeAndInputs();
-            RenderProductCatalog();
+            BuildTransactionLogsPanel();
             LoadInitialDemoCart();
         }
 
-        private void SetupTabs()
+        // ---------------------------------------------------------------
+        // Sidebar
+        // ---------------------------------------------------------------
+
+        private void SetupSidebar()
         {
+            // Cashier side lang: itago ang mga tab na hindi kailangan
+            btnTabAll.Visible = false;     // Dashboard
+            btnStockIn.Visible = false;    // Stock-In & Release
+
             tabs = new[]
             {
-                btnTabAll, btnTabBooks, btnTabUniforms, btnTabSupplies,
-                btnStockIn, btnTransactionLogs, btnCashierPos
+                btnTabBooks, btnTabUniforms, btnTabSupplies, btnTransactionLogs
             };
 
-            btnTabAll.Click += (s, e) => { SelectTab(btnTabAll); FilterProducts(null); };
-            btnTabBooks.Click += (s, e) => { SelectTab(btnTabBooks); FilterProducts("Books & Manuals"); };
-            btnTabUniforms.Click += (s, e) => { SelectTab(btnTabUniforms); FilterProducts("Uniforms"); };
-            btnTabSupplies.Click += (s, e) => { SelectTab(btnTabSupplies); FilterProducts("School Supplies"); };
-            btnStockIn.Click += (s, e) => SelectTab(btnStockIn);
-            btnTransactionLogs.Click += (s, e) => SelectTab(btnTransactionLogs);
-            btnCashierPos.Click += (s, e) => { SelectTab(btnCashierPos); FilterProducts(null); };
+            // I-reposition ang nakikitang tabs para walang puwang
+            int top = 16;
+            foreach (var tab in tabs)
+            {
+                tab.Location = new Point(0, top);
+                top += 50;
+            }
 
-            SelectTab(btnTabAll);
+            btnTabBooks.Click += (s, e) => { SelectTab(btnTabBooks); ShowCategory("Books & Manuals"); };
+            btnTabUniforms.Click += (s, e) => { SelectTab(btnTabUniforms); ShowCategory("Uniforms"); };
+            btnTabSupplies.Click += (s, e) => { SelectTab(btnTabSupplies); ShowCategory("School Supplies"); };
+            btnTransactionLogs.Click += (s, e) => { SelectTab(btnTransactionLogs); ShowTransactionLogs(); };
+
+            SelectTab(null);
+            ShowCategory(null);
         }
 
-        private void SelectTab(Button selected)
+        private void SelectTab(Button? selected)
         {
             foreach (Button tab in tabs)
             {
@@ -58,6 +85,17 @@ namespace Login
                 tab.ForeColor = isSelected ? Color.FromArgb(60, 20, 25) : Color.FromArgb(245, 230, 200);
             }
         }
+
+        private void ShowCategory(string? category)
+        {
+            HideTransactionLogs();
+            _currentCategory = category;
+            FilterProducts(category, txtSearch.Text.Trim());
+        }
+
+        // ---------------------------------------------------------------
+        // Paint helpers
+        // ---------------------------------------------------------------
 
         private void SetupPillRadioPaint()
         {
@@ -115,6 +153,10 @@ namespace Login
                 };
             }
         }
+
+        // ---------------------------------------------------------------
+        // Cart, discounts, payment, checkout
+        // ---------------------------------------------------------------
 
         private void SetupCartEvents()
         {
@@ -175,7 +217,7 @@ namespace Login
                 if (rbStaff.Checked) _cartController.ApplyDiscount(0.15m, "Staff 15%");
             };
 
-            // Payment Methods
+            // Payment methods
             rbCash.CheckedChanged += (s, e) =>
             {
                 if (rbCash.Checked) _cartController.SetPaymentMethod("Cash");
@@ -186,17 +228,7 @@ namespace Login
             };
 
             // Cash input
-            txtCash.TextChanged += (s, e) =>
-            {
-                if (decimal.TryParse(txtCash.Text.Trim(), out decimal val))
-                {
-                    _cartController.SetCashReceived(val);
-                }
-                else
-                {
-                    _cartController.SetCashReceived(0m);
-                }
-            };
+            txtCash.TextChanged += (s, e) => _cartController.SetCashReceived(ParseCashInput());
 
             // Checkout
             btnCheckout.Click += (s, e) =>
@@ -206,6 +238,10 @@ namespace Login
                     return;
 
                 decimal orderAmount = _cartController.CurrentOrder.Total;
+                string discountLabel = GetDiscountLabel();
+                string paymentMethod = rbCash.Checked ? "Cash" : "GCash";
+                decimal cashReceived = ParseCashInput();
+
                 if (_cartController.Checkout(out string msg))
                 {
                     _totalSalesToday += orderAmount;
@@ -213,11 +249,25 @@ namespace Login
                     lblSalesValue.Text = $"₱{_totalSalesToday:N0}";
                     lblOrdersValue.Text = _totalOrdersToday.ToString();
 
-                    if (_cartController.LastCompletedOrder != null)
+                    var completed = _cartController.LastCompletedOrder;
+                    if (completed != null)
                     {
+                        // Parehong order ID ng resibo ang gagamitin sa logs
+                        RecordTransaction(
+                            orderNo: completed.OrderId.ToString(),
+                            cashierName: CashierName,
+                            studentId: txtStudentId.Text.Trim(),
+                            discount: discountLabel,
+                            paymentMethod: paymentMethod,
+                            subtotal: completed.Subtotal,
+                            discountAmount: completed.Subtotal - completed.Total,
+                            total: completed.Total,
+                            cashReceived: cashReceived,
+                            items: ToTransactionItems(completed));
+
                         using var receipt = new OrderReceiptForm(
-                            _cartController.LastCompletedOrder,
-                            "Admin",
+                            completed,
+                            CashierName,
                             customerInfo.PurchaserName,
                             customerInfo.YearLevel,
                             customerInfo.College);
@@ -235,6 +285,22 @@ namespace Login
             };
         }
 
+        private decimal ParseCashInput()
+        {
+            return decimal.TryParse(txtCash.Text.Trim(), out decimal val) ? val : 0m;
+        }
+
+        private string GetDiscountLabel()
+        {
+            if (rbScholar.Checked) return "Scholar 10%";
+            if (rbStaff.Checked) return "Staff 15%";
+            return "None";
+        }
+
+        // ---------------------------------------------------------------
+        // Barcode, student ID, search
+        // ---------------------------------------------------------------
+
         private void SetupBarcodeAndInputs()
         {
             txtBarcode.KeyDown += (s, e) =>
@@ -248,15 +314,11 @@ namespace Login
 
             btnScanBarcode.Click += (s, e) => ProcessBarcodeInput();
 
-            btnTry1.Click += (s, e) => ApplyStudentId(btnTry1.Text);
-            btnTry2.Click += (s, e) => ApplyStudentId(btnTry2.Text);
-            btnTry3.Click += (s, e) => ApplyStudentId(btnTry3.Text);
-            btnScanId.Click += (s, e) => ApplyStudentId(txtStudentId.Text.Trim());
+            // btnScanId.Click ay naka-wire na sa designer (btnScanId_Click)
 
             txtSearch.TextChanged += (s, e) =>
             {
-                string query = txtSearch.Text.Trim();
-                FilterProducts(null, query);
+                FilterProducts(_currentCategory, txtSearch.Text.Trim());
             };
         }
 
@@ -282,6 +344,10 @@ namespace Login
             txtStudentId.Text = studentId;
             rbScholar.Checked = true;
         }
+
+        // ---------------------------------------------------------------
+        // Order panel
+        // ---------------------------------------------------------------
 
         private void OnOrderUpdated(Order order)
         {
@@ -357,10 +423,9 @@ namespace Login
             menu.Show(btnHoldOrder, new Point(0, btnHoldOrder.Height));
         }
 
-        private void RenderProductCatalog()
-        {
-            FilterProducts(null);
-        }
+        // ---------------------------------------------------------------
+        // Product catalog
+        // ---------------------------------------------------------------
 
         private void FilterProducts(string? category, string? searchQuery = null)
         {
@@ -383,8 +448,7 @@ namespace Login
 
             foreach (var product in items)
             {
-                var card = CreateProductCard(product);
-                flpProducts.Controls.Add(card);
+                flpProducts.Controls.Add(CreateProductCard(product));
             }
 
             flpProducts.ResumeLayout();
@@ -442,7 +506,11 @@ namespace Login
             };
             btnAdd.FlatAppearance.BorderSize = 0;
 
-            Action addAction = () => _cartController.AddItem(product, 1);
+            // Uniforms: kailangang pumili muna ng size
+            Action addAction = product.Category == "Uniforms"
+                ? () => ShowSizeMenu(product, btnAdd)
+                : () => _cartController.AddItem(product, 1);
+
             pnl.Click += (s, e) => addAction();
             lblName.Click += (s, e) => addAction();
             lblDetail.Click += (s, e) => addAction();
@@ -457,6 +525,20 @@ namespace Login
             return pnl;
         }
 
+        private void ShowSizeMenu(Product product, Control anchor)
+        {
+            var menu = new ContextMenuStrip();
+            foreach (var size in UniformSizes)
+            {
+                var chosenSize = size;
+                var menuItem = new ToolStripMenuItem($"Size {chosenSize}");
+                menuItem.Click += (s, e) => _cartController.AddUniformItem(product, chosenSize, 1);
+                menu.Items.Add(menuItem);
+            }
+
+            menu.Show(anchor, new Point(0, anchor.Height));
+        }
+
         private void LoadInitialDemoCart()
         {
             var p1 = _cartController.FindProduct("UM-001"); // PE Uniform (Size M, ₱350)
@@ -469,6 +551,25 @@ namespace Login
             if (p3 != null) _cartController.AddItem(p3, 1); // 450
             if (p4 != null) _cartController.AddItem(p4, 1); // 60
         }
+
+        // ---------------------------------------------------------------
+        // Transaction mapping
+        // ---------------------------------------------------------------
+
+        private static List<TransactionItem> ToTransactionItems(Order order)
+        {
+            return order.Items.Select(i => new TransactionItem
+            {
+                Name = i.Product.Name,
+                Qty = i.Quantity,
+                UnitPrice = i.Product.Price,
+                LineTotal = i.Product.Price * i.Quantity
+            }).ToList();
+        }
+
+        // ---------------------------------------------------------------
+        // Helpers
+        // ---------------------------------------------------------------
 
         private static GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)
         {

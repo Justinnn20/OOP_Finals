@@ -51,10 +51,7 @@ namespace Login
             lblLogo = new Label();
             lblTitle = new Label();
             lblSubtitle = new Label();
-            btnCashier = new Button();
-            btnTransactions = new Button();
-            pnlSearch = new Panel();
-            txtSearch = new TextBox();
+            lblCashierTag = new Label();
             lblSalesValue = new Label();
             lblSalesCaption = new Label();
             lblOrdersValue = new Label();
@@ -71,7 +68,6 @@ namespace Login
             btnTabSupplies = new Button();
             btnStockIn = new Button();
             btnTransactionLogs = new Button();
-            btnCashierPos = new Button();
 
             pnlOrder = new Panel();
             lblOrderTitle = new Label();
@@ -98,17 +94,14 @@ namespace Login
             lblStudentHint = new Label();
             txtStudentId = new TextBox();
             btnScanId = new Button();
-            lblTry = new Label();
-            btnTry1 = new Button();
-            btnTry2 = new Button();
-            btnTry3 = new Button();
+            lblSearchCaption = new Label();
+            pnlSearch = new Panel();
+            txtSearch = new TextBox();
             pnlBarcode = new Panel();
             lblBarcodeHint = new Label();
             txtBarcode = new TextBox();
             btnScanBarcode = new Button();
             lblShelves = new Label();
-            btnAddItem = new Button();
-            lblHint = new Label();
             flpProducts = new FlowLayoutPanel();
 
             SuspendLayout();
@@ -117,6 +110,7 @@ namespace Login
             pnlOrder.SuspendLayout();
             pnlMain.SuspendLayout();
             pnlScan.SuspendLayout();
+            pnlSearch.SuspendLayout();
             pnlBarcode.SuspendLayout();
 
             // 
@@ -127,9 +121,7 @@ namespace Login
             topBar.Controls.Add(lblLogo);
             topBar.Controls.Add(lblTitle);
             topBar.Controls.Add(lblSubtitle);
-            topBar.Controls.Add(btnCashier);
-            topBar.Controls.Add(btnTransactions);
-            topBar.Controls.Add(pnlSearch);
+            topBar.Controls.Add(lblCashierTag);
             topBar.Controls.Add(lblSalesValue);
             topBar.Controls.Add(lblSalesCaption);
             topBar.Controls.Add(lblOrdersValue);
@@ -187,83 +179,49 @@ namespace Login
             lblSubtitle.TabIndex = 2;
             lblSubtitle.Text = "Bookstore · Quick release";
             // 
-            // btnCashier
+            // lblCashierTag
             // 
-            btnCashier.BackColor = GoldAccent;
-            btnCashier.Cursor = Cursors.Hand;
-            btnCashier.FlatAppearance.BorderSize = 0;
-            btnCashier.FlatStyle = FlatStyle.Flat;
-            btnCashier.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCashier.ForeColor = DarkText;
-            btnCashier.Location = new Point(386, 18);
-            btnCashier.Name = "btnCashier";
-            btnCashier.Size = new Size(104, 34);
-            btnCashier.TabIndex = 3;
-            btnCashier.Text = "CASHIER";
-            btnCashier.UseVisualStyleBackColor = false;
-            // 
-            // btnTransactions
-            // 
-            btnTransactions.BackColor = TopBarBg;
-            btnTransactions.Cursor = Cursors.Hand;
-            btnTransactions.FlatAppearance.BorderSize = 0;
-            btnTransactions.FlatStyle = FlatStyle.Flat;
-            btnTransactions.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnTransactions.ForeColor = CreamText;
-            btnTransactions.Location = new Point(490, 18);
-            btnTransactions.Name = "btnTransactions";
-            btnTransactions.Size = new Size(130, 34);
-            btnTransactions.TabIndex = 4;
-            btnTransactions.Text = "TRANSACTIONS";
-            btnTransactions.UseVisualStyleBackColor = false;
-            // 
-            // pnlSearch
-            // 
-            pnlSearch.BackColor = InputBg;
-            pnlSearch.Controls.Add(txtSearch);
-            pnlSearch.Location = new Point(628, 18);
-            pnlSearch.Name = "pnlSearch";
-            pnlSearch.Size = new Size(150, 34);
-            pnlSearch.TabIndex = 5;
-            // 
-            // txtSearch
-            // 
-            txtSearch.BackColor = InputBg;
-            txtSearch.BorderStyle = BorderStyle.None;
-            txtSearch.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            txtSearch.ForeColor = CreamText;
-            txtSearch.Location = new Point(10, 8);
-            txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(130, 19);
-            txtSearch.TabIndex = 0;
+            lblCashierTag.AutoSize = false;
+            lblCashierTag.BackColor = GoldAccent;
+            lblCashierTag.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblCashierTag.ForeColor = DarkText;
+            lblCashierTag.Location = new Point(386, 18);
+            lblCashierTag.Name = "lblCashierTag";
+            lblCashierTag.Size = new Size(104, 34);
+            lblCashierTag.TabIndex = 3;
+            lblCashierTag.Text = "CASHIER";
+            lblCashierTag.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblSalesValue
             // 
+            lblSalesValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblSalesValue.Font = new Font("Georgia", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblSalesValue.ForeColor = GoldLight;
-            lblSalesValue.Location = new Point(786, 6);
+            lblSalesValue.Location = new Point(780, 6);
             lblSalesValue.Name = "lblSalesValue";
-            lblSalesValue.Size = new Size(95, 28);
+            lblSalesValue.Size = new Size(100, 28);
             lblSalesValue.TabIndex = 6;
             lblSalesValue.Text = "\u20B10";
             lblSalesValue.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblSalesCaption
             // 
+            lblSalesCaption.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblSalesCaption.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblSalesCaption.ForeColor = CreamText;
-            lblSalesCaption.Location = new Point(786, 38);
+            lblSalesCaption.Location = new Point(780, 38);
             lblSalesCaption.Name = "lblSalesCaption";
-            lblSalesCaption.Size = new Size(95, 15);
+            lblSalesCaption.Size = new Size(100, 15);
             lblSalesCaption.TabIndex = 7;
             lblSalesCaption.Text = "Today's sales";
             lblSalesCaption.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblOrdersValue
             // 
+            lblOrdersValue.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblOrdersValue.Font = new Font("Georgia", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblOrdersValue.ForeColor = GoldLight;
-            lblOrdersValue.Location = new Point(888, 6);
+            lblOrdersValue.Location = new Point(890, 6);
             lblOrdersValue.Name = "lblOrdersValue";
             lblOrdersValue.Size = new Size(60, 28);
             lblOrdersValue.TabIndex = 8;
@@ -272,9 +230,10 @@ namespace Login
             // 
             // lblOrdersCaption
             // 
+            lblOrdersCaption.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblOrdersCaption.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblOrdersCaption.ForeColor = CreamText;
-            lblOrdersCaption.Location = new Point(888, 38);
+            lblOrdersCaption.Location = new Point(890, 38);
             lblOrdersCaption.Name = "lblOrdersCaption";
             lblOrdersCaption.Size = new Size(60, 15);
             lblOrdersCaption.TabIndex = 9;
@@ -283,10 +242,11 @@ namespace Login
             // 
             // lblAvatar
             // 
+            lblAvatar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblAvatar.BackColor = GoldAccent;
             lblAvatar.Font = new Font("Georgia", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblAvatar.ForeColor = DarkText;
-            lblAvatar.Location = new Point(960, 16);
+            lblAvatar.Location = new Point(964, 16);
             lblAvatar.Name = "lblAvatar";
             lblAvatar.Size = new Size(38, 38);
             lblAvatar.TabIndex = 10;
@@ -295,10 +255,11 @@ namespace Login
             // 
             // lblUserName
             // 
+            lblUserName.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblUserName.AutoSize = true;
             lblUserName.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblUserName.ForeColor = CreamText;
-            lblUserName.Location = new Point(1008, 16);
+            lblUserName.Location = new Point(1012, 16);
             lblUserName.Name = "lblUserName";
             lblUserName.Size = new Size(30, 15);
             lblUserName.TabIndex = 11;
@@ -306,10 +267,11 @@ namespace Login
             // 
             // lblUserRole
             // 
+            lblUserRole.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblUserRole.AutoSize = true;
             lblUserRole.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblUserRole.ForeColor = MutedText;
-            lblUserRole.Location = new Point(1008, 36);
+            lblUserRole.Location = new Point(1012, 36);
             lblUserRole.Name = "lblUserRole";
             lblUserRole.Size = new Size(48, 15);
             lblUserRole.TabIndex = 12;
@@ -317,15 +279,16 @@ namespace Login
             // 
             // btnSignOut
             // 
+            btnSignOut.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnSignOut.BackColor = TopBarBg;
             btnSignOut.Cursor = Cursors.Hand;
             btnSignOut.FlatAppearance.BorderColor = GoldAccent;
             btnSignOut.FlatStyle = FlatStyle.Flat;
             btnSignOut.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnSignOut.ForeColor = CreamText;
-            btnSignOut.Location = new Point(1085, 20);
+            btnSignOut.Location = new Point(1094, 20);
             btnSignOut.Name = "btnSignOut";
-            btnSignOut.Size = new Size(88, 30);
+            btnSignOut.Size = new Size(94, 30);
             btnSignOut.TabIndex = 13;
             btnSignOut.Text = "Sign out";
             btnSignOut.UseVisualStyleBackColor = false;
@@ -339,7 +302,6 @@ namespace Login
             pnlSide.Controls.Add(btnTabSupplies);
             pnlSide.Controls.Add(btnStockIn);
             pnlSide.Controls.Add(btnTransactionLogs);
-            pnlSide.Controls.Add(btnCashierPos);
             pnlSide.Dock = DockStyle.Left;
             pnlSide.Location = new Point(0, 72);
             pnlSide.Name = "pnlSide";
@@ -388,13 +350,6 @@ namespace Login
             btnTransactionLogs.TabIndex = 5;
             btnTransactionLogs.Text = "Transaction Logs";
             // 
-            // btnCashierPos
-            // 
-            SetTabStyle(btnCashierPos, 316, TopBarBg, CreamText);
-            btnCashierPos.Name = "btnCashierPos";
-            btnCashierPos.TabIndex = 6;
-            btnCashierPos.Text = "Cashier && POS";
-            // 
             // pnlOrder
             // 
             pnlOrder.BackColor = ParchmentBg;
@@ -436,6 +391,7 @@ namespace Login
             // 
             // btnHoldOrder
             // 
+            btnHoldOrder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnHoldOrder.BackColor = ChipBg;
             btnHoldOrder.Cursor = Cursors.Hand;
             btnHoldOrder.FlatAppearance.BorderColor = Color.FromArgb(215, 190, 140);
@@ -443,7 +399,7 @@ namespace Login
             btnHoldOrder.FlatStyle = FlatStyle.Flat;
             btnHoldOrder.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnHoldOrder.ForeColor = DarkText;
-            btnHoldOrder.Location = new Point(184, 14);
+            btnHoldOrder.Location = new Point(190, 14);
             btnHoldOrder.Name = "btnHoldOrder";
             btnHoldOrder.Size = new Size(66, 26);
             btnHoldOrder.TabIndex = 15;
@@ -452,6 +408,7 @@ namespace Login
             // 
             // btnClearOrder
             // 
+            btnClearOrder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearOrder.BackColor = ChipBg;
             btnClearOrder.Cursor = Cursors.Hand;
             btnClearOrder.FlatAppearance.BorderColor = Color.FromArgb(215, 190, 140);
@@ -459,7 +416,7 @@ namespace Login
             btnClearOrder.FlatStyle = FlatStyle.Flat;
             btnClearOrder.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnClearOrder.ForeColor = DarkText;
-            btnClearOrder.Location = new Point(256, 14);
+            btnClearOrder.Location = new Point(260, 14);
             btnClearOrder.Name = "btnClearOrder";
             btnClearOrder.Size = new Size(64, 26);
             btnClearOrder.TabIndex = 16;
@@ -468,6 +425,7 @@ namespace Login
             // 
             // flpCartItems
             // 
+            flpCartItems.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             flpCartItems.AutoScroll = true;
             flpCartItems.BackColor = ParchmentBg;
             flpCartItems.FlowDirection = FlowDirection.TopDown;
@@ -491,15 +449,18 @@ namespace Login
             // rbNone, rbScholar, rbStaff (row 1)
             // 
             SetChipStyle(rbNone, 16, 428, 72, true);
+            rbNone.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rbNone.Name = "rbNone";
             rbNone.TabIndex = 2;
             rbNone.TabStop = true;
             rbNone.Text = "None";
             SetChipStyle(rbScholar, 94, 428, 110, false);
+            rbScholar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rbScholar.Name = "rbScholar";
             rbScholar.TabIndex = 3;
             rbScholar.Text = "Scholar 10%";
             SetChipStyle(rbStaff, 210, 428, 110, false);
+            rbStaff.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rbStaff.Name = "rbStaff";
             rbStaff.TabIndex = 4;
             rbStaff.Text = "Staff 15%";
@@ -507,17 +468,20 @@ namespace Login
             // rbCash, rbGCash (row 2)
             // 
             SetChipStyle(rbCash, 16, 464, 76, true);
+            rbCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rbCash.Name = "rbCash";
             rbCash.TabIndex = 5;
             rbCash.TabStop = true;
             rbCash.Text = "Cash";
             SetChipStyle(rbGCash, 98, 464, 84, false);
+            rbGCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             rbGCash.Name = "rbGCash";
             rbGCash.TabIndex = 6;
             rbGCash.Text = "GCash";
             // 
             // pnlLine
             // 
+            pnlLine.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pnlLine.BackColor = GoldAccent;
             pnlLine.Location = new Point(16, 502);
             pnlLine.Name = "pnlLine";
@@ -526,6 +490,7 @@ namespace Login
             // 
             // lblSubtotalCaption
             // 
+            lblSubtotalCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblSubtotalCaption.AutoSize = true;
             lblSubtotalCaption.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblSubtotalCaption.ForeColor = DarkText;
@@ -537,6 +502,7 @@ namespace Login
             // 
             // lblSubtotalValue
             // 
+            lblSubtotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             lblSubtotalValue.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblSubtotalValue.ForeColor = DarkText;
             lblSubtotalValue.Location = new Point(150, 514);
@@ -548,6 +514,7 @@ namespace Login
             // 
             // lblTotalCaption
             // 
+            lblTotalCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblTotalCaption.AutoSize = true;
             lblTotalCaption.Font = new Font("Georgia", 13F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblTotalCaption.ForeColor = DarkText;
@@ -559,17 +526,19 @@ namespace Login
             // 
             // lblTotalValue
             // 
+            lblTotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             lblTotalValue.Font = new Font("Segoe UI", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalValue.ForeColor = PriceRed;
-            lblTotalValue.Location = new Point(130, 536);
+            lblTotalValue.Location = new Point(120, 536);
             lblTotalValue.Name = "lblTotalValue";
-            lblTotalValue.Size = new Size(190, 42);
+            lblTotalValue.Size = new Size(200, 42);
             lblTotalValue.TabIndex = 11;
             lblTotalValue.Text = "\u20B10";
             lblTotalValue.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblCashCaption
             // 
+            lblCashCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCashCaption.AutoSize = true;
             lblCashCaption.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblCashCaption.ForeColor = DarkText;
@@ -581,6 +550,7 @@ namespace Login
             // 
             // txtCash
             // 
+            txtCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             txtCash.BackColor = ChipBg;
             txtCash.BorderStyle = BorderStyle.FixedSingle;
             txtCash.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -594,6 +564,7 @@ namespace Login
             // 
             // btnCheckout
             // 
+            btnCheckout.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             btnCheckout.BackColor = GoldAccent;
             btnCheckout.Cursor = Cursors.Hand;
             btnCheckout.FlatAppearance.BorderSize = 0;
@@ -614,8 +585,6 @@ namespace Login
             pnlMain.Controls.Add(pnlScan);
             pnlMain.Controls.Add(pnlBarcode);
             pnlMain.Controls.Add(lblShelves);
-            pnlMain.Controls.Add(btnAddItem);
-            pnlMain.Controls.Add(lblHint);
             pnlMain.Controls.Add(flpProducts);
             pnlMain.Dock = DockStyle.Fill;
             pnlMain.Location = new Point(210, 72);
@@ -626,14 +595,13 @@ namespace Login
             // 
             // pnlScan
             // 
+            pnlScan.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pnlScan.BackColor = PanelDark;
             pnlScan.Controls.Add(lblStudentHint);
             pnlScan.Controls.Add(txtStudentId);
             pnlScan.Controls.Add(btnScanId);
-            pnlScan.Controls.Add(lblTry);
-            pnlScan.Controls.Add(btnTry1);
-            pnlScan.Controls.Add(btnTry2);
-            pnlScan.Controls.Add(btnTry3);
+            pnlScan.Controls.Add(lblSearchCaption);
+            pnlScan.Controls.Add(pnlSearch);
             pnlScan.Location = new Point(20, 16);
             pnlScan.Name = "pnlScan";
             pnlScan.Size = new Size(610, 50);
@@ -641,14 +609,15 @@ namespace Login
             // 
             // lblStudentHint
             // 
-            lblStudentHint.AutoSize = true;
+            lblStudentHint.AutoSize = false;
             lblStudentHint.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblStudentHint.ForeColor = MutedText;
-            lblStudentHint.Location = new Point(10, 17);
+            lblStudentHint.Location = new Point(10, 12);
             lblStudentHint.Name = "lblStudentHint";
-            lblStudentHint.Size = new Size(64, 15);
+            lblStudentHint.Size = new Size(80, 25);
             lblStudentHint.TabIndex = 3;
             lblStudentHint.Text = "Student ID";
+            lblStudentHint.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // txtStudentId
             // 
@@ -656,7 +625,7 @@ namespace Login
             txtStudentId.BorderStyle = BorderStyle.FixedSingle;
             txtStudentId.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtStudentId.ForeColor = CreamText;
-            txtStudentId.Location = new Point(78, 12);
+            txtStudentId.Location = new Point(92, 12);
             txtStudentId.Name = "txtStudentId";
             txtStudentId.Size = new Size(100, 25);
             txtStudentId.TabIndex = 0;
@@ -669,7 +638,7 @@ namespace Login
             btnScanId.FlatStyle = FlatStyle.Flat;
             btnScanId.Font = new Font("Georgia", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnScanId.ForeColor = DarkText;
-            btnScanId.Location = new Point(184, 9);
+            btnScanId.Location = new Point(200, 9);
             btnScanId.Name = "btnScanId";
             btnScanId.Size = new Size(76, 30);
             btnScanId.TabIndex = 1;
@@ -677,31 +646,43 @@ namespace Login
             btnScanId.UseVisualStyleBackColor = false;
             btnScanId.Click += btnScanId_Click;
             // 
-            // lblTry
+            // lblSearchCaption
             // 
-            lblTry.AutoSize = true;
-            lblTry.Font = new Font("Georgia", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            lblTry.ForeColor = GoldLight;
-            lblTry.Location = new Point(266, 16);
-            lblTry.Name = "lblTry";
-            lblTry.Size = new Size(28, 17);
-            lblTry.TabIndex = 2;
-            lblTry.Text = "Try:";
+            lblSearchCaption.AutoSize = false;
+            lblSearchCaption.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSearchCaption.ForeColor = MutedText;
+            lblSearchCaption.Location = new Point(292, 12);
+            lblSearchCaption.Name = "lblSearchCaption";
+            lblSearchCaption.Size = new Size(56, 25);
+            lblSearchCaption.TabIndex = 14;
+            lblSearchCaption.Text = "Search:";
+            lblSearchCaption.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // btnTry1, btnTry2, btnTry3
+            // pnlSearch
             // 
-            SetChipButton(btnTry1, 300, "22-10234");
-            btnTry1.Name = "btnTry1";
-            btnTry1.TabIndex = 4;
-            SetChipButton(btnTry2, 402, "22-20311");
-            btnTry2.Name = "btnTry2";
-            btnTry2.TabIndex = 5;
-            SetChipButton(btnTry3, 504, "21-30788");
-            btnTry3.Name = "btnTry3";
-            btnTry3.TabIndex = 6;
+            pnlSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            pnlSearch.BackColor = InputBg;
+            pnlSearch.Controls.Add(txtSearch);
+            pnlSearch.Location = new Point(352, 8);
+            pnlSearch.Name = "pnlSearch";
+            pnlSearch.Size = new Size(246, 34);
+            pnlSearch.TabIndex = 5;
+            // 
+            // txtSearch
+            // 
+            txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSearch.BackColor = InputBg;
+            txtSearch.BorderStyle = BorderStyle.None;
+            txtSearch.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtSearch.ForeColor = CreamText;
+            txtSearch.Location = new Point(10, 8);
+            txtSearch.Name = "txtSearch";
+            txtSearch.Size = new Size(226, 19);
+            txtSearch.TabIndex = 0;
             // 
             // pnlBarcode
             // 
+            pnlBarcode.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pnlBarcode.BackColor = PanelDark;
             pnlBarcode.Controls.Add(lblBarcodeHint);
             pnlBarcode.Controls.Add(txtBarcode);
@@ -724,26 +705,28 @@ namespace Login
             // 
             // txtBarcode
             // 
+            txtBarcode.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtBarcode.BackColor = InputBg;
             txtBarcode.BorderStyle = BorderStyle.FixedSingle;
             txtBarcode.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtBarcode.ForeColor = CreamText;
             txtBarcode.Location = new Point(130, 10);
             txtBarcode.Name = "txtBarcode";
-            txtBarcode.Size = new Size(385, 25);
+            txtBarcode.Size = new Size(366, 25);
             txtBarcode.TabIndex = 0;
             // 
             // btnScanBarcode
             // 
+            btnScanBarcode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnScanBarcode.BackColor = GoldAccent;
             btnScanBarcode.Cursor = Cursors.Hand;
             btnScanBarcode.FlatAppearance.BorderSize = 0;
             btnScanBarcode.FlatStyle = FlatStyle.Flat;
             btnScanBarcode.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             btnScanBarcode.ForeColor = DarkText;
-            btnScanBarcode.Location = new Point(522, 8);
+            btnScanBarcode.Location = new Point(504, 8);
             btnScanBarcode.Name = "btnScanBarcode";
-            btnScanBarcode.Size = new Size(78, 29);
+            btnScanBarcode.Size = new Size(96, 29);
             btnScanBarcode.TabIndex = 2;
             btnScanBarcode.Text = "Add / Scan";
             btnScanBarcode.UseVisualStyleBackColor = false;
@@ -758,33 +741,6 @@ namespace Login
             lblShelves.Size = new Size(150, 30);
             lblShelves.TabIndex = 2;
             lblShelves.Text = "ALL SHELVES";
-            // 
-            // btnAddItem
-            // 
-            btnAddItem.BackColor = GoldAccent;
-            btnAddItem.Cursor = Cursors.Hand;
-            btnAddItem.FlatAppearance.BorderSize = 0;
-            btnAddItem.FlatAppearance.MouseOverBackColor = GoldLight;
-            btnAddItem.FlatStyle = FlatStyle.Flat;
-            btnAddItem.Font = new Font("Georgia", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnAddItem.ForeColor = DarkText;
-            btnAddItem.Location = new Point(240, 138);
-            btnAddItem.Name = "btnAddItem";
-            btnAddItem.Size = new Size(130, 34);
-            btnAddItem.TabIndex = 7;
-            btnAddItem.Text = "+ Add Item";
-            btnAddItem.UseVisualStyleBackColor = false;
-            // 
-            // lblHint
-            // 
-            lblHint.AutoSize = true;
-            lblHint.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            lblHint.ForeColor = MutedText;
-            lblHint.Location = new Point(400, 146);
-            lblHint.Name = "lblHint";
-            lblHint.Size = new Size(230, 15);
-            lblHint.TabIndex = 3;
-            lblHint.Text = "Tap a card to add it to the scroll";
             // 
             // flpProducts
             // 
@@ -809,7 +765,7 @@ namespace Login
             Controls.Add(pnlSide);
             Controls.Add(topBar);
             Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            MinimumSize = new Size(1000, 650);
+            MinimumSize = new Size(1200, 650);
             Name = "Form2";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "UMak Coop - Wizarding POS";
@@ -820,6 +776,8 @@ namespace Login
             pnlOrder.PerformLayout();
             pnlScan.ResumeLayout(false);
             pnlScan.PerformLayout();
+            pnlSearch.ResumeLayout(false);
+            pnlSearch.PerformLayout();
             pnlBarcode.ResumeLayout(false);
             pnlBarcode.PerformLayout();
             pnlMain.ResumeLayout(false);
@@ -864,29 +822,12 @@ namespace Login
             rb.UseVisualStyleBackColor = false;
         }
 
-        private void SetChipButton(Button btn, int x, string text)
-        {
-            btn.BackColor = PanelDark;
-            btn.Cursor = Cursors.Hand;
-            btn.FlatAppearance.BorderColor = GoldAccent;
-            btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btn.ForeColor = GoldLight;
-            btn.Location = new Point(x, 9);
-            btn.Size = new Size(95, 30);
-            btn.Text = text;
-            btn.UseVisualStyleBackColor = false;
-        }
-
         private Panel topBar;
         private Panel pnlTopLine;
         private Label lblLogo;
         private Label lblTitle;
         private Label lblSubtitle;
-        private Button btnCashier;
-        private Button btnTransactions;
-        private Panel pnlSearch;
-        private TextBox txtSearch;
+        private Label lblCashierTag;
         private Label lblSalesValue;
         private Label lblSalesCaption;
         private Label lblOrdersValue;
@@ -903,7 +844,6 @@ namespace Login
         private Button btnTabSupplies;
         private Button btnStockIn;
         private Button btnTransactionLogs;
-        private Button btnCashierPos;
 
         private Panel pnlOrder;
         private Label lblOrderTitle;
@@ -930,17 +870,14 @@ namespace Login
         private Label lblStudentHint;
         private TextBox txtStudentId;
         private Button btnScanId;
-        private Label lblTry;
-        private Button btnTry1;
-        private Button btnTry2;
-        private Button btnTry3;
+        private Label lblSearchCaption;
+        private Panel pnlSearch;
+        private TextBox txtSearch;
         private Panel pnlBarcode;
         private Label lblBarcodeHint;
         private TextBox txtBarcode;
         private Button btnScanBarcode;
         private Label lblShelves;
-        private Button btnAddItem;
-        private Label lblHint;
         private FlowLayoutPanel flpProducts;
     }
 }
