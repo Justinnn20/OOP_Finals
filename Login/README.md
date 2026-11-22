@@ -1,43 +1,128 @@
-# Module 6: Checkout & Transactions (Windows Forms, C#)
+# Project Documentation: OOP, CRUD, MVC and Database
 
-## 1. Add to your Visual Studio project
-1. Copy the Models, Controllers, Services and Views folders into your project folder, then in Solution Explorer click "Show All Files", right-click each folder > Include In Project.
-2. No extra references are needed. The JSON save uses a small built-in reader/writer (`JsonLite`), so it works as-is on .NET Framework 4.8 and .NET 6/8.
-3. Namespace: files use `UMakCoop`. Use Ctrl+Shift+H (Replace in Files) to change `UMakCoop` to your project's namespace.
-4. The code avoids newer C# features, so it works on .NET Framework 4.8 and on .NET 6/8. If you see nullable warnings on .NET 6+, they are harmless.
-5. To test alone: in Program.cs use `Application.Run(new UMakCoop.Views.DemoForm());`. Delete DemoForm.cs and Services/InMemoryStockService.cs before the final merge.
+UMak Coop Store system, a C# Windows Forms app (.NET, `Login.csproj`) with a SQL Server LocalDB database (`SQLQuerycoopstore.sql`).
+Namespaces used: `Login`, `Login.Models`, `Login.Database` and `UMakCoop.*`.
 
-## 2. Touch points with the other modules
-| Who | What |
-|---|---|
-| Module 5 (Cart) | Each time the cart changes: `checkoutPanel.SetOrder(order.Items.Select(i => new ReceiptLine(i.ProductId, i.ProductName, i.Size, i.UnitPrice, i.Quantity)).ToList(), student?.Name);` In `checkoutPanel.SaleCompleted`: clear the cart and set order status to Completed. |
-| Module 3 (Products) | Make ProductController (or inventory class) implement `IStockService`: HasStock, Deduct, Restore. Refresh product cards in `SaleCompleted`. Low-stock Notification can be raised there too. |
-| Module 2 (Login) | After login: `checkoutPanel.CashierName = user.Name; transactionsView.SetUser(user.Name, user is Admin);` |
-| MainForm | Create ONE shared `TransactionController(stockService)`. It already saves to disk and loads on start. (`TransactionController.CreateInMemory(stockService)` keeps everything in memory only; `new TransactionController(stockService, new ReceiptStore(path))` saves to another file.) Then `checkoutPanel.Transactions = controller; transactionsView.Attach(controller, user.Name, isAdmin);` |
+## 1. OOP Concepts
 
-Layout: put `CheckoutPanel` at the bottom of the Order Scroll panel (Dock = Bottom). Put `TransactionsView` (Dock = Fill) on the Transaction Logs page.
-The views are built in code (no .Designer.cs), so adjust them in the .cs files, not in the Designer.
+### 1.1 Inheritance (Parent and Child)
 
-## 3. Class map
-Models: PaymentMethod, ReceiptStatus (enums), Payment (abstract), CashPayment, GCashPayment, Discount (abstract), NoDiscount, SeniorDiscount, PwdDiscount, ReceiptLine, Receipt
-Models (extra): DailySummary, DiscountSummaryLine
-Controllers: PaymentController, TransactionController
-Services: Money, IStockService (+ InMemoryStockService for testing), ReceiptStore (JSON save/load, uses JsonLite), CsvExporter
-Views: CheckoutPanel, ReceiptForm (+ ReceiptPaper, StampControl), TransactionsView, SummaryForm, PromptDialog, Theme, DemoForm
+| Parent class (base) | File | Child class (derived) | File | What the child changes |
+|---|---|---|---|---|
+| `Discount` (abstract) | `Payment/Discount.cs` | `NoDiscount` | `Payment/NoDiscount.cs` | `Name` = "None", `Rate` = 0 |
+| | | `SeniorDiscount` | `Payment/SeniorDiscount.cs` | `Name`, `Rate` = 20%, `RequiresIdNumber` = true, `IdLabel` |
+| | | `PwdDiscount` | `Payment/PwdDiscount.cs` | `Name`, `Rate` = 20%, `RequiresIdNumber` = true, `IdLabel` |
+| | | `RecordedDiscount` (private nested class) | `Payment/ReceiptStore.cs` | Rebuilds a saved discount when old receipts are loaded |
+| `Payment` (abstract) | `Payment/Payment.cs` | `CashPayment` | `Payment/CashPayment.cs` | `Method`, `Change`, `TryValidate()` (cash rules), `ReceiptLine` |
+| | | `GCashPayment` | `Payment/GCashPayment.cs` | `Method`, `Change` = 0, `TryValidate()` (13-digit reference), `ReceiptLine` |
+| `Form` (WinForms) | .NET library | `LoginPage`, `AdminDB`, `AdminInventory`, `AdminSettings`, `AdminReports`, `AdminTransactions`, `Form2`, `CustomerInfoForm`, `OrderReceiptForm`, `ReceiptForm`, `SummaryForm`, `CoopDialogForm` | `Login/`, `Admin/`, `Dashboard/`, `Payment/`, `CoopDialog.cs` | Each screen is a child of `Form` |
+| `Control` (WinForms) | .NET library | `StampControl`, `ReceiptPaper` | `StampControl.cs`, `Payment/ReceiptPaper.cs` | Custom drawing in `OnPaint` |
+| `UserControl` (WinForms) | .NET library | `CheckoutPanel`, `TransactionsView`, `CartItemControl` | `Payment/CheckoutPanel.cs`, `Dashboard/TransactionsView.cs`, `Cart/Controls/CartItemControl.cs` | Reusable panels |
+| `Panel` / `Button` (WinForms) | .NET library | `RoundedPanel`, `RoundedButton` | `UiKit.cs` | Rounded look, hover and press effects |
+| `ApplicationContext` (WinForms) | .NET library | `CoopAppContext` | `Program.cs` | Switches between the login screen and the main forms |
 
-## 4. Rules built in (for your defense / documentation)
-- Money uses `decimal` and rounds discounts to 2 decimals (away from zero).
-- Only two discounts: Senior Citizen 20% and PWD 20%. Both need the ID number typed in at checkout (`Discount.RequiresIdNumber`); the number is printed on the receipt.
-- Cash must cover the total, has max 2 decimals, and is capped at 100,000 to catch typos.
-- GCash needs a 13-digit reference, and the same reference cannot be used for two sales.
-- Stock for ALL items is checked before any is deducted, so a failed sale never leaves half-deducted stock.
-- Receipts are snapshots (prices frozen at the time of sale). Receipt numbers look like UC-20261121-0001 and restart each day.
-- Void is Admin only, needs a reason, returns the items to stock, and keeps who/when/why. Voided receipts stay in the list.
-- The receipt is drawn like a bill pad (ReceiptPaper): Sold to / Receipt No. fields, No. / Description / Pcs. / Rate / Amount table, payment details, totals box, signature lines. Re-opening an old receipt shows "*** REPRINT ***". Voided receipts show "*** VOIDED ***" and a VOID stamp.
-- Seal button disables itself on click to block double sales.
-- Saving: every sale and void is written to `%AppData%\UMakCoop\transactions.json` (readable JSON, saved through a temp file so a crash cannot wipe it) and loaded when the app starts. Receipt numbers continue from the last one of the day, and a GCash reference used before the restart is still blocked. If the file is locked or the disk is full, the sale still goes through and the cashier sees a warning (`TransactionController.StorageWarning`). A damaged file is renamed to `transactions.json.corrupt-<time>` instead of being overwritten.
-- Search (Transactions) matches receipt no, student, cashier, Senior/PWD ID number, discount name and GCash reference.
-- Export CSV saves exactly what the list shows (search, status and Today filters apply), one row per receipt, opens in Excel; text that starts with = + - @ is defused so it cannot run as a formula.
-- Daily summary: pick a date to see completed orders, items, voids, gross, discounts, net, Cash vs GCash, and discounts given per type. Counted by the date of the sale.
-- Stock is NOT saved by this module. Saved receipts only restore the transaction list; the product stock must be saved by Module 3.
-- VAT is not included: it only applies if the coop is VAT-registered. Ask your adviser before adding it.
+### 1.2 Abstraction
+
+| Where | File | Explanation |
+|---|---|---|
+| `abstract class Discount` | `Payment/Discount.cs` | `Name` and `Rate` are abstract, so every child must define them. |
+| `abstract class Payment` | `Payment/Payment.cs` | `Method`, `Change`, `TryValidate()` and `ReceiptLine` are abstract. |
+| `interface IStockService` | `Cart/IStockService.cs` | Declares `HasStock`, `Deduct` and `Restore` without saying how stock is stored. |
+
+Interface implementer: `InMemoryStockService` (`Cart/InMemoryStockService.cs`) implements `IStockService`. `TransactionController` (`Dashboard/TransactionController.cs`) depends only on the interface.
+
+### 1.3 Polymorphism
+
+| Type | File | Explanation |
+|---|---|---|
+| Method overriding (`Discount`) | `Payment/*Discount.cs` | `PaymentController` keeps a `List<Discount>` (No, Senior, PWD). Calling `SelectedDiscount.Compute(subtotal)` runs the right behavior for the chosen child. |
+| Method overriding (`Payment`) | `Payment/CashPayment.cs`, `Payment/GCashPayment.cs` | `Receipt` holds a `Payment`. `Payment.TryValidate()` and `Payment.ReceiptLine` behave differently for Cash and GCash. |
+| `virtual` members | `Payment/Discount.cs` | `RequiresIdNumber`, `IdLabel` and `Compute()` have defaults that children can override. |
+| `ToString()` override | `Payment/Discount.cs` | Shows "Senior Citizen 20%". |
+| Framework overrides | `UiKit.cs`, `StampControl.cs`, `Payment/ReceiptPaper.cs`, `CoopDialog.cs`, `LoginPage.cs`, `Admin*.cs` | `OnPaint`, `OnResize`, `OnMouseEnter`, etc. |
+| Constructor overloading | `Cart/Models/Order.cs` | `Order()` generates an ID, `Order(string customId)` uses a given ID. |
+
+### 1.4 Encapsulation
+
+| Class | File | Explanation |
+|---|---|---|
+| `OrderItem` | `Cart/Models/OrderItem.cs` | `Quantity` has a `private set`. It only changes through `Increment()`, `Decrement()` and `SetQuantity()`. |
+| `Order` | `Cart/Models/Order.cs` | `OrderId`, `Items` and `CreatedAt` are read-only. `Subtotal`, `DiscountAmount`, `Total` and `Change` are computed properties. |
+| `Receipt` | `Payment/Receipt.cs` | Properties use `private set`. The `_lines` list is private and exposed read-only. Voiding uses `internal` methods. |
+| `ReceiptLine` | `Payment/ReceiptLine.cs` | `private set` and validation in the constructor. |
+| `Payment` | `Payment/Payment.cs` | `AmountDue` has `private set` and is validated in the constructor. |
+| `Product` | `Cart/Models/Product.cs` | Properties and a `DisplayDetails` helper. |
+| `CoopDatabase` | `Database/CoopDatabase.cs` | `OpenConnection()` and `AddDecimal()` are private, and the connection string is hidden. |
+| `CartController` | `Cart/Controllers/CartController.cs` | `_catalog`, `_heldOrders` and `_barcodeParser` are private. They are exposed as `IReadOnlyList`. |
+
+### 1.5 Composition (has-a)
+
+- `Order` has many `OrderItem`, and each `OrderItem` has a `Product` (`Cart/Models/`).
+- `Receipt` has a `Discount`, a `Payment` and many `ReceiptLine` (`Payment/Receipt.cs`).
+- `CheckoutPanel` has a `PaymentController` (`Payment/CheckoutPanel.cs`).
+- `Form2` has a `CartController` (`Dashboard/Form2.cs`).
+
+### 1.6 Other OOP features
+
+| Feature | File | Explanation |
+|---|---|---|
+| Events (loose coupling) | `Cart/Controllers/CartController.cs` | `OrderUpdated`, `OrderHeld`, `OrderRecalled`, `OrderCleared`, `Notification`. The view subscribes and reacts. |
+| Partial classes | `Dashboard/Form2.cs` + `Form2.TransactionLogs.cs` + `Form2.Designer.cs`, and each `*.Designer.cs` | One class split across files. |
+| Static utility classes | `Money`, `Theme`, `CoopTheme`, `AppFonts`, `Gfx`, `NumericInputHelper`, `PromptDialog`, `CoopMessageBox`, `CsvExporter`, `JsonLite`, `CoopDatabase` | Helpers that need no object. |
+| Records (immutable data) | `Database/CoopDatabase.cs` | `DatabaseUser`, `DatabaseStaff`, `DatabaseProduct`, `DatabaseTransaction`. |
+| Enums | `Enums.cs`, `Cart/Models/OrderStatus.cs` | `PaymentMethod`, `ReceiptStatus`, `OrderStatus`. |
+| Exception handling | `CoopDatabase.SaveOrder()`, `Program.cs` | `try/catch` with a transaction rollback, plus global error handlers. |
+
+## 2. CRUD
+
+| Entity | Create | Read | Update | Delete |
+|---|---|---|---|---|
+| **Staff / Users** | `AdminSettings.cs` (add staff modal) calls `CoopDatabase.SaveStaff(null, ...)` | `AdminSettings.LoadStaffData()` calls `CoopDatabase.LoadStaff()`. Login uses `CoopDatabase.TryAuthenticate()` | `AdminSettings.cs` (edit modal) calls `CoopDatabase.SaveStaff(id, ...)` | `AdminSettings.DeleteStaff()` calls `CoopDatabase.DeleteStaff()` (admins cannot be deleted) |
+| **Products / Inventory** | `AdminInventory.BtnSaveItem_Click` (new item, **list in memory only**) | `CoopDatabase.LoadInventory()` (admin) and `LoadProducts()` (cashier catalog in `CartController`) | `CoopDatabase.SetStock()` (restock) | `AdminInventory.BtnDeleteItem_Click` (**removes from the list only, not from the database**) |
+| **Orders / Transactions** | `CoopDatabase.SaveOrder()` (called from `Form2` at checkout; inserts `Orders` and `OrderItems` and deducts stock in one transaction) | `CoopDatabase.LoadOrders()` and `LoadTransactionRecords()` (`Form2`, `AdminTransactions`, `AdminReports`) | None (receipts are permanent records) | None |
+| **Cart (in memory)** | `CartController.AddItem()` | `CartController.CurrentOrder` | `IncrementItem()`, `DecrementItem()`, `SetItemQuantity()` | `RemoveItem()`, `ClearCart()` |
+
+## 3. MVC (Model, View, Controller)
+
+| Layer | Files | Role |
+|---|---|---|
+| **Model** | `Cart/Models/` (`Product`, `Order`, `OrderItem`, `OrderStatus`, `BarcodeParser`), `Payment/` (`Receipt`, `ReceiptLine`, `Discount` + children, `Payment` + children), `Dashboard/TransactionModels.cs`, `Dashboard/DailySummary.cs` | Data and business rules |
+| **View** | `Login/LoginPage.cs`, `Dashboard/Form2*.cs` (cashier screen), `Admin/Admin*.cs` (admin screens), `Cart/Controls/CartItemControl.cs`, `Payment/CheckoutPanel.cs`, `Payment/OrderReceiptForm.cs`, `Payment/ReceiptForm.cs`, `Payment/CustomerInfoForm.cs`, `Dashboard/TransactionsView.cs`, `Dashboard/SummaryForm.cs` | What the user sees and clicks |
+| **Controller** | `Cart/Controllers/CartController.cs`, `Payment/PaymentController.cs`, `Dashboard/TransactionController.cs` | Takes actions from the view, updates the models, and raises events back to the view |
+| **Data access** | `Database/CoopDatabase.cs` | All SQL lives here |
+
+Flow of a sale: `Form2` (View) calls `CartController` (Controller), which updates `Order` and `OrderItem` (Model). The controller raises `OrderUpdated`, and `Form2` redraws. At checkout, `Form2` calls `CoopDatabase.SaveOrder()` and shows `OrderReceiptForm`.
+
+Note: the Admin forms call `CoopDatabase` directly and have no controller of their own.
+
+## 4. Database (SQL Server, `SQLQuerycoopstore.sql`)
+
+| Table | Primary key (PK) | Foreign key (FK) | Other keys and constraints |
+|---|---|---|---|
+| `Users` | `UserId` (identity) | None | `Username` UNIQUE, `Role` CHECK (Admin or Staff) |
+| `UserArchive` | `UserArchiveId` (identity) | None. `UserId` is only a copy of the deleted user's ID | Holds archived staff |
+| `Products` | `ProductId` (identity) | None | `Sku` UNIQUE, `Category` CHECK (Books or Merchandise), `Price >= 0`, `StockQuantity >= 0` |
+| `Archive` | `ArchiveId` (identity) | None. `ProductId` is only a copy | Filled by the trigger on `Products` |
+| `Orders` | `OrderId` (NVARCHAR) | None | `PaymentMethod` CHECK (Cash or GCash) |
+| `OrderItems` | `OrderItemId` (identity) | **`OrderId` references `Orders(OrderId)` ON DELETE CASCADE** | `Quantity > 0`, `LineTotal` is a computed column (`UnitPrice * Quantity`) |
+
+Relationships:
+
+- `Orders` (parent, 1) to `OrderItems` (child, many). This is the only true foreign key in the database. Deleting an order deletes its items.
+- `OrderItems.ProductId` points to `Products.ProductId` logically, but it is **not** declared as a foreign key. It is nullable so old orders survive when a product is deleted.
+- `Users` and `Products` are standalone parent tables, and their archive tables are copies.
+
+Triggers and procedures:
+
+- `trg_Products_ArchiveOnDelete` runs after a delete on `Products` and copies the deleted row into `Archive`.
+- `usp_ArchiveStaff` copies a Staff user into `UserArchive`, then deletes it from `Users`, in one transaction. Admins cannot be archived.
+- `usp_DeleteArchivedUser` removes a row from `UserArchive`.
+
+Seed data: default accounts `admin`, `staff1` and `staff2`, and 90 products (SKU `UM-001` to `UM-090`).
+
+### Known gaps
+
+- The C# code (`CoopDatabase.LoadStaff/SaveStaff`) uses a `Users.FullName` column that is **not in** `SQLQuerycoopstore.sql`. Add `FullName NVARCHAR(100) NULL` to `Users` or staff pages will fail on a fresh database.
+- The `Payment` module classes `Receipt`, `ReceiptStore`, `TransactionController` and `IStockService` are not yet wired into `Form2`. The live checkout uses `CartController` and `CoopDatabase.SaveOrder()`.
+- `usp_ArchiveStaff` and the `Archive` and `UserArchive` tables exist in SQL, but the C# code does not call them yet. `DeleteStaff` runs a plain `DELETE`.
+- Passwords are stored as plain text.
