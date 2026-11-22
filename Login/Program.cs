@@ -31,7 +31,7 @@ namespace Login
             };
 
             Application.Run(loginPage);
-            Application.Run(new AdminDB());
+
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using UMakCoop.Controllers;
 using UMakCoop.Models;
 using UMakCoop.Services;
+using System.ComponentModel;
 
 namespace UMakCoop.Views
 {
@@ -28,9 +29,11 @@ namespace UMakCoop.Views
         private Button _seal;
 
         /// <summary>Set by MainForm. Required before the first sale.</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TransactionController Transactions { get; set; }
 
         /// <summary>Set by MainForm from the logged-in user (Module 2).</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string CashierName { get; set; }
 
         /// <summary>Raised after a sale is sealed. The cart should clear itself and the product list should refresh.</summary>
