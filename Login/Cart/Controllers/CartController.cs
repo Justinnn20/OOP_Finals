@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Login.Database;
 using Login.Models;
 
 namespace Login.Controllers
@@ -28,26 +29,7 @@ namespace Login.Controllers
 
         public CartController()
         {
-            SeedCatalog();
-        }
-
-        private void SeedCatalog()
-        {
-            _catalog.Add(new Product("UM-001", "PE Uniform", "Uniforms", 350m, "Size M", 100));
-            _catalog.Add(new Product("UM-002", "ID Holder", "School Supplies", 45m, null, 150));
-            _catalog.Add(new Product("UM-003", "UMak Polo", "Uniforms", 450m, "Size L", 80));
-            _catalog.Add(new Product("UM-004", "UMak Lanyard", "School Supplies", 60m, null, 200));
-            _catalog.Add(new Product("UM-005", "PE Jogging Pants", "Uniforms", 400m, "Size M", 90));
-            _catalog.Add(new Product("UM-006", "College Manual", "Books & Manuals", 280m, null, 50));
-            _catalog.Add(new Product("UM-007", "UMak Spiral Notebook", "School Supplies", 35m, null, 300));
-            _catalog.Add(new Product("UM-008", "Ballpen Set (3pcs)", "School Supplies", 65m, null, 120));
-            _catalog.Add(new Product("UM-009", "University Pin", "School Supplies", 50m, null, 250));
-            _catalog.Add(new Product("UM-010", "Computer Programming Book", "Books & Manuals", 550m, null, 40));
-            _catalog.Add(new Product("UM-011", "Calculus Textbook", "Books & Manuals", 450m, null, 35));
-            _catalog.Add(new Product("UM-012", "CCIS Lab Manual", "Books & Manuals", 120m, null, 60));
-            _catalog.Add(new Product("UM-013", "Blouse (Female)", "Uniforms", 380m, "Size M", 75));
-            _catalog.Add(new Product("UM-014", "Yellow Pad (80 leaves)", "School Supplies", 30m, null, 200));
-            _catalog.Add(new Product("UM-015", "Blue Book Exam Notebook", "School Supplies", 20m, null, 500));
+            _catalog.AddRange(CoopDatabase.LoadProducts());
         }
 
         public Product? FindProduct(string sku)
@@ -224,6 +206,7 @@ namespace Login.Controllers
 
             CurrentOrder.Status = OrderStatus.Completed;
             LastCompletedOrder = CurrentOrder;
+            Order completedOrder = CurrentOrder;
             decimal total = CurrentOrder.Total;
             decimal change = CurrentOrder.Change;
             string orderId = CurrentOrder.OrderId;

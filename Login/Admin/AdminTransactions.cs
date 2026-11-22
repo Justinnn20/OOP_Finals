@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using Login.Database;
 
 namespace Login
 {
@@ -68,7 +69,7 @@ namespace Login
             activeNavButton = btnNavTransactions;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
-            InitSampleTransactions();
+            LoadDatabaseTransactions();
             if (transactions.Count > 0)
             {
                 selectedTxn = transactions[0];
@@ -162,119 +163,30 @@ namespace Login
 
         private void InitSampleTransactions()
         {
-            string todayShort = DateTime.Now.ToString("MMM dd, yyyy");
+            transactions = new List<TransactionRecord>();
+        }
 
-            transactions = new List<TransactionRecord>
+        private void LoadDatabaseTransactions()
+        {
+            transactions = CoopDatabase.LoadTransactionRecords().Select(record => new TransactionRecord
             {
-                new TransactionRecord
+                ReceiptNo = record.OrderNo,
+                DateLabel = record.OrderDate.ToString("MMM dd, yyyy"),
+                TimeLabel = record.OrderDate.ToString("hh:mm tt"),
+                Cashier = record.CashierName,
+                Method = record.PaymentMethod,
+                RefNo = string.Empty,
+                Subtotal = record.Subtotal,
+                Discount = record.DiscountAmount,
+                Total = record.Total,
+                IsVoid = false,
+                Items = record.Items.Select(item => new ReceiptLineItem
                 {
-                    ReceiptNo = "TXN-1042",
-                    DateLabel = todayShort,
-                    TimeLabel = "02:15 PM",
-                    Cashier = "Maria Santos",
-                    Method = "GCash",
-                    RefNo = "9048215",
-                    Subtotal = 510.00m,
-                    Discount = 30.00m,
-                    Total = 480.00m,
-                    IsVoid = false,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 1, ItemName = "UMak Polo (L)", LineTotal = 350.00m },
-                        new ReceiptLineItem { Qty = 2, ItemName = "Blue Book", LineTotal = 40.00m },
-                        new ReceiptLineItem { Qty = 1, ItemName = "CCIS Lab Manual", LineTotal = 120.00m }
-                    }
-                },
-                new TransactionRecord
-                {
-                    ReceiptNo = "TXN-1041",
-                    DateLabel = todayShort,
-                    TimeLabel = "01:48 PM",
-                    Cashier = "Maria Santos",
-                    Method = "Cash",
-                    RefNo = "",
-                    Subtotal = 150.00m,
-                    Discount = 0.00m,
-                    Total = 150.00m,
-                    IsVoid = false,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 1, ItemName = "CCIS Lab Manual", LineTotal = 120.00m },
-                        new ReceiptLineItem { Qty = 1, ItemName = "Yellow Pad", LineTotal = 30.00m }
-                    }
-                },
-                new TransactionRecord
-                {
-                    ReceiptNo = "TXN-1040",
-                    DateLabel = todayShort,
-                    TimeLabel = "01:12 PM",
-                    Cashier = "Mark Villanueva",
-                    Method = "Cash",
-                    RefNo = "",
-                    Subtotal = 620.00m,
-                    Discount = 0.00m,
-                    Total = 620.00m,
-                    IsVoid = false,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 1, ItemName = "Calculus Textbook", LineTotal = 450.00m },
-                        new ReceiptLineItem { Qty = 1, ItemName = "PE Uniform (M)", LineTotal = 170.00m }
-                    }
-                },
-                new TransactionRecord
-                {
-                    ReceiptNo = "TXN-1039",
-                    DateLabel = todayShort,
-                    TimeLabel = "12:30 PM",
-                    Cashier = "Maria Santos",
-                    Method = "GCash",
-                    RefNo = "7731902",
-                    Subtotal = 240.00m,
-                    Discount = 0.00m,
-                    Total = 240.00m,
-                    IsVoid = true,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 2, ItemName = "CCIS Lab Manual", LineTotal = 240.00m }
-                    }
-                },
-                new TransactionRecord
-                {
-                    ReceiptNo = "TXN-1038",
-                    DateLabel = todayShort,
-                    TimeLabel = "11:55 AM",
-                    Cashier = "Mark Villanueva",
-                    Method = "Cash",
-                    RefNo = "",
-                    Subtotal = 310.00m,
-                    Discount = 0.00m,
-                    Total = 310.00m,
-                    IsVoid = false,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 1, ItemName = "Blouse (Female)", LineTotal = 280.00m },
-                        new ReceiptLineItem { Qty = 1, ItemName = "Yellow Pad", LineTotal = 30.00m }
-                    }
-                },
-                new TransactionRecord
-                {
-                    ReceiptNo = "TXN-1037",
-                    DateLabel = todayShort,
-                    TimeLabel = "11:10 AM",
-                    Cashier = "Maria Santos",
-                    Method = "GCash",
-                    RefNo = "6610488",
-                    Subtotal = 890.00m,
-                    Discount = 0.00m,
-                    Total = 890.00m,
-                    IsVoid = false,
-                    Items = new List<ReceiptLineItem>
-                    {
-                        new ReceiptLineItem { Qty = 2, ItemName = "UMak Polo (L)", LineTotal = 700.00m },
-                        new ReceiptLineItem { Qty = 1, ItemName = "PE Uniform (M)", LineTotal = 190.00m }
-                    }
-                }
-            };
+                    Qty = item.Qty,
+                    ItemName = item.Name,
+                    LineTotal = item.LineTotal
+                }).ToList()
+            }).ToList();
         }
 
         private void WireEvents()

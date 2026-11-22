@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Login.Controllers;
 using Login.Controls;
+using Login.Database;
 using Login.Models;
 
 namespace Login
@@ -48,6 +49,7 @@ namespace Login
             SetupActionButtonsPaint();
             SetupBarcodeAndInputs();
             BuildTransactionLogsPanel();
+            LoadDatabaseTransactions();
             LoadInitialDemoCart();
 
             btnSignOut.Click += (s, e) =>
@@ -61,6 +63,7 @@ namespace Login
                     {
                         CoopAppContext.Instance.SignOut();
                     }
+
                     else
                     {
                         LoginPage login = new LoginPage();
@@ -69,6 +72,23 @@ namespace Login
                     }
                 }
             };
+        }
+
+        private void LoadDatabaseTransactions()
+        {
+            try
+            {
+                foreach (TransactionRecord record in CoopDatabase.LoadTransactionRecords())
+                {
+                    if (!TransactionStore.Records.Any(existing => existing.OrderNo == record.OrderNo))
+                    {
+                        TransactionStore.Add(record);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         // ---------------------------------------------------------------
@@ -402,6 +422,21 @@ namespace Login
                     var completed = _cartController.LastCompletedOrder;
                     if (completed != null)
                     {
+                        try
+                        {
+                            CoopDatabase.SaveOrder(
+                                completed,
+                                CashierName,
+                                customerInfo.PurchaserName,
+                                customerInfo.YearLevel,
+                                customerInfo.College);
+                        }
+                        catch (Exception ex)
+                        {
+                            CoopMessageBox.Show(this, ex.Message, "Database Save Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
                         // Parehong order ID ng resibo ang gagamitin sa logs
                         RecordTransaction(
                             orderNo: completed.OrderId.ToString(),

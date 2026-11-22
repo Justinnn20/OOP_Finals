@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
+using Login.Database;
 
 namespace Login
 {
@@ -61,13 +62,34 @@ namespace Login
             activeNavButton = btnNavSettings;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
-            InitSampleStaffData();
+            LoadStaffData();
             WireEvents();
             RenderStaffTable();
 
             NumericInputHelper.EnableClickToDefocus(this);
             isInitialized = true;
             this.Load += (s, e) => LayoutResponsive();
+        }
+
+        private void LoadStaffData()
+        {
+            try
+            {
+                staffAccounts = CoopDatabase.LoadStaff().Select(user => new StaffAccount
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    Username = user.Username,
+                    Password = user.Password,
+                    Role = user.Role,
+                    IsActive = user.IsActive
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                staffAccounts = new List<StaffAccount>();
+                MessageBox.Show(this, $"Unable to load users from the database.\n\n{ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         protected override void OnResize(EventArgs e)
@@ -597,7 +619,15 @@ namespace Login
 
             if (dr == DialogResult.Yes)
             {
-                staffAccounts.Remove(staff);
+                try
+                {
+                    CoopDatabase.DeleteStaff(staff.Id);
+                    staffAccounts.Remove(staff);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 RenderStaffTable();
             }
         }
@@ -729,17 +759,18 @@ namespace Login
 
                 if (isEdit)
                 {
+                    CoopDatabase.SaveStaff(existing.Id, txtName.Text.Trim(), txtUser.Text.Trim(), txtPass.Text, cmbRole.SelectedItem?.ToString() ?? "Staff");
                     existing.FullName = txtName.Text.Trim();
                     existing.Username = txtUser.Text.Trim();
                     existing.Password = txtPass.Text;
-                    existing.Role = cmbRole.SelectedItem.ToString();
-                    existing.IsActive = (cmbStatus.SelectedIndex == 0);
+                    existing.Role = cmbRole.SelectedItem?.ToString() ?? "Staff";
                 }
                 else
                 {
+                    CoopDatabase.SaveStaff(null, txtName.Text.Trim(), txtUser.Text.Trim(), txtPass.Text, cmbRole.SelectedItem?.ToString() ?? "Staff");
                     staffAccounts.Add(new StaffAccount
                     {
-                        Id = nextStaffId++,
+                        Id = 0,
                         FullName = txtName.Text.Trim(),
                         Username = txtUser.Text.Trim(),
                         Password = txtPass.Text,

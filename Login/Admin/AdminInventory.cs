@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Windows.Forms;
+using Login.Database;
 
 namespace Login
 {
@@ -56,7 +57,7 @@ namespace Login
             EnableDoubleBuffering(pnlItemList);
             activeNavButton = btnNavInventory;
 
-            InitSampleInventory();
+            InitInventory();
             SetupPaintHandlers();
             SetupEventHandlers();
 
@@ -69,6 +70,20 @@ namespace Login
 
             isInitialized = true;
             this.Load += (s, e) => LayoutResponsive();
+        }
+
+        private void InitInventory()
+        {
+            inventoryItems = CoopDatabase.LoadInventory()
+                .Select(product => new InventoryItem
+                {
+                    Sku = product.Sku,
+                    Name = product.Name,
+                    Category = product.Category,
+                    Price = product.Price,
+                    Stock = product.Stock,
+                    ReorderAt = 10
+                }).ToList();
         }
 
         protected override void OnResize(EventArgs e)
@@ -509,6 +524,7 @@ namespace Login
                     btnRowRestock.Click += (s, e) =>
                     {
                         itm.Stock += 20;
+                        CoopDatabase.SetStock(itm.Sku, itm.Stock);
                         UpdateKpiCards();
                         RenderInventoryTable();
                         if (selectedItem?.Sku == itm.Sku) LoadItemToEditor(itm);
@@ -683,6 +699,7 @@ namespace Login
         {
             if (selectedItem == null) return;
             selectedItem.Stock += 20;
+                CoopDatabase.SetStock(selectedItem.Sku, selectedItem.Stock);
             txtStock.Text = selectedItem.Stock.ToString();
             UpdateKpiCards();
             RenderInventoryTable();

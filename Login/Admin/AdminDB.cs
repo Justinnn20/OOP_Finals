@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Windows.Forms;
+using Login.Database;
 
 namespace Login
 {
@@ -68,8 +69,8 @@ namespace Login
             activeNavButton = btnNavDashboard;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
-            InitSampleRestockData();
-            InitSampleActivityLogs();
+            LoadDatabaseRestockData();
+            activityLogs = new List<ActivityLogRecord>();
             WireEvents();
             PopulateRestockList();
             RenderActivityLogTable();
@@ -78,6 +79,17 @@ namespace Login
 
             isInitialized = true;
             this.Load += (s, e) => { AlignSalesSubtitle(); LayoutResponsive(); };
+        }
+
+        private void LoadDatabaseRestockData()
+        {
+            restockItems = CoopDatabase.LoadInventory().Select(product => new RestockItem
+            {
+                Name = product.Name,
+                Category = product.Category,
+                ReorderAt = 10,
+                CurrentStock = product.Stock
+            }).Where(item => item.CurrentStock <= item.ReorderAt).ToList();
         }
 
         protected override void OnResize(EventArgs e)

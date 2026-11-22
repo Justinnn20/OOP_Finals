@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using Login.Database;
 
 namespace Login
 {
@@ -46,18 +47,15 @@ namespace Login
             var loginPage = new LoginPage();
             loginPage.LoginRequested += (sender, e) =>
             {
-                bool isAdmin = string.Equals(loginPage.Username, "admin", StringComparison.OrdinalIgnoreCase)
-                    && loginPage.Password == "admin123";
-                bool isStaff = string.Equals(loginPage.Username, "staff", StringComparison.OrdinalIgnoreCase)
-                    && loginPage.Password == "staff123";
-
-                if (!isAdmin && !isStaff)
+                if (!CoopDatabase.TryAuthenticate(loginPage.Username, loginPage.Password, out DatabaseUser? user, out string error))
                 {
-                    loginPage.ShowError("Invalid username or password.");
+                    loginPage.ShowError(error);
                     return;
                 }
 
-                Form mainForm = isAdmin ? (Form)new AdminDB() : new Form2();
+                Form mainForm = string.Equals(user!.Role, "Admin", StringComparison.OrdinalIgnoreCase)
+                    ? (Form)new AdminDB()
+                    : new Form2 { CashierName = user.Username };
                 SwitchForm(mainForm);
             };
 
