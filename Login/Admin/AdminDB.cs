@@ -42,7 +42,20 @@ namespace Login
             public int CurrentStock { get; set; }
         }
 
-        private List<RestockItem> restockItems;
+        private class ActivityLogRecord
+        {
+            public string Timestamp { get; set; } = "";
+            public string User { get; set; } = "";
+            public string Role { get; set; } = ""; // "Staff" or "Admin"
+            public string Module { get; set; } = ""; // "POS", "Inventory", "Accounts", "Reports", "Settings"
+            public string Action { get; set; } = "";
+            public string Status { get; set; } = ""; // "SUCCESS", "UPDATED", "RESTOCKED", "CREATED", "VOIDED"
+        }
+
+        private List<RestockItem> restockItems = new List<RestockItem>();
+        private List<ActivityLogRecord> activityLogs = new List<ActivityLogRecord>();
+        private string activeLogFilter = "ALL";
+        private bool isInitialized = false;
 
         public AdminDB()
         {
@@ -50,17 +63,119 @@ namespace Login
             this.DoubleBuffered = true;
             EnableDoubleBuffering(pnlChartCanvas);
             EnableDoubleBuffering(pnlRestockList);
+            EnableDoubleBuffering(pnlActivityList);
 
             activeNavButton = btnNavDashboard;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
             InitSampleRestockData();
+            InitSampleActivityLogs();
             WireEvents();
             PopulateRestockList();
+            RenderActivityLogTable();
             UpdateKpiCounts();
             AlignSalesSubtitle();
 
-            this.Load += (s, e) => AlignSalesSubtitle();
+            isInitialized = true;
+            this.Load += (s, e) => { AlignSalesSubtitle(); LayoutResponsive(); };
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            LayoutResponsive();
+        }
+
+        private void LayoutResponsive()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            LayoutHeaderNav();
+
+            if (!isInitialized) return;
+
+            int margin = 28;
+            int gap = 16;
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
+
+            // 4 KPI Cards across top
+            int cardWidth = (availableWidth - (gap * 3)) / 4;
+            pnlCardSales.Location = new Point(margin, 162);
+            pnlCardSales.Size = new Size(cardWidth, 96);
+
+            pnlCardOrders.Location = new Point(margin + (cardWidth + gap), 162);
+            pnlCardOrders.Size = new Size(cardWidth, 96);
+
+            pnlCardLowStock.Location = new Point(margin + (cardWidth + gap) * 2, 162);
+            pnlCardLowStock.Size = new Size(cardWidth, 96);
+
+            pnlCardOutStock.Location = new Point(margin + (cardWidth + gap) * 3, 162);
+            pnlCardOutStock.Size = new Size(availableWidth - 3 * (cardWidth + gap), 96);
+
+            // 2 Middle Panels (Sales Overview & Restock)
+            int topY = 276;
+            int bottomMargin = 24;
+            int midHeight = 310;
+
+            int salesWidth = (int)(availableWidth * 0.59);
+            int restockWidth = availableWidth - salesWidth - gap;
+
+            pnlSalesOverview.Location = new Point(margin, topY);
+            pnlSalesOverview.Size = new Size(salesWidth, midHeight);
+
+            pnlRestock.Location = new Point(margin + salesWidth + gap, topY);
+            pnlRestock.Size = new Size(restockWidth, midHeight);
+
+            // Adjust children of pnlRestock
+            pnlRestockList.Width = pnlRestock.Width - 36;
+            pnlRestockList.Height = Math.Max(160, pnlRestock.Height - 85);
+            lblViewAll.Location = new Point(pnlRestock.Width - lblViewAll.Width - 18, pnlRestock.Height - 34);
+
+            // Bottom Panel: System Activity Log Table spanning full available width
+            int logY = topY + midHeight + 14;
+            int logHeight = Math.Max(260, this.ClientSize.Height - logY - bottomMargin);
+
+            pnlActivityLog.Location = new Point(margin, logY);
+            pnlActivityLog.Size = new Size(availableWidth, logHeight);
+
+            pnlActivityList.Width = pnlActivityLog.Width - 36;
+            pnlActivityList.Height = Math.Max(140, pnlActivityLog.Height - 85);
+
+            btnLogAdmin.Location = new Point(pnlActivityLog.Width - btnLogAdmin.Width - 18, 12);
+            btnLogStaff.Location = new Point(btnLogAdmin.Left - btnLogStaff.Width - 8, 12);
+            btnLogAll.Location = new Point(btnLogStaff.Left - btnLogAll.Width - 8, 12);
+
+            RenderActivityLogTable();
+            AlignSalesSubtitle();
+            this.Invalidate(true);
+        }
+
+        private void LayoutHeaderNav()
+        {
+            if (pnlTopNav == null || btnNavDashboard == null || btnNavInventory == null ||
+                btnNavTransactions == null || btnNavReports == null || btnNavSettings == null)
+                return;
+
+            int totalNavWidth = btnNavDashboard.Width + 8 +
+                                btnNavInventory.Width + 8 +
+                                btnNavTransactions.Width + 8 +
+                                btnNavReports.Width + 8 +
+                                btnNavSettings.Width;
+
+            int navStartX = (pnlTopNav.Width - totalNavWidth) / 2;
+            int minStartX = (lblBrandTitle != null ? lblBrandTitle.Right : 290) + 28;
+
+            if (navStartX < minStartX)
+            {
+                navStartX = minStartX;
+            }
+
+            int y = 19;
+            btnNavDashboard.Location = new Point(navStartX, y);
+            btnNavInventory.Location = new Point(btnNavDashboard.Right + 8, y);
+            btnNavTransactions.Location = new Point(btnNavInventory.Right + 8, y);
+            btnNavReports.Location = new Point(btnNavTransactions.Right + 8, y);
+            btnNavSettings.Location = new Point(btnNavReports.Right + 8, y);
         }
 
         private void AlignSalesSubtitle()
@@ -89,6 +204,21 @@ namespace Login
             };
         }
 
+        private void InitSampleActivityLogs()
+        {
+            activityLogs = new List<ActivityLogRecord>
+            {
+                new ActivityLogRecord { Timestamp = "11:42 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Completed Order #1004 (₱ 1,255.00 · 4 items)", Status = "SUCCESS" },
+                new ActivityLogRecord { Timestamp = "11:15 AM", User = "Admin", Role = "Admin", Module = "Inventory", Action = "Restocked +20 units for 'Calculus Textbook' (New Stock: 20)", Status = "RESTOCKED" },
+                new ActivityLogRecord { Timestamp = "10:50 AM", User = "Admin", Role = "Admin", Module = "Inventory", Action = "Updated unit price for 'PE Uniform (M)' to ₱ 350.00", Status = "UPDATED" },
+                new ActivityLogRecord { Timestamp = "10:32 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Completed Order #1003 (₱ 450.00 · Scholar 10% applied)", Status = "SUCCESS" },
+                new ActivityLogRecord { Timestamp = "10:14 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Voided sale #1002 (Reason: Wrong uniform size chosen)", Status = "VOIDED" },
+                new ActivityLogRecord { Timestamp = "09:45 AM", User = "Admin", Role = "Admin", Module = "Accounts", Action = "Created new staff login account for 'Carlos Mendoza'", Status = "CREATED" },
+                new ActivityLogRecord { Timestamp = "08:50 AM", User = "Admin", Role = "Admin", Module = "Settings", Action = "Exported weekly transactions database backup archive", Status = "BACKUP" },
+                new ActivityLogRecord { Timestamp = "08:00 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Shift sign-in at Cashier Terminal 1", Status = "SUCCESS" }
+            };
+        }
+
         private void WireEvents()
         {
             // Top Bar Paint & Icons
@@ -106,7 +236,7 @@ namespace Login
 
             pnlNotif.Click += (s, e) =>
             {
-                MessageBox.Show("You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
+                CoopMessageBox.Show(this, "You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
                     "Notifications", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
@@ -114,6 +244,7 @@ namespace Login
             Button[] navButtons = { btnNavDashboard, btnNavInventory, btnNavTransactions, btnNavReports, btnNavSettings };
             foreach (Button btn in navButtons)
             {
+                btn.ForeColor = Color.Transparent; // Hide default text so custom paint is crisp and single-pass
                 btn.Paint += NavButton_Paint;
                 btn.Click += NavButton_Click;
             }
@@ -176,8 +307,41 @@ namespace Login
             // View All Link
             lblViewAll.Click += (s, e) =>
             {
-                MessageBox.Show("Opening full Inventory restock view...", "Inventory", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // TODO: Open Inventory form filtered by low/out of stock
+                SwitchForm(new AdminInventory());
+            };
+
+            // Activity Log Card & Filter Buttons
+            pnlActivityLog.Paint += PnlActivityLog_Paint;
+
+            btnLogAll.Paint += (s, e) => DrawTogglePill(e.Graphics, btnLogAll, activeLogFilter == "ALL");
+            btnLogStaff.Paint += (s, e) => DrawTogglePill(e.Graphics, btnLogStaff, activeLogFilter == "STAFF");
+            btnLogAdmin.Paint += (s, e) => DrawTogglePill(e.Graphics, btnLogAdmin, activeLogFilter == "ADMIN");
+
+            btnLogAll.Click += (s, e) =>
+            {
+                activeLogFilter = "ALL";
+                RenderActivityLogTable();
+                btnLogAll.Invalidate();
+                btnLogStaff.Invalidate();
+                btnLogAdmin.Invalidate();
+            };
+
+            btnLogStaff.Click += (s, e) =>
+            {
+                activeLogFilter = "STAFF";
+                RenderActivityLogTable();
+                btnLogAll.Invalidate();
+                btnLogStaff.Invalidate();
+                btnLogAdmin.Invalidate();
+            };
+
+            btnLogAdmin.Click += (s, e) =>
+            {
+                activeLogFilter = "ADMIN";
+                RenderActivityLogTable();
+                btnLogAll.Invalidate();
+                btnLogStaff.Invalidate();
+                btnLogAdmin.Invalidate();
             };
         }
 
@@ -188,7 +352,7 @@ namespace Login
         private void NavButton_Click(object sender, EventArgs e)
         {
             Button clicked = sender as Button;
-            if (clicked == null) return;
+            if (clicked == null || clicked == btnNavDashboard) return;
 
             activeNavButton = clicked;
             btnNavDashboard.Invalidate();
@@ -197,7 +361,6 @@ namespace Login
             btnNavReports.Invalidate();
             btnNavSettings.Invalidate();
 
-            // TODO: Palitan ng navigation papunta sa forms ng groupmates mo
             if (clicked == btnNavInventory)
             {
                 SwitchForm(new AdminInventory());
@@ -218,23 +381,44 @@ namespace Login
 
         private void BtnSignOut_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("Are you sure you want to sign out?", "Sign Out",
+            DialogResult result = CoopMessageBox.Show(this, "Are you sure you want to sign out?", "Sign Out",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                SwitchForm(new LoginPage());
+                if (CoopAppContext.Instance != null)
+                {
+                    CoopAppContext.Instance.SignOut();
+                }
+                else
+                {
+                    SwitchForm(new LoginPage());
+                }
             }
         }
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.Manual;
-            targetForm.Location = this.Location;
-            targetForm.Size = this.Size;
-            targetForm.Show();
-            this.Hide();
-            targetForm.FormClosed += (s, args) => this.Close();
+            if (CoopAppContext.Instance != null)
+            {
+                CoopAppContext.Instance.SwitchForm(targetForm);
+            }
+            else
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    targetForm.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    targetForm.StartPosition = FormStartPosition.Manual;
+                    targetForm.WindowState = FormWindowState.Normal;
+                    targetForm.Location = this.Location;
+                    targetForm.Size = this.Size;
+                }
+                targetForm.Show();
+                this.Hide();
+            }
         }
 
         // ==========================================================
@@ -243,6 +427,8 @@ namespace Login
 
         private void PopulateRestockList()
         {
+            if (restockItems == null || pnlRestockList == null) return;
+
             pnlRestockList.SuspendLayout();
             pnlRestockList.Controls.Clear();
 
@@ -257,7 +443,8 @@ namespace Login
                 Panel row = new Panel
                 {
                     Location = new Point(0, yOffset),
-                    Size = new Size(430, rowHeight),
+                    Size = new Size(pnlRestockList.Width, rowHeight),
+                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                     BackColor = clrParchment
                 };
 
@@ -295,7 +482,7 @@ namespace Login
                     Color badgeFg = isLow ? clrTextDark : Color.White;
                     string badgeText = isOut ? "OUT" : (isLow ? "LOW" : "OK");
 
-                    Rectangle badgeRect = new Rectangle(292, 11, 40, 20);
+                    Rectangle badgeRect = new Rectangle(row.Width - 148, 11, 40, 20);
                     using (GraphicsPath badgePath = GetRoundedRectPath(badgeRect, 10))
                     using (SolidBrush bBrush = new SolidBrush(badgeBg))
                     {
@@ -339,10 +526,11 @@ namespace Login
                     Text = string.Format("{0} LEFT", item.CurrentStock),
                     Font = new Font("Segoe UI", 8F, FontStyle.Bold),
                     ForeColor = item.CurrentStock == 0 ? clrCrimson : Color.FromArgb(138, 86, 18),
-                    Location = new Point(226, 13),
+                    Location = new Point(row.Width - 214, 13),
                     Size = new Size(60, 16),
                     TextAlign = ContentAlignment.MiddleRight,
-                    BackColor = Color.Transparent
+                    BackColor = Color.Transparent,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Right
                 };
 
                 Button btnRestockItem = new Button
@@ -353,8 +541,9 @@ namespace Login
                     BackColor = clrParchment,
                     FlatStyle = FlatStyle.Flat,
                     Cursor = Cursors.Hand,
-                    Location = new Point(340, 9),
-                    Size = new Size(84, 24)
+                    Location = new Point(row.Width - 100, 9),
+                    Size = new Size(84, 24),
+                    Anchor = AnchorStyles.Top | AnchorStyles.Right
                 };
                 btnRestockItem.FlatAppearance.BorderSize = 0;
 
@@ -379,7 +568,7 @@ namespace Login
                 btnRestockItem.Click += (s, e) =>
                 {
                     int addQty = item.ReorderAt;
-                    DialogResult dr = MessageBox.Show(
+                    DialogResult dr = CoopMessageBox.Show(this,
                         string.Format("Restock \"{0}\" by +{1} units?", item.Name, addQty),
                         "Quick Restock", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
@@ -401,6 +590,226 @@ namespace Login
             }
 
             pnlRestockList.ResumeLayout();
+        }
+
+        private void PnlActivityLog_Paint(object? sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            DrawParchmentCard(g, pnlActivityLog.ClientRectangle, 16);
+
+            int cardW = pnlActivityLog.Width;
+
+            using (Pen divPen = new Pen(clrDivider, 1f))
+            {
+                g.DrawLine(divPen, 18, 46, cardW - 18, 46);
+            }
+
+            // Table header bar
+            Rectangle headerBar = new Rectangle(18, 47, cardW - 36, 26);
+            using (SolidBrush hBrush = new SolidBrush(Color.FromArgb(232, 213, 163)))
+            {
+                g.FillRectangle(hBrush, headerBar);
+            }
+
+            using (Pen borderPen = new Pen(clrDivider, 1.2f))
+            {
+                g.DrawLine(borderPen, 18, 73, cardW - 18, 73);
+            }
+
+            // Headers
+            int statW = 100;
+            int statX = cardW - 18 - statW;
+            int moduleW = 110;
+            int roleW = 80;
+            int userW = 100;
+            int timeW = 90;
+            int timeX = 26;
+            int userX = timeX + timeW + 10;
+            int roleX = userX + userW + 10;
+            int moduleX = roleX + roleW + 10;
+            int actionX = moduleX + moduleW + 10;
+            int actionW = Math.Max(120, statX - actionX - 10);
+
+            using (Font hFont = new Font("Georgia", 7.5F, FontStyle.Bold))
+            {
+                TextRenderer.DrawText(g, "TIMESTAMP", hFont, new Rectangle(timeX, 47, timeW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, "USER", hFont, new Rectangle(userX, 47, userW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, "ROLE", hFont, new Rectangle(roleX, 47, roleW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, "MODULE", hFont, new Rectangle(moduleX, 47, moduleW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, "ACTION & SYSTEM UPDATE", hFont, new Rectangle(actionX, 47, actionW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                TextRenderer.DrawText(g, "STATUS", hFont, new Rectangle(statX, 47, statW, 26),
+                    clrTextDark, TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+        }
+
+        private void RenderActivityLogTable()
+        {
+            if (activityLogs == null || pnlActivityList == null) return;
+
+            pnlActivityList.SuspendLayout();
+            pnlActivityList.Controls.Clear();
+
+            var filtered = activityLogs.Where(a =>
+            {
+                if (activeLogFilter == "STAFF") return a.Role.Equals("Staff", StringComparison.OrdinalIgnoreCase);
+                if (activeLogFilter == "ADMIN") return a.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+                return true;
+            }).ToList();
+
+            int rowHeight = 36;
+            int yOffset = 0;
+
+            for (int i = 0; i < filtered.Count; i++)
+            {
+                var log = filtered[i];
+                Panel row = new Panel
+                {
+                    Location = new Point(0, yOffset),
+                    Size = new Size(pnlActivityList.Width, rowHeight),
+                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                    BackColor = (i % 2 == 0) ? Color.FromArgb(246, 233, 196) : Color.FromArgb(241, 227, 187)
+                };
+
+                int rowW = row.Width;
+                int statW = 100;
+                int statX = rowW - statW;
+                int moduleW = 110;
+                int roleW = 80;
+                int userW = 100;
+                int timeW = 90;
+                int timeX = 8;
+                int userX = timeX + timeW + 10;
+                int roleX = userX + userW + 10;
+                int moduleX = roleX + roleW + 10;
+                int actionX = moduleX + moduleW + 10;
+                int actionW = Math.Max(120, statX - actionX - 10);
+
+                Label lblTime = new Label
+                {
+                    Text = log.Timestamp,
+                    Font = new Font("Georgia", 8.5F, FontStyle.Regular),
+                    ForeColor = clrMuted,
+                    Location = new Point(timeX, 8),
+                    Size = new Size(timeW, 20),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = Color.Transparent
+                };
+
+                Label lblUser = new Label
+                {
+                    Text = log.User,
+                    Font = new Font("Georgia", 8.5F, FontStyle.Bold),
+                    ForeColor = clrTextDark,
+                    Location = new Point(userX, 8),
+                    Size = new Size(userW, 20),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = Color.Transparent
+                };
+
+                Label lblRole = new Label
+                {
+                    Text = log.Role,
+                    Font = new Font("Georgia", 8F, FontStyle.Italic),
+                    ForeColor = log.Role == "Admin" ? clrCrimson : Color.FromArgb(30, 90, 58),
+                    Location = new Point(roleX, 8),
+                    Size = new Size(roleW, 20),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = Color.Transparent
+                };
+
+                Label lblModule = new Label
+                {
+                    Text = log.Module,
+                    Font = new Font("Georgia", 8.5F, FontStyle.Regular),
+                    ForeColor = Color.FromArgb(88, 60, 44),
+                    Location = new Point(moduleX, 8),
+                    Size = new Size(moduleW, 20),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BackColor = Color.Transparent
+                };
+
+                Label lblAction = new Label
+                {
+                    Text = log.Action,
+                    Font = new Font("Georgia", 8.5F, FontStyle.Regular),
+                    ForeColor = clrTextDark,
+                    Location = new Point(actionX, 8),
+                    Size = new Size(actionW, 20),
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    AutoEllipsis = true,
+                    BackColor = Color.Transparent,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+                };
+
+                // Status Badge Panel
+                Panel pnlStatusBadge = new Panel
+                {
+                    Location = new Point(statX + 10, 7),
+                    Size = new Size(80, 22),
+                    BackColor = Color.Transparent,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Right
+                };
+
+                pnlStatusBadge.Paint += (s, e) =>
+                {
+                    Graphics g = e.Graphics;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                    Color bg;
+                    Color fg = Color.White;
+                    switch (log.Status)
+                    {
+                        case "SUCCESS":
+                            bg = Color.FromArgb(30, 110, 60);
+                            break;
+                        case "RESTOCKED":
+                            bg = Color.FromArgb(212, 160, 23);
+                            fg = clrTextDark;
+                            break;
+                        case "UPDATED":
+                            bg = Color.FromArgb(184, 115, 24);
+                            break;
+                        case "CREATED":
+                            bg = Color.FromArgb(43, 88, 118);
+                            break;
+                        case "VOIDED":
+                            bg = clrCrimson;
+                            break;
+                        default:
+                            bg = Color.FromArgb(90, 24, 40);
+                            break;
+                    }
+
+                    Rectangle rect = new Rectangle(0, 0, pnlStatusBadge.Width - 1, pnlStatusBadge.Height - 1);
+                    using (GraphicsPath path = GetRoundedRectPath(rect, 8))
+                    using (SolidBrush brush = new SolidBrush(bg))
+                    {
+                        g.FillPath(brush, path);
+                    }
+
+                    TextRenderer.DrawText(g, log.Status, new Font("Georgia", 7F, FontStyle.Bold),
+                        rect, fg, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                };
+
+                row.Controls.Add(lblTime);
+                row.Controls.Add(lblUser);
+                row.Controls.Add(lblRole);
+                row.Controls.Add(lblModule);
+                row.Controls.Add(lblAction);
+                row.Controls.Add(pnlStatusBadge);
+
+                pnlActivityList.Controls.Add(row);
+                yOffset += rowHeight;
+            }
+
+            pnlActivityList.ResumeLayout();
         }
 
         private void UpdateKpiCounts()
@@ -572,7 +981,7 @@ namespace Login
 
             Color txtColor = isActive ? clrTextDark : Color.FromArgb(238, 224, 195);
             TextRenderer.DrawText(g, btn.Text, btn.Font, rect, txtColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         private void BtnSignOut_Paint(object sender, PaintEventArgs e)

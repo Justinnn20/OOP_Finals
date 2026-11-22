@@ -12,6 +12,7 @@ namespace Login.Controls
 
         public event Action<OrderItem>? OnQuantityIncreased;
         public event Action<OrderItem>? OnQuantityDecreased;
+        public event Action<OrderItem, int>? OnQuantityChanged;
 
         public CartItemControl()
         {
@@ -39,8 +40,34 @@ namespace Login.Controls
                 }
             };
 
+            NumericInputHelper.Attach(txtItemQty, "1", isDecimal: false);
+
+            txtItemQty.Leave += (s, e) =>
+            {
+                CommitQtyChange();
+            };
+
+            txtItemQty.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    CommitQtyChange();
+                }
+            };
+
             PaintRoundedButton(btnMinus);
             PaintRoundedButton(btnPlus);
+        }
+
+        private void CommitQtyChange()
+        {
+            if (CurrentItem != null && int.TryParse(txtItemQty.Text.Trim(), out int qty))
+            {
+                if (qty > 0 && qty != CurrentItem.Quantity)
+                {
+                    OnQuantityChanged?.Invoke(CurrentItem, qty);
+                }
+            }
         }
 
         private static void PaintRoundedButton(Button btn)
@@ -87,8 +114,8 @@ namespace Login.Controls
 
             lblItemName.Text = CurrentItem.Product.Name;
             lblItemDetail.Text = CurrentItem.Product.DisplayDetails;
-            lblItemQty.Text = CurrentItem.Quantity.ToString();
-            lblItemSubtotal.Text = $"₱{CurrentItem.TotalPrice:N0}";
+            txtItemQty.Text = CurrentItem.Quantity.ToString();
+            lblItemSubtotal.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", CurrentItem.TotalPrice);
         }
 
         private static GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)

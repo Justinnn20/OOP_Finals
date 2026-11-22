@@ -43,6 +43,11 @@ namespace Login.Controllers
             _catalog.Add(new Product("UM-008", "Ballpen Set (3pcs)", "School Supplies", 65m, null, 120));
             _catalog.Add(new Product("UM-009", "University Pin", "School Supplies", 50m, null, 250));
             _catalog.Add(new Product("UM-010", "Computer Programming Book", "Books & Manuals", 550m, null, 40));
+            _catalog.Add(new Product("UM-011", "Calculus Textbook", "Books & Manuals", 450m, null, 35));
+            _catalog.Add(new Product("UM-012", "CCIS Lab Manual", "Books & Manuals", 120m, null, 60));
+            _catalog.Add(new Product("UM-013", "Blouse (Female)", "Uniforms", 380m, "Size M", 75));
+            _catalog.Add(new Product("UM-014", "Yellow Pad (80 leaves)", "School Supplies", 30m, null, 200));
+            _catalog.Add(new Product("UM-015", "Blue Book Exam Notebook", "School Supplies", 20m, null, 500));
         }
 
         public Product? FindProduct(string sku)
@@ -106,6 +111,20 @@ namespace Login.Controllers
             if (item.Quantity <= 0)
             {
                 CurrentOrder.RemoveItem(item);
+            }
+            OrderUpdated?.Invoke(CurrentOrder);
+        }
+
+        public void SetItemQuantity(OrderItem item, int quantity)
+        {
+            if (item == null) return;
+            if (quantity <= 0)
+            {
+                CurrentOrder.RemoveItem(item);
+            }
+            else
+            {
+                item.SetQuantity(quantity);
             }
             OrderUpdated?.Invoke(CurrentOrder);
         }

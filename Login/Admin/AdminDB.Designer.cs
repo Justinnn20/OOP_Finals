@@ -74,6 +74,14 @@
             this.lblNeedAttention = new System.Windows.Forms.Label();
             this.lblRestockTitle = new System.Windows.Forms.Label();
 
+            this.pnlActivityLog = new System.Windows.Forms.Panel();
+            this.lblActivityTitle = new System.Windows.Forms.Label();
+            this.lblActivitySub = new System.Windows.Forms.Label();
+            this.btnLogAll = new System.Windows.Forms.Button();
+            this.btnLogStaff = new System.Windows.Forms.Button();
+            this.btnLogAdmin = new System.Windows.Forms.Button();
+            this.pnlActivityList = new System.Windows.Forms.Panel();
+
             this.pnlTopNav.SuspendLayout();
             this.pnlCardSales.SuspendLayout();
             this.pnlCardOrders.SuspendLayout();
@@ -81,6 +89,7 @@
             this.pnlCardOutStock.SuspendLayout();
             this.pnlSalesOverview.SuspendLayout();
             this.pnlRestock.SuspendLayout();
+            this.pnlActivityLog.SuspendLayout();
             this.SuspendLayout();
 
             // 
@@ -148,11 +157,13 @@
             this.btnNavDashboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavDashboard.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavDashboard.ForeColor = System.Drawing.Color.FromArgb(42, 10, 20);
-            this.btnNavDashboard.Location = new System.Drawing.Point(364, 19);
+            this.btnNavDashboard.Location = new System.Drawing.Point(330, 19);
             this.btnNavDashboard.Name = "btnNavDashboard";
-            this.btnNavDashboard.Size = new System.Drawing.Size(116, 36);
+            this.btnNavDashboard.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavDashboard.Size = new System.Drawing.Size(120, 36);
             this.btnNavDashboard.TabIndex = 3;
             this.btnNavDashboard.Text = "DASHBOARD";
+            this.btnNavDashboard.UseMnemonic = false;
             this.btnNavDashboard.UseVisualStyleBackColor = false;
 
             // 
@@ -164,11 +175,13 @@
             this.btnNavInventory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavInventory.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavInventory.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavInventory.Location = new System.Drawing.Point(484, 19);
+            this.btnNavInventory.Location = new System.Drawing.Point(454, 19);
             this.btnNavInventory.Name = "btnNavInventory";
-            this.btnNavInventory.Size = new System.Drawing.Size(100, 36);
+            this.btnNavInventory.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavInventory.Size = new System.Drawing.Size(110, 36);
             this.btnNavInventory.TabIndex = 4;
             this.btnNavInventory.Text = "INVENTORY";
+            this.btnNavInventory.UseMnemonic = false;
             this.btnNavInventory.UseVisualStyleBackColor = false;
 
             // 
@@ -180,11 +193,13 @@
             this.btnNavTransactions.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavTransactions.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavTransactions.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavTransactions.Location = new System.Drawing.Point(588, 19);
+            this.btnNavTransactions.Location = new System.Drawing.Point(568, 19);
             this.btnNavTransactions.Name = "btnNavTransactions";
-            this.btnNavTransactions.Size = new System.Drawing.Size(132, 36);
+            this.btnNavTransactions.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavTransactions.Size = new System.Drawing.Size(140, 36);
             this.btnNavTransactions.TabIndex = 5;
             this.btnNavTransactions.Text = "TRANSACTIONS";
+            this.btnNavTransactions.UseMnemonic = false;
             this.btnNavTransactions.UseVisualStyleBackColor = false;
 
             // 
@@ -196,11 +211,13 @@
             this.btnNavReports.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavReports.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavReports.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavReports.Location = new System.Drawing.Point(724, 19);
+            this.btnNavReports.Location = new System.Drawing.Point(712, 19);
             this.btnNavReports.Name = "btnNavReports";
-            this.btnNavReports.Size = new System.Drawing.Size(86, 36);
+            this.btnNavReports.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavReports.Size = new System.Drawing.Size(96, 36);
             this.btnNavReports.TabIndex = 6;
             this.btnNavReports.Text = "REPORTS";
+            this.btnNavReports.UseMnemonic = false;
             this.btnNavReports.UseVisualStyleBackColor = false;
 
             // 
@@ -212,16 +229,19 @@
             this.btnNavSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavSettings.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavSettings.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavSettings.Location = new System.Drawing.Point(814, 19);
+            this.btnNavSettings.Location = new System.Drawing.Point(812, 19);
             this.btnNavSettings.Name = "btnNavSettings";
-            this.btnNavSettings.Size = new System.Drawing.Size(90, 36);
+            this.btnNavSettings.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavSettings.Size = new System.Drawing.Size(96, 36);
             this.btnNavSettings.TabIndex = 7;
             this.btnNavSettings.Text = "SETTINGS";
+            this.btnNavSettings.UseMnemonic = false;
             this.btnNavSettings.UseVisualStyleBackColor = false;
 
             // 
             // pnlNotif
             // 
+            this.pnlNotif.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlNotif.BackColor = System.Drawing.Color.Transparent;
             this.pnlNotif.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pnlNotif.Location = new System.Drawing.Point(922, 14);
@@ -232,6 +252,7 @@
             // 
             // pnlAvatar
             // 
+            this.pnlAvatar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlAvatar.BackColor = System.Drawing.Color.Transparent;
             this.pnlAvatar.Location = new System.Drawing.Point(976, 17);
             this.pnlAvatar.Name = "pnlAvatar";
@@ -241,6 +262,7 @@
             // 
             // lblAdminName
             // 
+            this.lblAdminName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAdminName.AutoSize = true;
             this.lblAdminName.Font = new System.Drawing.Font("Georgia", 9F, System.Drawing.FontStyle.Bold);
             this.lblAdminName.ForeColor = System.Drawing.Color.FromArgb(245, 232, 200);
@@ -253,6 +275,7 @@
             // 
             // lblAdminRole
             // 
+            this.lblAdminRole.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAdminRole.AutoSize = true;
             this.lblAdminRole.Font = new System.Drawing.Font("Georgia", 8F, System.Drawing.FontStyle.Italic);
             this.lblAdminRole.ForeColor = System.Drawing.Color.FromArgb(201, 180, 143);
@@ -265,6 +288,7 @@
             // 
             // btnSignOut
             // 
+            this.btnSignOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSignOut.BackColor = System.Drawing.Color.FromArgb(35, 8, 16);
             this.btnSignOut.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSignOut.FlatAppearance.BorderSize = 0;
@@ -305,6 +329,7 @@
             // 
             // lblDate
             // 
+            this.lblDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblDate.Font = new System.Drawing.Font("Georgia", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblDate.ForeColor = System.Drawing.Color.FromArgb(224, 178, 59);
             this.lblDate.Location = new System.Drawing.Point(950, 108);
@@ -615,6 +640,7 @@
             // 
             // btnDaily
             // 
+            this.btnDaily.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDaily.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
             this.btnDaily.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnDaily.FlatAppearance.BorderSize = 0;
@@ -631,6 +657,7 @@
             // 
             // btnWeekly
             // 
+            this.btnWeekly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnWeekly.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
             this.btnWeekly.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnWeekly.FlatAppearance.BorderSize = 0;
@@ -647,6 +674,9 @@
             // 
             // pnlChartCanvas
             // 
+            this.pnlChartCanvas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlChartCanvas.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
             this.pnlChartCanvas.Location = new System.Drawing.Point(18, 86);
             this.pnlChartCanvas.Name = "pnlChartCanvas";
@@ -729,13 +759,111 @@
             this.lblViewAll.TabIndex = 4;
             this.lblViewAll.Text = "View all";
             this.lblViewAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-
+            // 
+            // pnlActivityLog
+            // 
+            this.pnlActivityLog.BackColor = System.Drawing.Color.FromArgb(246, 233, 196);
+            this.pnlActivityLog.Controls.Add(this.btnLogAdmin);
+            this.pnlActivityLog.Controls.Add(this.btnLogStaff);
+            this.pnlActivityLog.Controls.Add(this.btnLogAll);
+            this.pnlActivityLog.Controls.Add(this.pnlActivityList);
+            this.pnlActivityLog.Controls.Add(this.lblActivitySub);
+            this.pnlActivityLog.Controls.Add(this.lblActivityTitle);
+            this.pnlActivityLog.Location = new System.Drawing.Point(28, 620);
+            this.pnlActivityLog.Name = "pnlActivityLog";
+            this.pnlActivityLog.Size = new System.Drawing.Size(1224, 250);
+            this.pnlActivityLog.TabIndex = 9;
+            // 
+            // lblActivityTitle
+            // 
+            this.lblActivityTitle.AutoSize = true;
+            this.lblActivityTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblActivityTitle.Font = new System.Drawing.Font("Georgia", 11.5F, System.Drawing.FontStyle.Bold);
+            this.lblActivityTitle.ForeColor = System.Drawing.Color.FromArgb(44, 14, 22);
+            this.lblActivityTitle.Location = new System.Drawing.Point(18, 14);
+            this.lblActivityTitle.Name = "lblActivityTitle";
+            this.lblActivityTitle.Size = new System.Drawing.Size(206, 18);
+            this.lblActivityTitle.TabIndex = 0;
+            this.lblActivityTitle.Text = "SYSTEM ACTIVITY LOG";
+            // 
+            // lblActivitySub
+            // 
+            this.lblActivitySub.AutoSize = true;
+            this.lblActivitySub.BackColor = System.Drawing.Color.Transparent;
+            this.lblActivitySub.Font = new System.Drawing.Font("Georgia", 8.5F, System.Drawing.FontStyle.Italic);
+            this.lblActivitySub.ForeColor = System.Drawing.Color.FromArgb(112, 88, 64);
+            this.lblActivitySub.Location = new System.Drawing.Point(232, 17);
+            this.lblActivitySub.Name = "lblActivitySub";
+            this.lblActivitySub.Size = new System.Drawing.Size(430, 15);
+            this.lblActivitySub.TabIndex = 1;
+            this.lblActivitySub.Text = "Audit trail of operations and updates across Admin & Staff bookstore sessions";
+            // 
+            // btnLogAll
+            // 
+            this.btnLogAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogAll.BackColor = System.Drawing.Color.FromArgb(35, 8, 16);
+            this.btnLogAll.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogAll.FlatAppearance.BorderSize = 0;
+            this.btnLogAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogAll.Font = new System.Drawing.Font("Georgia", 8F, System.Drawing.FontStyle.Bold);
+            this.btnLogAll.ForeColor = System.Drawing.Color.FromArgb(246, 233, 196);
+            this.btnLogAll.Location = new System.Drawing.Point(968, 10);
+            this.btnLogAll.Name = "btnLogAll";
+            this.btnLogAll.Size = new System.Drawing.Size(72, 28);
+            this.btnLogAll.TabIndex = 2;
+            this.btnLogAll.Text = "ALL";
+            this.btnLogAll.UseVisualStyleBackColor = false;
+            // 
+            // btnLogStaff
+            // 
+            this.btnLogStaff.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogStaff.BackColor = System.Drawing.Color.FromArgb(246, 233, 196);
+            this.btnLogStaff.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogStaff.FlatAppearance.BorderSize = 0;
+            this.btnLogStaff.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogStaff.Font = new System.Drawing.Font("Georgia", 8F, System.Drawing.FontStyle.Bold);
+            this.btnLogStaff.ForeColor = System.Drawing.Color.FromArgb(44, 14, 22);
+            this.btnLogStaff.Location = new System.Drawing.Point(1048, 10);
+            this.btnLogStaff.Name = "btnLogStaff";
+            this.btnLogStaff.Size = new System.Drawing.Size(80, 28);
+            this.btnLogStaff.TabIndex = 3;
+            this.btnLogStaff.Text = "STAFF";
+            this.btnLogStaff.UseVisualStyleBackColor = false;
+            // 
+            // btnLogAdmin
+            // 
+            this.btnLogAdmin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogAdmin.BackColor = System.Drawing.Color.FromArgb(246, 233, 196);
+            this.btnLogAdmin.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLogAdmin.FlatAppearance.BorderSize = 0;
+            this.btnLogAdmin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogAdmin.Font = new System.Drawing.Font("Georgia", 8F, System.Drawing.FontStyle.Bold);
+            this.btnLogAdmin.ForeColor = System.Drawing.Color.FromArgb(44, 14, 22);
+            this.btnLogAdmin.Location = new System.Drawing.Point(1136, 10);
+            this.btnLogAdmin.Name = "btnLogAdmin";
+            this.btnLogAdmin.Size = new System.Drawing.Size(80, 28);
+            this.btnLogAdmin.TabIndex = 4;
+            this.btnLogAdmin.Text = "ADMIN";
+            this.btnLogAdmin.UseVisualStyleBackColor = false;
+            // 
+            // pnlActivityList
+            // 
+            this.pnlActivityList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlActivityList.AutoScroll = true;
+            this.pnlActivityList.BackColor = System.Drawing.Color.Transparent;
+            this.pnlActivityList.Location = new System.Drawing.Point(18, 76);
+            this.pnlActivityList.Name = "pnlActivityList";
+            this.pnlActivityList.Size = new System.Drawing.Size(1188, 160);
+            this.pnlActivityList.TabIndex = 5;
             // 
             // AdminDB
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(42, 10, 20);
             this.ClientSize = new System.Drawing.Size(1280, 720);
+            this.Controls.Add(this.pnlActivityLog);
             this.Controls.Add(this.pnlRestock);
             this.Controls.Add(this.pnlSalesOverview);
             this.Controls.Add(this.pnlCardOutStock);
@@ -746,8 +874,9 @@
             this.Controls.Add(this.lblWelcomeSub);
             this.Controls.Add(this.lblWelcome);
             this.Controls.Add(this.pnlTopNav);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.MaximizeBox = true;
+            this.MinimumSize = new System.Drawing.Size(1280, 720);
             this.Name = "AdminDB";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "University of Makati Coop - Admin Dashboard";
@@ -766,6 +895,8 @@
             this.pnlSalesOverview.PerformLayout();
             this.pnlRestock.ResumeLayout(false);
             this.pnlRestock.PerformLayout();
+            this.pnlActivityLog.ResumeLayout(false);
+            this.pnlActivityLog.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -829,5 +960,13 @@
         private System.Windows.Forms.Panel pnlRestockList;
         private System.Windows.Forms.Label lblShowingCount;
         private System.Windows.Forms.Label lblViewAll;
+
+        private System.Windows.Forms.Panel pnlActivityLog;
+        private System.Windows.Forms.Label lblActivityTitle;
+        private System.Windows.Forms.Label lblActivitySub;
+        private System.Windows.Forms.Button btnLogAll;
+        private System.Windows.Forms.Button btnLogStaff;
+        private System.Windows.Forms.Button btnLogAdmin;
+        private System.Windows.Forms.Panel pnlActivityList;
     }
 }

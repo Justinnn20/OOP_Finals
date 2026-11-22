@@ -42,6 +42,7 @@ namespace Login
 
         private List<InventoryItem> inventoryItems = new List<InventoryItem>();
         private InventoryItem? selectedItem = null;
+        private bool isInitialized = false;
 
         // Pagination
         private int currentPage = 1;
@@ -65,6 +66,71 @@ namespace Login
 
             UpdateKpiCards();
             RenderInventoryTable();
+
+            isInitialized = true;
+            this.Load += (s, e) => LayoutResponsive();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            LayoutResponsive();
+        }
+
+        private void LayoutResponsive()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            LayoutHeaderNav();
+
+            if (!isInitialized) return;
+
+            int margin = 28;
+            int gap = 16;
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
+
+            // 4 KPI Cards across top
+            int cardWidth = (availableWidth - (gap * 3)) / 4;
+            pnlCardTotalProducts.Location = new Point(margin, 144);
+            pnlCardTotalProducts.Size = new Size(cardWidth, 88);
+
+            pnlCardTotalUnits.Location = new Point(margin + (cardWidth + gap), 144);
+            pnlCardTotalUnits.Size = new Size(cardWidth, 88);
+
+            pnlCardLowStock.Location = new Point(margin + (cardWidth + gap) * 2, 144);
+            pnlCardLowStock.Size = new Size(cardWidth, 88);
+
+            pnlCardOutStock.Location = new Point(margin + (cardWidth + gap) * 3, 144);
+            pnlCardOutStock.Size = new Size(availableWidth - 3 * (cardWidth + gap), 88);
+
+            // Main Panels
+            int topY = 244;
+            int bottomMargin = 20;
+            int availableHeight = Math.Max(420, this.ClientSize.Height - topY - bottomMargin);
+
+            int catWidth = (int)(availableWidth * 0.66);
+            int detWidth = availableWidth - catWidth - gap;
+
+            pnlCatalogCard.Location = new Point(margin, topY);
+            pnlCatalogCard.Size = new Size(catWidth, availableHeight);
+
+            pnlDetailCard.Location = new Point(margin + catWidth + gap, topY);
+            pnlDetailCard.Size = new Size(detWidth, availableHeight);
+
+            // Adjust children of pnlCatalogCard
+            pnlItemList.Width = pnlCatalogCard.Width - 36;
+            pnlItemList.Height = Math.Max(200, pnlCatalogCard.Height - 120);
+
+            btnAddItemModal.Location = new Point(pnlCatalogCard.Width - btnAddItemModal.Width - 18, 40);
+            cmbFilterCategory.Location = new Point(btnAddItemModal.Left - cmbFilterCategory.Width - 10, 42);
+
+            lblCatalogShowing.Location = new Point(24, pnlCatalogCard.Height - 34);
+            btnPageNext.Location = new Point(pnlCatalogCard.Width - btnPageNext.Width - 18, pnlCatalogCard.Height - 36);
+            lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlCatalogCard.Height - 34);
+            btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlCatalogCard.Height - 36);
+
+            RenderInventoryTable();
+            this.Invalidate(true);
         }
 
         private void EnableDoubleBuffering(Control control)
@@ -112,6 +178,7 @@ namespace Login
             Button[] navButtons = { btnNavDashboard, btnNavInventory, btnNavTransactions, btnNavReports, btnNavSettings };
             foreach (Button btn in navButtons)
             {
+                btn.ForeColor = Color.Transparent; // Hide default text to eliminate ghosting
                 btn.Paint += NavButton_Paint;
                 btn.Click += NavButton_Click;
             }
@@ -258,84 +325,14 @@ namespace Login
             };
 
             // Numeric Input Boxes: Clear on focus, restore previous on blur if empty
-            SetupNumericBoxPlaceholder(txtPrice, "0.00", isDecimal: true);
-            SetupNumericBoxPlaceholder(txtStock, "0", isDecimal: false);
-            SetupNumericBoxPlaceholder(txtReorder, "10", isDecimal: false);
+            NumericInputHelper.Attach(txtPrice, "0.00", isDecimal: true);
+            NumericInputHelper.Attach(txtStock, "0", isDecimal: false);
+            NumericInputHelper.Attach(txtReorder, "10", isDecimal: false);
 
             // Clicking outside removes focus so values restore immediately if left blank
-            Action removeFocus = () => { this.ActiveControl = null; };
-            pnlDetailCard.Click += (s, e) => removeFocus();
-            pnlCatalogCard.Click += (s, e) => removeFocus();
-            this.Click += (s, e) => removeFocus();
-        }
-
-        private void SetupNumericBoxPlaceholder(TextBox box, string fallbackDefault, bool isDecimal = false)
-        {
-            string lastValue = string.IsNullOrWhiteSpace(box.Text) ? fallbackDefault : box.Text.Trim();
-
-            // Track value changes programmatically (e.g. selecting an item from table or clearing form)
-            box.TextChanged += (s, e) =>
-            {
-                if (!box.Focused && !string.IsNullOrWhiteSpace(box.Text))
-                {
-                    lastValue = box.Text.Trim();
-                }
-            };
-
-            // Once clicked / focused: clear the current number
-            box.Enter += (s, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(box.Text))
-                {
-                    lastValue = box.Text.Trim();
-                }
-                box.Text = "";
-            };
-
-            // When clicked outside / lost focus: restore previous number if user typed nothing
-            box.Leave += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(box.Text))
-                {
-                    box.Text = string.IsNullOrWhiteSpace(lastValue) ? fallbackDefault : lastValue;
-                }
-                else
-                {
-                    if (isDecimal)
-                    {
-                        if (decimal.TryParse(box.Text.Trim(), out decimal parsed))
-                        {
-                            box.Text = parsed.ToString("0.00");
-                        }
-                    }
-                    lastValue = box.Text.Trim();
-                }
-            };
-
-            // Numeric keystroke restriction
-            box.KeyPress += (s, e) =>
-            {
-                if (char.IsControl(e.KeyChar)) return;
-
-                if (isDecimal)
-                {
-                    if (!char.IsDigit(e.KeyChar) && e.KeyChar != '.')
-                    {
-                        e.Handled = true;
-                    }
-                    else if (e.KeyChar == '.' && box.Text.Contains('.'))
-                    {
-                        e.Handled = true;
-                    }
-                }
-                else
-                {
-                    if (!char.IsDigit(e.KeyChar))
-                    {
-                        e.Handled = true;
-                    }
-                }
-            };
+            NumericInputHelper.EnableClickToDefocus(this);
+            NumericInputHelper.EnableClickToDefocus(pnlDetailCard);
+            NumericInputHelper.EnableClickToDefocus(pnlCatalogCard);
         }
 
         private void SelectStockFilter(string filter)
@@ -353,6 +350,8 @@ namespace Login
 
         private List<InventoryItem> GetFilteredItems()
         {
+            if (inventoryItems == null) return new List<InventoryItem>();
+
             string search = (isSearchPlaceholder || string.IsNullOrWhiteSpace(txtSearchItem.Text))
                 ? string.Empty
                 : txtSearchItem.Text.Trim().ToLowerInvariant();
@@ -423,6 +422,8 @@ namespace Login
 
         private void RenderInventoryTable()
         {
+            if (!isInitialized || inventoryItems == null || pnlItemList == null) return;
+
             pnlItemList.SuspendLayout();
             pnlItemList.Controls.Clear();
 
@@ -478,15 +479,30 @@ namespace Login
                         RenderInventoryTable();
                     };
 
+                    int rowW = pnlItemList.Width;
+                    int rowActW = 150;
+                    int rowActX = rowW - rowActW;
+                    int rowStatW = 85;
+                    int rowStatX = rowActX - rowStatW - 10;
+                    int rowStockW = 50;
+                    int rowStockX = rowStatX - rowStockW - 10;
+                    int rowPriceW = 75;
+                    int rowPriceX = rowStockX - rowPriceW - 10;
+                    int rowCatW = 135;
+                    int rowCatX = rowPriceX - rowCatW - 10;
+                    int rowNameX = 88;
+                    int rowNameW = Math.Max(100, rowCatX - rowNameX - 10);
+
                     // Action buttons on the row
                     Button btnRowRestock = new Button
                     {
                         Text = "+ RESTOCK",
                         Size = new Size(86, 26),
-                        Location = new Point(632, 11),
+                        Location = new Point(rowActX, 11),
                         FlatStyle = FlatStyle.Flat,
                         Cursor = Cursors.Hand,
-                        BackColor = Color.Transparent
+                        BackColor = Color.Transparent,
+                        Anchor = AnchorStyles.Top | AnchorStyles.Right
                     };
                     btnRowRestock.FlatAppearance.BorderSize = 0;
                     btnRowRestock.Paint += (s, e) => DrawGoldPillButton(e.Graphics, btnRowRestock, 8);
@@ -502,16 +518,17 @@ namespace Login
                     {
                         Text = "DEL",
                         Size = new Size(50, 26),
-                        Location = new Point(724, 11),
+                        Location = new Point(rowActX + 92, 11),
                         FlatStyle = FlatStyle.Flat,
                         Cursor = Cursors.Hand,
-                        BackColor = Color.Transparent
+                        BackColor = Color.Transparent,
+                        Anchor = AnchorStyles.Top | AnchorStyles.Right
                     };
                     btnRowDelete.FlatAppearance.BorderSize = 0;
                     btnRowDelete.Paint += (s, e) => DrawCrimsonPillButton(e.Graphics, btnRowDelete, 8);
                     btnRowDelete.Click += (s, e) =>
                     {
-                        DialogResult dr = MessageBox.Show($"Delete product '{itm.Name}' ({itm.Sku}) from inventory?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        DialogResult dr = CoopMessageBox.Show(this, $"Delete product '{itm.Name}' ({itm.Sku}) from inventory?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (dr == DialogResult.Yes)
                         {
                             inventoryItems.Remove(itm);
@@ -535,26 +552,26 @@ namespace Login
 
                         // Name
                         TextRenderer.DrawText(g, itm.Name, new Font("Georgia", 9F, FontStyle.Bold),
-                            new Rectangle(88, 0, 180, rowHeight), clrTextDark,
+                            new Rectangle(rowNameX, 0, rowNameW, rowHeight), clrTextDark,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
                         // Category
                         TextRenderer.DrawText(g, itm.Category, new Font("Georgia", 8.5F, FontStyle.Italic),
-                            new Rectangle(275, 0, 125, rowHeight), clrMuted,
+                            new Rectangle(rowCatX, 0, rowCatW, rowHeight), clrMuted,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
                         // Price
                         TextRenderer.DrawText(g, $"₱{itm.Price:N2}", new Font("Georgia", 8.5F, FontStyle.Bold),
-                            new Rectangle(405, 0, 70, rowHeight), clrTextDark,
+                            new Rectangle(rowPriceX, 0, rowPriceW, rowHeight), clrTextDark,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
                         // Stock
                         TextRenderer.DrawText(g, $"{itm.Stock}", new Font("Georgia", 9F, FontStyle.Bold),
-                            new Rectangle(480, 0, 45, rowHeight), itm.Stock <= 0 ? clrCrimson : clrTextDark,
+                            new Rectangle(rowStockX, 0, rowStockW, rowHeight), itm.Stock <= 0 ? clrCrimson : clrTextDark,
                             TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
                         // Status Badge
-                        Rectangle badgeRect = new Rectangle(535, 12, 85, 24);
+                        Rectangle badgeRect = new Rectangle(rowStatX, 12, rowStatW, 24);
                         Color bBg = itm.Stock <= 0 ? clrCrimson : (itm.Stock <= itm.ReorderAt ? clrLowOrange : clrActiveGreen);
                         string bText = itm.Stock <= 0 ? "OUT" : (itm.Stock <= itm.ReorderAt ? "LOW" : "IN STOCK");
 
@@ -622,7 +639,7 @@ namespace Login
 
             if (string.IsNullOrWhiteSpace(sku) || string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Please provide both SKU and Item Name.", "Input Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                CoopMessageBox.Show(this, "Please provide both SKU and Item Name.", "Input Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -639,7 +656,7 @@ namespace Login
                 selectedItem.Stock = Math.Max(0, stock);
                 selectedItem.ReorderAt = Math.Max(0, reorder);
 
-                MessageBox.Show($"Item '{name}' updated successfully!", "Inventory Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoopMessageBox.Show(this, $"Item '{name}' updated successfully!", "Inventory Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
@@ -655,7 +672,7 @@ namespace Login
                 };
                 inventoryItems.Insert(0, newItem);
                 selectedItem = newItem;
-                MessageBox.Show($"New item '{name}' added to inventory!", "Item Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoopMessageBox.Show(this, $"New item '{name}' added to inventory!", "Item Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             UpdateKpiCards();
@@ -669,14 +686,14 @@ namespace Login
             txtStock.Text = selectedItem.Stock.ToString();
             UpdateKpiCards();
             RenderInventoryTable();
-            MessageBox.Show($"Restocked +20 units for {selectedItem.Name}. Total stock: {selectedItem.Stock}", "Restock Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            CoopMessageBox.Show(this, $"Restocked +20 units for {selectedItem.Name}. Total stock: {selectedItem.Stock}", "Restock Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void BtnDeleteItem_Click(object? sender, EventArgs e)
         {
             if (selectedItem == null) return;
 
-            DialogResult dr = MessageBox.Show($"Are you sure you want to delete '{selectedItem.Name}' ({selectedItem.Sku})?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult dr = CoopMessageBox.Show(this, $"Are you sure you want to delete '{selectedItem.Name}' ({selectedItem.Sku})?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dr == DialogResult.Yes)
             {
                 inventoryItems.Remove(selectedItem);
@@ -695,8 +712,11 @@ namespace Login
             Graphics g = e.Graphics;
             DrawParchmentCard(g, pnlCatalogCard.ClientRectangle, 16);
 
+            int cardW = pnlCatalogCard.Width;
+            int cardH = pnlCatalogCard.Height;
+
             // Table Header Bar
-            Rectangle headerBar = new Rectangle(18, 80, 792, 28);
+            Rectangle headerBar = new Rectangle(18, 80, cardW - 36, 28);
             using (SolidBrush hBrush = new SolidBrush(Color.FromArgb(236, 216, 164)))
             {
                 g.FillRectangle(hBrush, headerBar);
@@ -704,25 +724,38 @@ namespace Login
 
             using (Pen borderPen = new Pen(clrDivider, 1.2f))
             {
-                g.DrawLine(borderPen, 18, 108, 810, 108);
-                g.DrawLine(borderPen, 18, 406, 810, 406);
+                g.DrawLine(borderPen, 18, 108, cardW - 18, 108);
+                g.DrawLine(borderPen, 18, cardH - 48, cardW - 18, cardH - 48);
             }
 
-            // Header Texts
+            // Header Texts matching row layout
+            int actW = 150;
+            int actX = cardW - 18 - actW;
+            int statW = 85;
+            int statX = actX - statW - 10;
+            int stockW = 50;
+            int stockX = statX - stockW - 10;
+            int priceW = 75;
+            int priceX = stockX - priceW - 10;
+            int catW = 135;
+            int catX = priceX - catW - 10;
+            int nameX = 106;
+            int nameW = Math.Max(100, catX - nameX - 10);
+
             TextRenderer.DrawText(g, "SKU", new Font("Georgia", 7.5F, FontStyle.Bold),
                 new Rectangle(26, 80, 75, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "ITEM NAME", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(106, 80, 180, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                new Rectangle(nameX, 80, nameW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "CATEGORY", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(293, 80, 125, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                new Rectangle(catX, 80, catW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "PRICE", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(423, 80, 70, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                new Rectangle(priceX, 80, priceW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "STOCK", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(498, 80, 55, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                new Rectangle(stockX, 80, stockW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "STATUS", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(555, 80, 85, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                new Rectangle(statX, 80, statW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
             TextRenderer.DrawText(g, "ACTIONS", new Font("Georgia", 7.5F, FontStyle.Bold),
-                new Rectangle(645, 80, 155, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                new Rectangle(actX, 80, actW, 28), clrMaroon, TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         private void NavButton_Paint(object? sender, PaintEventArgs e)
@@ -792,26 +825,74 @@ namespace Login
 
         private void BtnSignOut_Click(object? sender, EventArgs e)
         {
-            DialogResult res = MessageBox.Show("Are you sure you want to sign out?", "Sign Out",
+            DialogResult res = CoopMessageBox.Show(this, "Are you sure you want to sign out?", "Sign Out",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (res == DialogResult.Yes)
             {
-                LoginPage login = new LoginPage();
-                login.Show();
-                this.Hide();
-                login.FormClosed += (s, args) => this.Close();
+                if (CoopAppContext.Instance != null)
+                {
+                    CoopAppContext.Instance.SignOut();
+                }
+                else
+                {
+                    LoginPage login = new LoginPage();
+                    login.Show();
+                    this.Hide();
+                }
             }
+        }
+
+        private void LayoutHeaderNav()
+        {
+            if (pnlTopNav == null || btnNavDashboard == null || btnNavInventory == null ||
+                btnNavTransactions == null || btnNavReports == null || btnNavSettings == null)
+                return;
+
+            int totalNavWidth = btnNavDashboard.Width + 8 +
+                                btnNavInventory.Width + 8 +
+                                btnNavTransactions.Width + 8 +
+                                btnNavReports.Width + 8 +
+                                btnNavSettings.Width;
+
+            int navStartX = (pnlTopNav.Width - totalNavWidth) / 2;
+            int minStartX = (lblBrandTitle != null ? lblBrandTitle.Right : 290) + 28;
+
+            if (navStartX < minStartX)
+            {
+                navStartX = minStartX;
+            }
+
+            int y = 19;
+            btnNavDashboard.Location = new Point(navStartX, y);
+            btnNavInventory.Location = new Point(btnNavDashboard.Right + 8, y);
+            btnNavTransactions.Location = new Point(btnNavInventory.Right + 8, y);
+            btnNavReports.Location = new Point(btnNavTransactions.Right + 8, y);
+            btnNavSettings.Location = new Point(btnNavReports.Right + 8, y);
         }
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.Manual;
-            targetForm.Location = this.Location;
-            targetForm.Size = this.Size;
-            targetForm.Show();
-            this.Hide();
-            targetForm.FormClosed += (s, args) => this.Close();
+            if (CoopAppContext.Instance != null)
+            {
+                CoopAppContext.Instance.SwitchForm(targetForm);
+            }
+            else
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    targetForm.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    targetForm.StartPosition = FormStartPosition.Manual;
+                    targetForm.WindowState = FormWindowState.Normal;
+                    targetForm.Location = this.Location;
+                    targetForm.Size = this.Size;
+                }
+                targetForm.Show();
+                this.Hide();
+            }
         }
 
         private void PnlLogoIcon_Paint(object? sender, PaintEventArgs e)

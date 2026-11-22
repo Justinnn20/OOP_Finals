@@ -156,11 +156,13 @@ namespace Login
             this.btnNavDashboard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavDashboard.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavDashboard.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavDashboard.Location = new System.Drawing.Point(364, 19);
+            this.btnNavDashboard.Location = new System.Drawing.Point(330, 19);
             this.btnNavDashboard.Name = "btnNavDashboard";
-            this.btnNavDashboard.Size = new System.Drawing.Size(116, 36);
+            this.btnNavDashboard.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavDashboard.Size = new System.Drawing.Size(120, 36);
             this.btnNavDashboard.TabIndex = 3;
             this.btnNavDashboard.Text = "DASHBOARD";
+            this.btnNavDashboard.UseMnemonic = false;
             this.btnNavDashboard.UseVisualStyleBackColor = false;
 
             // btnNavInventory
@@ -170,11 +172,13 @@ namespace Login
             this.btnNavInventory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavInventory.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavInventory.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavInventory.Location = new System.Drawing.Point(484, 19);
+            this.btnNavInventory.Location = new System.Drawing.Point(454, 19);
             this.btnNavInventory.Name = "btnNavInventory";
-            this.btnNavInventory.Size = new System.Drawing.Size(100, 36);
+            this.btnNavInventory.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavInventory.Size = new System.Drawing.Size(110, 36);
             this.btnNavInventory.TabIndex = 4;
             this.btnNavInventory.Text = "INVENTORY";
+            this.btnNavInventory.UseMnemonic = false;
             this.btnNavInventory.UseVisualStyleBackColor = false;
 
             // btnNavTransactions
@@ -184,11 +188,13 @@ namespace Login
             this.btnNavTransactions.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavTransactions.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavTransactions.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavTransactions.Location = new System.Drawing.Point(588, 19);
+            this.btnNavTransactions.Location = new System.Drawing.Point(568, 19);
             this.btnNavTransactions.Name = "btnNavTransactions";
-            this.btnNavTransactions.Size = new System.Drawing.Size(132, 36);
+            this.btnNavTransactions.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavTransactions.Size = new System.Drawing.Size(140, 36);
             this.btnNavTransactions.TabIndex = 5;
             this.btnNavTransactions.Text = "TRANSACTIONS";
+            this.btnNavTransactions.UseMnemonic = false;
             this.btnNavTransactions.UseVisualStyleBackColor = false;
 
             // btnNavReports
@@ -198,11 +204,13 @@ namespace Login
             this.btnNavReports.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavReports.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavReports.ForeColor = System.Drawing.Color.FromArgb(42, 10, 20);
-            this.btnNavReports.Location = new System.Drawing.Point(724, 19);
+            this.btnNavReports.Location = new System.Drawing.Point(712, 19);
             this.btnNavReports.Name = "btnNavReports";
-            this.btnNavReports.Size = new System.Drawing.Size(86, 36);
+            this.btnNavReports.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavReports.Size = new System.Drawing.Size(96, 36);
             this.btnNavReports.TabIndex = 6;
             this.btnNavReports.Text = "REPORTS";
+            this.btnNavReports.UseMnemonic = false;
             this.btnNavReports.UseVisualStyleBackColor = false;
 
             // btnNavSettings
@@ -212,14 +220,17 @@ namespace Login
             this.btnNavSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavSettings.Font = new System.Drawing.Font("Georgia", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnNavSettings.ForeColor = System.Drawing.Color.FromArgb(238, 224, 195);
-            this.btnNavSettings.Location = new System.Drawing.Point(814, 19);
+            this.btnNavSettings.Location = new System.Drawing.Point(812, 19);
             this.btnNavSettings.Name = "btnNavSettings";
-            this.btnNavSettings.Size = new System.Drawing.Size(90, 36);
+            this.btnNavSettings.Padding = System.Windows.Forms.Padding.Empty;
+            this.btnNavSettings.Size = new System.Drawing.Size(96, 36);
             this.btnNavSettings.TabIndex = 7;
             this.btnNavSettings.Text = "SETTINGS";
+            this.btnNavSettings.UseMnemonic = false;
             this.btnNavSettings.UseVisualStyleBackColor = false;
 
             // pnlNotif
+            this.pnlNotif.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlNotif.BackColor = System.Drawing.Color.Transparent;
             this.pnlNotif.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pnlNotif.Location = new System.Drawing.Point(922, 14);
@@ -228,6 +239,7 @@ namespace Login
             this.pnlNotif.TabIndex = 8;
 
             // pnlAvatar
+            this.pnlAvatar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlAvatar.BackColor = System.Drawing.Color.Transparent;
             this.pnlAvatar.Location = new System.Drawing.Point(976, 17);
             this.pnlAvatar.Name = "pnlAvatar";
@@ -235,6 +247,7 @@ namespace Login
             this.pnlAvatar.TabIndex = 9;
 
             // lblAdminName
+            this.lblAdminName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAdminName.AutoSize = true;
             this.lblAdminName.Font = new System.Drawing.Font("Georgia", 9F, System.Drawing.FontStyle.Bold);
             this.lblAdminName.ForeColor = System.Drawing.Color.FromArgb(245, 232, 200);
@@ -245,6 +258,7 @@ namespace Login
             this.lblAdminName.Text = "ADMIN";
 
             // lblAdminRole
+            this.lblAdminRole.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAdminRole.AutoSize = true;
             this.lblAdminRole.Font = new System.Drawing.Font("Georgia", 8F, System.Drawing.FontStyle.Italic);
             this.lblAdminRole.ForeColor = System.Drawing.Color.FromArgb(201, 180, 143);
@@ -255,6 +269,7 @@ namespace Login
             this.lblAdminRole.Text = "Administrator";
 
             // btnSignOut
+            this.btnSignOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSignOut.BackColor = System.Drawing.Color.FromArgb(35, 8, 16);
             this.btnSignOut.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSignOut.FlatAppearance.BorderSize = 0;
@@ -818,8 +833,10 @@ namespace Login
             this.Controls.Add(this.lblPageSub);
             this.Controls.Add(this.lblPageTitle);
             this.Controls.Add(this.pnlTopNav);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
+            this.lblDate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.MaximizeBox = true;
+            this.MinimumSize = new System.Drawing.Size(1280, 720);
             this.Name = "AdminReports";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "University of Makati Coop - Admin Reports";

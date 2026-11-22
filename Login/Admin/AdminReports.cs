@@ -56,6 +56,7 @@ namespace Login
 
         private List<AuditReportRow> allAuditRecords = new List<AuditReportRow>();
         private List<TopSellingProduct> topProducts = new List<TopSellingProduct>();
+        private bool isInitialized = false;
 
         public AdminReports()
         {
@@ -73,6 +74,81 @@ namespace Login
             SetupEventHandlers();
 
             ApplyPeriodFilter("WEEK");
+
+            NumericInputHelper.EnableClickToDefocus(this);
+            isInitialized = true;
+            this.Load += (s, e) => LayoutResponsive();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            LayoutResponsive();
+        }
+
+        private void LayoutResponsive()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            LayoutHeaderNav();
+
+            if (!isInitialized) return;
+
+            int margin = 28;
+            int gap = 16;
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
+
+            // 4 KPI Cards across top
+            int cardWidth = (availableWidth - (gap * 3)) / 4;
+            pnlCardRevenue.Location = new Point(margin, 144);
+            pnlCardRevenue.Size = new Size(cardWidth, 88);
+
+            pnlCardCashSales.Location = new Point(margin + (cardWidth + gap), 144);
+            pnlCardCashSales.Size = new Size(cardWidth, 88);
+
+            pnlCardGcashSales.Location = new Point(margin + (cardWidth + gap) * 2, 144);
+            pnlCardGcashSales.Size = new Size(cardWidth, 88);
+
+            pnlCardDiscounts.Location = new Point(margin + (cardWidth + gap) * 3, 144);
+            pnlCardDiscounts.Size = new Size(availableWidth - 3 * (cardWidth + gap), 88);
+
+            // Main Panels
+            int topY = 246;
+            int bottomMargin = 20;
+            int availableHeight = Math.Max(420, this.ClientSize.Height - topY - bottomMargin);
+
+            int auditWidth = (int)(availableWidth * 0.63);
+            int rightWidth = availableWidth - auditWidth - gap;
+
+            pnlAuditCard.Location = new Point(margin, topY);
+            pnlAuditCard.Size = new Size(auditWidth, availableHeight);
+
+            int topSellingHeight = Math.Min(240, availableHeight / 2);
+            int summaryHeight = availableHeight - topSellingHeight - 14;
+
+            pnlTopSellingCard.Location = new Point(margin + auditWidth + gap, topY);
+            pnlTopSellingCard.Size = new Size(rightWidth, topSellingHeight);
+
+            pnlSummaryCard.Location = new Point(margin + auditWidth + gap, topY + topSellingHeight + 14);
+            pnlSummaryCard.Size = new Size(rightWidth, summaryHeight);
+
+            // Adjust children of pnlAuditCard
+            pnlAuditList.Width = pnlAuditCard.Width - 36;
+            pnlAuditList.Height = Math.Max(200, pnlAuditCard.Height - 120);
+
+            btnExportAudit.Location = new Point(pnlAuditCard.Width - btnExportAudit.Width - 18, 10);
+
+            lblAuditShowing.Location = new Point(24, pnlAuditCard.Height - 34);
+            btnPageNext.Location = new Point(pnlAuditCard.Width - btnPageNext.Width - 18, pnlAuditCard.Height - 36);
+            lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlAuditCard.Height - 34);
+            btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlAuditCard.Height - 36);
+
+            // Adjust children of right panels
+            pnlTopSellingList.Width = pnlTopSellingCard.Width - 36;
+            pnlTopSellingList.Height = Math.Max(120, pnlTopSellingCard.Height - 65);
+
+            RenderAuditTable();
+            this.Invalidate(true);
         }
 
         private void EnableDoubleBuffering(Control control)
@@ -128,6 +204,7 @@ namespace Login
             Button[] navButtons = { btnNavDashboard, btnNavInventory, btnNavTransactions, btnNavReports, btnNavSettings };
             foreach (Button btn in navButtons)
             {
+                btn.ForeColor = Color.Transparent; // Hide default text so custom paint is crisp and single-pass
                 btn.Paint += NavButton_Paint;
                 btn.Click += NavButton_Click;
             }
@@ -274,7 +351,7 @@ namespace Login
 
         private void BtnSignOut_Click(object? sender, EventArgs e)
         {
-            DialogResult res = MessageBox.Show(
+            DialogResult res = CoopMessageBox.Show(this,
                 "Are you sure you want to sign out of the Admin panel?",
                 "Sign Out",
                 MessageBoxButtons.YesNo,
@@ -282,21 +359,69 @@ namespace Login
 
             if (res == DialogResult.Yes)
             {
-                LoginPage login = new LoginPage();
-                login.Show();
-                this.Hide();
-                login.FormClosed += (s, args) => this.Close();
+                if (CoopAppContext.Instance != null)
+                {
+                    CoopAppContext.Instance.SignOut();
+                }
+                else
+                {
+                    LoginPage login = new LoginPage();
+                    login.Show();
+                    this.Hide();
+                }
             }
+        }
+
+        private void LayoutHeaderNav()
+        {
+            if (pnlTopNav == null || btnNavDashboard == null || btnNavInventory == null ||
+                btnNavTransactions == null || btnNavReports == null || btnNavSettings == null)
+                return;
+
+            int totalNavWidth = btnNavDashboard.Width + 8 +
+                                btnNavInventory.Width + 8 +
+                                btnNavTransactions.Width + 8 +
+                                btnNavReports.Width + 8 +
+                                btnNavSettings.Width;
+
+            int navStartX = (pnlTopNav.Width - totalNavWidth) / 2;
+            int minStartX = (lblBrandTitle != null ? lblBrandTitle.Right : 290) + 28;
+
+            if (navStartX < minStartX)
+            {
+                navStartX = minStartX;
+            }
+
+            int y = 19;
+            btnNavDashboard.Location = new Point(navStartX, y);
+            btnNavInventory.Location = new Point(btnNavDashboard.Right + 8, y);
+            btnNavTransactions.Location = new Point(btnNavInventory.Right + 8, y);
+            btnNavReports.Location = new Point(btnNavTransactions.Right + 8, y);
+            btnNavSettings.Location = new Point(btnNavReports.Right + 8, y);
         }
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.Manual;
-            targetForm.Location = this.Location;
-            targetForm.Size = this.Size;
-            targetForm.Show();
-            this.Hide();
-            targetForm.FormClosed += (s, args) => this.Close();
+            if (CoopAppContext.Instance != null)
+            {
+                CoopAppContext.Instance.SwitchForm(targetForm);
+            }
+            else
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    targetForm.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    targetForm.StartPosition = FormStartPosition.Manual;
+                    targetForm.WindowState = FormWindowState.Normal;
+                    targetForm.Location = this.Location;
+                    targetForm.Size = this.Size;
+                }
+                targetForm.Show();
+                this.Hide();
+            }
         }
 
         private void ApplyPeriodFilter(string period)
@@ -317,6 +442,8 @@ namespace Login
 
         private List<AuditReportRow> GetFilteredRecords()
         {
+            if (allAuditRecords == null) return new List<AuditReportRow>();
+
             DateTime today = DateTime.Today;
             switch (activePeriodFilter)
             {
@@ -356,6 +483,8 @@ namespace Login
 
         private void RenderAuditTable()
         {
+            if (!isInitialized || allAuditRecords == null || pnlAuditList == null) return;
+
             pnlAuditList.SuspendLayout();
             pnlAuditList.Controls.Clear();
             var filtered = GetFilteredRecords();
@@ -528,6 +657,8 @@ namespace Login
 
         private void RenderTopSellingProducts()
         {
+            if (!isInitialized || topProducts == null || pnlTopSellingList == null) return;
+
             pnlTopSellingList.SuspendLayout();
             pnlTopSellingList.Controls.Clear();
             int y = 2;
@@ -634,7 +765,7 @@ namespace Login
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     File.WriteAllText(sfd.FileName, sb.ToString(), Encoding.UTF8);
-                    MessageBox.Show(
+                    CoopMessageBox.Show(this,
                         $"Audit summary successfully exported to:\n{sfd.FileName}",
                         "Audit Export Complete",
                         MessageBoxButtons.OK,
@@ -643,13 +774,13 @@ namespace Login
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to export audit report: {ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CoopMessageBox.Show(this, $"Failed to export audit report: {ex.Message}", "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnPrintAudit_Click(object? sender, EventArgs e)
         {
-            MessageBox.Show(
+            CoopMessageBox.Show(this,
                 $"Preparing audited statement for {activePeriodFilter} period.\nSent to default bookstore receipt & reports printer.",
                 "Print Audit Report",
                 MessageBoxButtons.OK,

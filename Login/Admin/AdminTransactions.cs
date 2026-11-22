@@ -54,8 +54,9 @@ namespace Login
             public List<ReceiptLineItem> Items { get; set; }
         }
 
-        private List<TransactionRecord> transactions;
-        private TransactionRecord selectedTxn;
+        private List<TransactionRecord> transactions = new List<TransactionRecord>();
+        private TransactionRecord? selectedTxn = null;
+        private bool isInitialized = false;
 
         public AdminTransactions()
         {
@@ -77,6 +78,79 @@ namespace Login
             RefreshKpiSummary();
             RenderTransactionTable();
             pnlReceiptBody.Invalidate();
+
+            NumericInputHelper.EnableClickToDefocus(this);
+            isInitialized = true;
+            this.Load += (s, e) => LayoutResponsive();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            LayoutResponsive();
+        }
+
+        private void LayoutResponsive()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            LayoutHeaderNav();
+
+            if (!isInitialized) return;
+
+            int margin = 28;
+            int gap = 16;
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
+
+            // 4 KPI Cards across top
+            int cardWidth = (availableWidth - (gap * 3)) / 4;
+            pnlCardSales.Location = new Point(margin, 144);
+            pnlCardSales.Size = new Size(cardWidth, 88);
+
+            pnlCardCash.Location = new Point(margin + (cardWidth + gap), 144);
+            pnlCardCash.Size = new Size(cardWidth, 88);
+
+            pnlCardGcash.Location = new Point(margin + (cardWidth + gap) * 2, 144);
+            pnlCardGcash.Size = new Size(cardWidth, 88);
+
+            pnlCardVoid.Location = new Point(margin + (cardWidth + gap) * 3, 144);
+            pnlCardVoid.Size = new Size(availableWidth - 3 * (cardWidth + gap), 88);
+
+            // Main Panels
+            int topY = 244;
+            int bottomMargin = 20;
+            int availableHeight = Math.Max(420, this.ClientSize.Height - topY - bottomMargin);
+
+            int histWidth = (int)(availableWidth * 0.63);
+            int recWidth = availableWidth - histWidth - gap;
+
+            pnlHistoryCard.Location = new Point(margin, topY);
+            pnlHistoryCard.Size = new Size(histWidth, availableHeight);
+
+            pnlReceiptCard.Location = new Point(margin + histWidth + gap, topY);
+            pnlReceiptCard.Size = new Size(recWidth, availableHeight);
+
+            // Adjust children of pnlHistoryCard
+            pnlTxnList.Width = pnlHistoryCard.Width - 36;
+            pnlTxnList.Height = Math.Max(200, pnlHistoryCard.Height - 120);
+
+            btnExport.Location = new Point(pnlHistoryCard.Width - btnExport.Width - 18, 40);
+
+            lblHistoryShowing.Location = new Point(24, pnlHistoryCard.Height - 34);
+            btnPageNext.Location = new Point(pnlHistoryCard.Width - btnPageNext.Width - 18, pnlHistoryCard.Height - 36);
+            lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlHistoryCard.Height - 34);
+            btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlHistoryCard.Height - 36);
+
+            // Adjust children of pnlReceiptCard
+            pnlReceiptBody.Width = pnlReceiptCard.Width - 36;
+            pnlReceiptBody.Height = Math.Max(200, pnlReceiptCard.Height - 130);
+            btnPrintReceipt.Location = new Point(22, pnlReceiptCard.Height - 44);
+            btnPrintReceipt.Width = (pnlReceiptCard.Width - 52) / 2;
+            btnVoidSale.Location = new Point(btnPrintReceipt.Right + 8, pnlReceiptCard.Height - 44);
+            btnVoidSale.Width = pnlReceiptCard.Width - btnPrintReceipt.Right - 30;
+
+            RenderTransactionTable();
+            this.Invalidate(true);
         }
 
         private void EnableDoubleBuffering(Control control)
@@ -220,13 +294,14 @@ namespace Login
 
             pnlNotif.Click += (s, e) =>
             {
-                MessageBox.Show("You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
+                CoopMessageBox.Show(this, "You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
                     "Notifications", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
             Button[] navButtons = { btnNavDashboard, btnNavInventory, btnNavTransactions, btnNavReports, btnNavSettings };
             foreach (Button btn in navButtons)
             {
+                btn.ForeColor = Color.Transparent; // Hide default text so custom paint is crisp and single-pass
                 btn.Paint += NavButton_Paint;
                 btn.Click += NavButton_Click;
             }
@@ -371,23 +446,72 @@ namespace Login
 
         private void BtnSignOut_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("Are you sure you want to sign out?", "Sign Out",
+            DialogResult result = CoopMessageBox.Show(this, "Are you sure you want to sign out?", "Sign Out",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                SwitchForm(new LoginPage());
+                if (CoopAppContext.Instance != null)
+                {
+                    CoopAppContext.Instance.SignOut();
+                }
+                else
+                {
+                    SwitchForm(new LoginPage());
+                }
             }
+        }
+
+        private void LayoutHeaderNav()
+        {
+            if (pnlTopNav == null || btnNavDashboard == null || btnNavInventory == null ||
+                btnNavTransactions == null || btnNavReports == null || btnNavSettings == null)
+                return;
+
+            int totalNavWidth = btnNavDashboard.Width + 8 +
+                                btnNavInventory.Width + 8 +
+                                btnNavTransactions.Width + 8 +
+                                btnNavReports.Width + 8 +
+                                btnNavSettings.Width;
+
+            int navStartX = (pnlTopNav.Width - totalNavWidth) / 2;
+            int minStartX = (lblBrandTitle != null ? lblBrandTitle.Right : 290) + 28;
+
+            if (navStartX < minStartX)
+            {
+                navStartX = minStartX;
+            }
+
+            int y = 19;
+            btnNavDashboard.Location = new Point(navStartX, y);
+            btnNavInventory.Location = new Point(btnNavDashboard.Right + 8, y);
+            btnNavTransactions.Location = new Point(btnNavInventory.Right + 8, y);
+            btnNavReports.Location = new Point(btnNavTransactions.Right + 8, y);
+            btnNavSettings.Location = new Point(btnNavReports.Right + 8, y);
         }
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.Manual;
-            targetForm.Location = this.Location;
-            targetForm.Size = this.Size;
-            targetForm.Show();
-            this.Hide();
-            targetForm.FormClosed += (s, args) => this.Close();
+            if (CoopAppContext.Instance != null)
+            {
+                CoopAppContext.Instance.SwitchForm(targetForm);
+            }
+            else
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    targetForm.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    targetForm.StartPosition = FormStartPosition.Manual;
+                    targetForm.WindowState = FormWindowState.Normal;
+                    targetForm.Location = this.Location;
+                    targetForm.Size = this.Size;
+                }
+                targetForm.Show();
+                this.Hide();
+            }
         }
 
         // ==========================================================
@@ -396,6 +520,8 @@ namespace Login
 
         private void RefreshKpiSummary()
         {
+            if (transactions == null) return;
+
             decimal paidTotal = 0m;
             decimal cashTotal = 0m;
             decimal gcashTotal = 0m;
@@ -456,6 +582,8 @@ namespace Login
 
         private List<TransactionRecord> GetFilteredTransactions()
         {
+            if (transactions == null) return new List<TransactionRecord>();
+
             string query = isSearchPlaceholder ? "" : txtSearchTxn.Text.Trim().ToLower();
             List<TransactionRecord> result = new List<TransactionRecord>();
 
@@ -480,6 +608,8 @@ namespace Login
 
         private void RenderTransactionTable()
         {
+            if (!isInitialized || transactions == null || pnlTxnList == null) return;
+
             pnlTxnList.SuspendLayout();
             pnlTxnList.Controls.Clear();
 
@@ -708,7 +838,7 @@ namespace Login
         {
             if (selectedTxn == null)
             {
-                MessageBox.Show("Please select a transaction first.", "Print Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoopMessageBox.Show(this, "Please select a transaction first.", "Print Receipt", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -730,7 +860,7 @@ namespace Login
             sb.AppendLine(string.Format("Discount: - ₱ {0:N2}", selectedTxn.Discount));
             sb.AppendLine(string.Format("TOTAL PAID: ₱ {0:N2}", selectedTxn.Total));
 
-            MessageBox.Show(sb.ToString(), "Receipt Preview - " + selectedTxn.ReceiptNo,
+            CoopMessageBox.Show(this, sb.ToString(), "Receipt Preview - " + selectedTxn.ReceiptNo,
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -740,12 +870,12 @@ namespace Login
 
             if (selectedTxn.IsVoid)
             {
-                MessageBox.Show(string.Format("Transaction {0} is already VOID.", selectedTxn.ReceiptNo),
+                CoopMessageBox.Show(this, string.Format("Transaction {0} is already VOID.", selectedTxn.ReceiptNo),
                     "Void Sale", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            DialogResult dr = MessageBox.Show(
+            DialogResult dr = CoopMessageBox.Show(this,
                 string.Format("Void transaction {0} worth ₱ {1:N2}?\nThis will reverse it from today's completed sales.",
                     selectedTxn.ReceiptNo, selectedTxn.Total),
                 "Confirm Void Sale",
@@ -786,12 +916,12 @@ namespace Login
                             }
                         }
 
-                        MessageBox.Show("Transactions exported successfully!", "Export Complete",
+                        CoopMessageBox.Show(this, "Transactions exported successfully!", "Export Complete",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Export failed: " + ex.Message, "Error",
+                        CoopMessageBox.Show(this, "Export failed: " + ex.Message, "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -978,7 +1108,7 @@ namespace Login
 
             Color txtColor = isActive ? clrTextDark : Color.FromArgb(238, 224, 195);
             TextRenderer.DrawText(g, btn.Text, btn.Font, rect, txtColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         private void BtnSignOut_Paint(object sender, PaintEventArgs e)

@@ -492,59 +492,59 @@ namespace Login
             // 
             lblSubtotalCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblSubtotalCaption.AutoSize = true;
-            lblSubtotalCaption.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblSubtotalCaption.Font = new Font("Georgia", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblSubtotalCaption.ForeColor = DarkText;
-            lblSubtotalCaption.Location = new Point(16, 514);
+            lblSubtotalCaption.Location = new Point(20, 514);
             lblSubtotalCaption.Name = "lblSubtotalCaption";
-            lblSubtotalCaption.Size = new Size(63, 19);
+            lblSubtotalCaption.Size = new Size(65, 18);
             lblSubtotalCaption.TabIndex = 8;
             lblSubtotalCaption.Text = "Subtotal";
             // 
             // lblSubtotalValue
             // 
             lblSubtotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblSubtotalValue.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSubtotalValue.Font = new Font("Georgia", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblSubtotalValue.ForeColor = DarkText;
-            lblSubtotalValue.Location = new Point(150, 514);
+            lblSubtotalValue.Location = new Point(130, 512);
             lblSubtotalValue.Name = "lblSubtotalValue";
-            lblSubtotalValue.Size = new Size(174, 20);
+            lblSubtotalValue.Size = new Size(190, 22);
             lblSubtotalValue.TabIndex = 9;
-            lblSubtotalValue.Text = "\u20B10";
+            lblSubtotalValue.Text = "₱ 0";
             lblSubtotalValue.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblTotalCaption
             // 
             lblTotalCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblTotalCaption.AutoSize = true;
-            lblTotalCaption.Font = new Font("Georgia", 13F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblTotalCaption.Font = new Font("Georgia", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalCaption.ForeColor = DarkText;
-            lblTotalCaption.Location = new Point(16, 545);
+            lblTotalCaption.Location = new Point(20, 544);
             lblTotalCaption.Name = "lblTotalCaption";
-            lblTotalCaption.Size = new Size(60, 23);
+            lblTotalCaption.Size = new Size(76, 21);
             lblTotalCaption.TabIndex = 10;
             lblTotalCaption.Text = "TOTAL";
             // 
             // lblTotalValue
             // 
             lblTotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblTotalValue.Font = new Font("Segoe UI", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalValue.Font = new Font("Georgia", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalValue.ForeColor = PriceRed;
-            lblTotalValue.Location = new Point(120, 536);
+            lblTotalValue.Location = new Point(110, 536);
             lblTotalValue.Name = "lblTotalValue";
-            lblTotalValue.Size = new Size(200, 42);
+            lblTotalValue.Size = new Size(210, 38);
             lblTotalValue.TabIndex = 11;
-            lblTotalValue.Text = "\u20B10";
+            lblTotalValue.Text = "₱ 0";
             lblTotalValue.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblCashCaption
             // 
             lblCashCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCashCaption.AutoSize = true;
-            lblCashCaption.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblCashCaption.Font = new Font("Georgia", 10.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblCashCaption.ForeColor = DarkText;
             lblCashCaption.Location = new Point(20, 592);
             lblCashCaption.Name = "lblCashCaption";
-            lblCashCaption.Size = new Size(102, 19);
+            lblCashCaption.Size = new Size(99, 17);
             lblCashCaption.TabIndex = 12;
             lblCashCaption.Text = "Cash received";
             // 
@@ -553,11 +553,11 @@ namespace Login
             txtCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             txtCash.BackColor = ChipBg;
             txtCash.BorderStyle = BorderStyle.FixedSingle;
-            txtCash.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtCash.Font = new Font("Georgia", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtCash.ForeColor = DarkText;
-            txtCash.Location = new Point(180, 588);
+            txtCash.Location = new Point(170, 588);
             txtCash.Name = "txtCash";
-            txtCash.Size = new Size(140, 27);
+            txtCash.Size = new Size(150, 25);
             txtCash.TabIndex = 13;
             txtCash.Text = "0";
             txtCash.TextAlign = HorizontalAlignment.Right;
@@ -602,6 +602,7 @@ namespace Login
             pnlScan.Controls.Add(btnScanId);
             pnlScan.Controls.Add(lblSearchCaption);
             pnlScan.Controls.Add(pnlSearch);
+            pnlScan.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pnlScan.Location = new Point(20, 16);
             pnlScan.Name = "pnlScan";
             pnlScan.Size = new Size(610, 50);

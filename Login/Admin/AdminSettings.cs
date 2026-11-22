@@ -48,8 +48,9 @@ namespace Login
             public bool IsActive { get; set; }
         }
 
-        private List<StaffAccount> staffAccounts;
+        private List<StaffAccount> staffAccounts = new List<StaffAccount>();
         private int nextStaffId = 6;
+        private bool isInitialized = false;
 
         public AdminSettings()
         {
@@ -63,6 +64,62 @@ namespace Login
             InitSampleStaffData();
             WireEvents();
             RenderStaffTable();
+
+            NumericInputHelper.EnableClickToDefocus(this);
+            isInitialized = true;
+            this.Load += (s, e) => LayoutResponsive();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            LayoutResponsive();
+        }
+
+        private void LayoutResponsive()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+
+            LayoutHeaderNav();
+
+            if (!isInitialized) return;
+
+            int margin = 28;
+            int gap = 16;
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
+
+            int topY = 144;
+            int bottomMargin = 20;
+            int availableHeight = Math.Max(520, this.ClientSize.Height - topY - bottomMargin);
+
+            int staffWidth = (int)(availableWidth * 0.62);
+            int rightWidth = availableWidth - staffWidth - gap;
+
+            pnlStaffCard.Location = new Point(margin, topY);
+            pnlStaffCard.Size = new Size(staffWidth, availableHeight);
+
+            int configHeight = (int)(availableHeight * 0.62);
+            int secHeight = availableHeight - configHeight - 14;
+
+            pnlConfigCard.Location = new Point(margin + staffWidth + gap, topY);
+            pnlConfigCard.Size = new Size(rightWidth, configHeight);
+
+            pnlSecurityCard.Location = new Point(margin + staffWidth + gap, topY + configHeight + 14);
+            pnlSecurityCard.Size = new Size(rightWidth, secHeight);
+
+            // Adjust children of pnlStaffCard
+            pnlStaffList.Width = pnlStaffCard.Width - 36;
+            pnlStaffList.Height = Math.Max(200, pnlStaffCard.Height - 120);
+
+            btnAddStaff.Location = new Point(pnlStaffCard.Width - btnAddStaff.Width - 18, 40);
+
+            lblStaffShowing.Location = new Point(24, pnlStaffCard.Height - 34);
+            btnPageNext.Location = new Point(pnlStaffCard.Width - btnPageNext.Width - 18, pnlStaffCard.Height - 36);
+            lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlStaffCard.Height - 34);
+            btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlStaffCard.Height - 36);
+
+            RenderStaffTable();
+            this.Invalidate(true);
         }
 
         private void EnableDoubleBuffering(Control control)
@@ -101,13 +158,14 @@ namespace Login
 
             pnlNotif.Click += (s, e) =>
             {
-                MessageBox.Show("You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
+                CoopMessageBox.Show(this, "You have 2 unread inventory alerts:\n• 3 items are Out of Stock\n• 12 items are at or below reorder level",
                     "Notifications", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
             Button[] navButtons = { btnNavDashboard, btnNavInventory, btnNavTransactions, btnNavReports, btnNavSettings };
             foreach (Button btn in navButtons)
             {
+                btn.ForeColor = Color.Transparent; // Hide default text so custom paint is crisp and single-pass
                 btn.Paint += NavButton_Paint;
                 btn.Click += NavButton_Click;
             }
@@ -231,37 +289,10 @@ namespace Login
             btnBackupNow.Click += BtnBackupNow_Click;
 
             // Numeric Input Placeholder for txtLowStock
-            string lastLowStock = string.IsNullOrWhiteSpace(txtLowStock.Text) ? "10" : txtLowStock.Text.Trim();
-            txtLowStock.Enter += (s, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(txtLowStock.Text))
-                {
-                    lastLowStock = txtLowStock.Text.Trim();
-                }
-                txtLowStock.Text = "";
-            };
-            txtLowStock.Leave += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(txtLowStock.Text))
-                {
-                    txtLowStock.Text = string.IsNullOrWhiteSpace(lastLowStock) ? "10" : lastLowStock;
-                }
-                else
-                {
-                    lastLowStock = txtLowStock.Text.Trim();
-                }
-            };
-            txtLowStock.KeyPress += (s, e) =>
-            {
-                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-                {
-                    e.Handled = true;
-                }
-            };
-
-            // Remove focus on background clicks
-            pnlConfigCard.Click += (s, e) => { this.ActiveControl = null; };
-            this.Click += (s, e) => { this.ActiveControl = null; };
+            NumericInputHelper.Attach(txtLowStock, "10", isDecimal: false);
+            NumericInputHelper.EnableClickToDefocus(pnlConfigCard);
+            NumericInputHelper.EnableClickToDefocus(pnlSecurityCard);
+            NumericInputHelper.EnableClickToDefocus(pnlStaffCard);
         }
 
         // ==========================================================
@@ -293,23 +324,72 @@ namespace Login
 
         private void BtnSignOut_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show("Are you sure you want to sign out?", "Sign Out",
+            DialogResult result = CoopMessageBox.Show(this, "Are you sure you want to sign out?", "Sign Out",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                SwitchForm(new LoginPage());
+                if (CoopAppContext.Instance != null)
+                {
+                    CoopAppContext.Instance.SignOut();
+                }
+                else
+                {
+                    SwitchForm(new LoginPage());
+                }
             }
+        }
+
+        private void LayoutHeaderNav()
+        {
+            if (pnlTopNav == null || btnNavDashboard == null || btnNavInventory == null ||
+                btnNavTransactions == null || btnNavReports == null || btnNavSettings == null)
+                return;
+
+            int totalNavWidth = btnNavDashboard.Width + 8 +
+                                btnNavInventory.Width + 8 +
+                                btnNavTransactions.Width + 8 +
+                                btnNavReports.Width + 8 +
+                                btnNavSettings.Width;
+
+            int navStartX = (pnlTopNav.Width - totalNavWidth) / 2;
+            int minStartX = (lblBrandTitle != null ? lblBrandTitle.Right : 290) + 28;
+
+            if (navStartX < minStartX)
+            {
+                navStartX = minStartX;
+            }
+
+            int y = 19;
+            btnNavDashboard.Location = new Point(navStartX, y);
+            btnNavInventory.Location = new Point(btnNavDashboard.Right + 8, y);
+            btnNavTransactions.Location = new Point(btnNavInventory.Right + 8, y);
+            btnNavReports.Location = new Point(btnNavTransactions.Right + 8, y);
+            btnNavSettings.Location = new Point(btnNavReports.Right + 8, y);
         }
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.Manual;
-            targetForm.Location = this.Location;
-            targetForm.Size = this.Size;
-            targetForm.Show();
-            this.Hide();
-            targetForm.FormClosed += (s, args) => this.Close();
+            if (CoopAppContext.Instance != null)
+            {
+                CoopAppContext.Instance.SwitchForm(targetForm);
+            }
+            else
+            {
+                if (this.WindowState == FormWindowState.Maximized)
+                {
+                    targetForm.WindowState = FormWindowState.Maximized;
+                }
+                else
+                {
+                    targetForm.StartPosition = FormStartPosition.Manual;
+                    targetForm.WindowState = FormWindowState.Normal;
+                    targetForm.Location = this.Location;
+                    targetForm.Size = this.Size;
+                }
+                targetForm.Show();
+                this.Hide();
+            }
         }
 
         // ==========================================================
@@ -328,6 +408,8 @@ namespace Login
 
         private List<StaffAccount> GetFilteredStaff()
         {
+            if (staffAccounts == null) return new List<StaffAccount>();
+
             string query = isSearchPlaceholder ? "" : txtSearchStaff.Text.Trim().ToLower();
             List<StaffAccount> result = new List<StaffAccount>();
 
@@ -352,6 +434,8 @@ namespace Login
 
         private void RenderStaffTable()
         {
+            if (!isInitialized || staffAccounts == null || pnlStaffList == null) return;
+
             pnlStaffList.SuspendLayout();
             pnlStaffList.Controls.Clear();
 
@@ -505,7 +589,7 @@ namespace Login
 
         private void DeleteStaff(StaffAccount staff)
         {
-            DialogResult dr = MessageBox.Show(
+            DialogResult dr = CoopMessageBox.Show(this,
                 string.Format("Are you sure you want to delete staff account \"{0}\" ({1})?", staff.FullName, staff.Username),
                 "Delete Staff Account",
                 MessageBoxButtons.YesNo,
@@ -638,7 +722,7 @@ namespace Login
             {
                 if (string.IsNullOrWhiteSpace(txtName.Text) || string.IsNullOrWhiteSpace(txtUser.Text) || string.IsNullOrWhiteSpace(txtPass.Text))
                 {
-                    MessageBox.Show("Please fill in Full Name, Username, and Password.", "Missing Fields",
+                    CoopMessageBox.Show(this, "Please fill in Full Name, Username, and Password.", "Missing Fields",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -725,12 +809,12 @@ namespace Login
             int threshold;
             if (!int.TryParse(txtLowStock.Text.Trim(), out threshold) || threshold < 0)
             {
-                MessageBox.Show("Low Stock Threshold must be a valid non-negative number.", "Invalid Input",
+                CoopMessageBox.Show(this, "Low Stock Threshold must be a valid non-negative number.", "Invalid Input",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            MessageBox.Show(
+            CoopMessageBox.Show(this,
                 string.Format("Settings saved!\n\nStore: {0}\nReceipt Footer: {1}\nLow Stock Threshold: {2}\nTax Rate: {3}\nGCash: {4}\nAuto-Print: {5}",
                     txtStoreName.Text.Trim(),
                     txtReceiptFooter.Text.Trim(),
@@ -808,16 +892,16 @@ namespace Login
             {
                 if (string.IsNullOrWhiteSpace(txtCurrent.Text) || string.IsNullOrWhiteSpace(txtNew.Text))
                 {
-                    MessageBox.Show("Please fill in all password fields.", "Missing Fields", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    CoopMessageBox.Show(this, "Please fill in all password fields.", "Missing Fields", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 if (txtNew.Text != txtConfirm.Text)
                 {
-                    MessageBox.Show("New password and confirmation do not match.", "Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    CoopMessageBox.Show(this, "New password and confirmation do not match.", "Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                MessageBox.Show("Admin password has been updated successfully.", "Security", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoopMessageBox.Show(this, "Admin password has been updated successfully.", "Security", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 modal.Close();
             };
 
@@ -854,12 +938,12 @@ namespace Login
                             }
                         }
 
-                        MessageBox.Show("Database backup saved successfully!", "Backup Complete",
+                        CoopMessageBox.Show(this, "Database backup saved successfully!", "Backup Complete",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Failed to save backup: " + ex.Message, "Error",
+                        CoopMessageBox.Show(this, "Failed to save backup: " + ex.Message, "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -1037,7 +1121,7 @@ namespace Login
 
             Color txtColor = isActive ? clrTextDark : Color.FromArgb(238, 224, 195);
             TextRenderer.DrawText(g, btn.Text, btn.Font, rect, txtColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                TextFormatFlags.SingleLine | TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
         private void BtnSignOut_Paint(object sender, PaintEventArgs e)

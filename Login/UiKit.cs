@@ -270,4 +270,166 @@ namespace Login
             }
         }
     }
+
+    /// <summary>
+    /// Helper to provide intuitive numeric input behavior:
+    /// 1. Clicking or focusing clears the text so the user can type immediately.
+    /// 2. Clicking outside or blurring without changes or pressing Enter restores the previous value.
+    /// 3. Validated input is committed when changed, formatted, or confirmed with Enter.
+    /// </summary>
+    public static class NumericInputHelper
+    {
+        public static void Attach(TextBox box, string fallbackDefault, bool isDecimal = false)
+        {
+            string lastCommitted = string.IsNullOrWhiteSpace(box.Text) ? fallbackDefault : box.Text.Trim();
+            bool hasChanged = false;
+
+            box.TextChanged += (s, e) =>
+            {
+                if (!box.Focused && !string.IsNullOrWhiteSpace(box.Text))
+                {
+                    lastCommitted = box.Text.Trim();
+                }
+            };
+
+            box.Enter += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(box.Text))
+                {
+                    lastCommitted = box.Text.Trim();
+                }
+                hasChanged = false;
+                // BeginInvoke ensures Windows edit control finishes mouse/focus events before clearing
+                if (box.IsHandleCreated)
+                {
+                    box.BeginInvoke(new Action(() =>
+                    {
+                        if (!hasChanged && box.Focused)
+                        {
+                            box.Text = "";
+                        }
+                    }));
+                }
+                else
+                {
+                    box.Text = "";
+                }
+            };
+
+            box.MouseClick += (s, e) =>
+            {
+                if (!hasChanged && (box.Text == lastCommitted || box.Text == fallbackDefault))
+                {
+                    box.Text = "";
+                }
+            };
+
+            box.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    Commit(box, ref lastCommitted, ref hasChanged, fallbackDefault, isDecimal);
+                    box.Parent?.Focus();
+                }
+                else if (e.KeyCode == Keys.Escape)
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    box.Text = lastCommitted;
+                    hasChanged = false;
+                    box.Parent?.Focus();
+                }
+                else if (!char.IsControl((char)e.KeyValue))
+                {
+                    hasChanged = true;
+                }
+            };
+
+            box.KeyPress += (s, e) =>
+            {
+                if (char.IsControl(e.KeyChar)) return;
+
+                hasChanged = true;
+
+                if (isDecimal)
+                {
+                    if (!char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+                    {
+                        e.Handled = true;
+                    }
+                    else if (e.KeyChar == '.' && box.Text.Contains('.'))
+                    {
+                        e.Handled = true;
+                    }
+                }
+                else
+                {
+                    if (!char.IsDigit(e.KeyChar))
+                    {
+                        e.Handled = true;
+                    }
+                }
+            };
+
+            box.Leave += (s, e) =>
+            {
+                Commit(box, ref lastCommitted, ref hasChanged, fallbackDefault, isDecimal);
+            };
+        }
+
+        private static void Commit(TextBox box, ref string lastCommitted, ref bool hasChanged, string fallbackDefault, bool isDecimal)
+        {
+            if (string.IsNullOrWhiteSpace(box.Text) || !hasChanged)
+            {
+                box.Text = string.IsNullOrWhiteSpace(lastCommitted) ? fallbackDefault : lastCommitted;
+                hasChanged = false;
+            }
+            else
+            {
+                if (isDecimal)
+                {
+                    if (decimal.TryParse(box.Text.Trim(), out decimal val))
+                    {
+                        box.Text = val.ToString("0.00");
+                    }
+                    else
+                    {
+                        box.Text = string.IsNullOrWhiteSpace(lastCommitted) ? fallbackDefault : lastCommitted;
+                    }
+                }
+                else
+                {
+                    if (!long.TryParse(box.Text.Trim(), out _))
+                    {
+                        box.Text = string.IsNullOrWhiteSpace(lastCommitted) ? fallbackDefault : lastCommitted;
+                    }
+                }
+                lastCommitted = box.Text.Trim();
+                hasChanged = false;
+            }
+        }
+
+        public static void EnableClickToDefocus(Control container)
+        {
+            void Defocus(object? s, EventArgs e)
+            {
+                Form? form = container.FindForm();
+                if (form != null)
+                {
+                    form.ActiveControl = null;
+                }
+            }
+
+            container.Click += Defocus;
+            foreach (Control child in container.Controls)
+            {
+                if (child is Panel || child is Label)
+                {
+                    child.Click += Defocus;
+                }
+            }
+        }
+    }
 }

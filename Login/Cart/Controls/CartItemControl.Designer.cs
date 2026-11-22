@@ -21,7 +21,7 @@ namespace Login.Controls
             lblItemDetail = new System.Windows.Forms.Label();
             lblItemSubtotal = new System.Windows.Forms.Label();
             btnMinus = new System.Windows.Forms.Button();
-            lblItemQty = new System.Windows.Forms.Label();
+            txtItemQty = new System.Windows.Forms.TextBox();
             btnPlus = new System.Windows.Forms.Button();
             SuspendLayout();
             // 
@@ -76,16 +76,18 @@ namespace Login.Controls
             btnMinus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             btnMinus.UseVisualStyleBackColor = false;
             // 
-            // lblItemQty
+            // txtItemQty
             // 
-            lblItemQty.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
-            lblItemQty.ForeColor = System.Drawing.Color.FromArgb(44, 16, 22);
-            lblItemQty.Location = new System.Drawing.Point(36, 50);
-            lblItemQty.Name = "lblItemQty";
-            lblItemQty.Size = new System.Drawing.Size(24, 24);
-            lblItemQty.TabIndex = 4;
-            lblItemQty.Text = "1";
-            lblItemQty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            txtItemQty.BackColor = System.Drawing.Color.FromArgb(250, 240, 215);
+            txtItemQty.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            txtItemQty.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            txtItemQty.ForeColor = System.Drawing.Color.FromArgb(44, 16, 22);
+            txtItemQty.Location = new System.Drawing.Point(36, 52);
+            txtItemQty.Name = "txtItemQty";
+            txtItemQty.Size = new System.Drawing.Size(24, 20);
+            txtItemQty.TabIndex = 4;
+            txtItemQty.Text = "1";
+            txtItemQty.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // btnPlus
             // 
@@ -110,7 +112,7 @@ namespace Login.Controls
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.FromArgb(243, 225, 180);
             Controls.Add(btnPlus);
-            Controls.Add(lblItemQty);
+            Controls.Add(txtItemQty);
             Controls.Add(btnMinus);
             Controls.Add(lblItemSubtotal);
             Controls.Add(lblItemDetail);
@@ -119,6 +121,7 @@ namespace Login.Controls
             Name = "CartItemControl";
             Size = new System.Drawing.Size(292, 82);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -127,7 +130,7 @@ namespace Login.Controls
         private System.Windows.Forms.Label lblItemDetail;
         private System.Windows.Forms.Label lblItemSubtotal;
         private System.Windows.Forms.Button btnMinus;
-        private System.Windows.Forms.Label lblItemQty;
+        private System.Windows.Forms.TextBox txtItemQty;
         private System.Windows.Forms.Button btnPlus;
     }
 }

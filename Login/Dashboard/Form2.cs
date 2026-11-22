@@ -49,6 +49,26 @@ namespace Login
             SetupBarcodeAndInputs();
             BuildTransactionLogsPanel();
             LoadInitialDemoCart();
+
+            btnSignOut.Click += (s, e) =>
+            {
+                DialogResult dr = CoopMessageBox.Show(this, "Sign out from Cashier session?", "Sign Out",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (dr == DialogResult.Yes)
+                {
+                    if (CoopAppContext.Instance != null)
+                    {
+                        CoopAppContext.Instance.SignOut();
+                    }
+                    else
+                    {
+                        LoginPage login = new LoginPage();
+                        login.Show();
+                        this.Hide();
+                    }
+                }
+            };
         }
 
         // ---------------------------------------------------------------
@@ -300,7 +320,7 @@ namespace Login
                     }
                     else
                     {
-                        MessageBox.Show(msg, "Hold Order", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        CoopMessageBox.Show(this, msg, "Hold Order", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else if (_cartController.HeldOrders.Count > 0)
@@ -309,7 +329,7 @@ namespace Login
                 }
                 else
                 {
-                    MessageBox.Show("The scroll is blank. Add items to hold an order.", "Hold Order",
+                    CoopMessageBox.Show(this, "The scroll is blank. Add items to hold an order.", "Hold Order",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             };
@@ -318,7 +338,7 @@ namespace Login
             {
                 if (_cartController.CurrentOrder.Items.Count > 0)
                 {
-                    var result = MessageBox.Show("Clear all items from the current scroll?", "Clear Order",
+                    var result = CoopMessageBox.Show(this, "Clear all items from the current scroll?", "Clear Order",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
@@ -351,8 +371,14 @@ namespace Login
                 if (rbGCash.Checked) _cartController.SetPaymentMethod("GCash");
             };
 
-            // Cash input
+            // Cash input with auto-clear and auto-restore
+            NumericInputHelper.Attach(txtCash, "0", isDecimal: false);
             txtCash.TextChanged += (s, e) => _cartController.SetCashReceived(ParseCashInput());
+
+            // Click outside to commit / restore cash input
+            NumericInputHelper.EnableClickToDefocus(this);
+            NumericInputHelper.EnableClickToDefocus(pnlOrder);
+            NumericInputHelper.EnableClickToDefocus(pnlMain);
 
             // Checkout
             btnCheckout.Click += (s, e) =>
@@ -370,7 +396,7 @@ namespace Login
                 {
                     _totalSalesToday += orderAmount;
                     _totalOrdersToday++;
-                    lblSalesValue.Text = $"₱{_totalSalesToday:N0}";
+                    lblSalesValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", _totalSalesToday);
                     lblOrdersValue.Text = _totalOrdersToday.ToString();
 
                     var completed = _cartController.LastCompletedOrder;
@@ -404,7 +430,7 @@ namespace Login
                 }
                 else
                 {
-                    MessageBox.Show(msg, "Checkout Incomplete", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    CoopMessageBox.Show(this, msg, "Checkout Incomplete", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             };
         }
@@ -457,7 +483,7 @@ namespace Login
             }
             else
             {
-                MessageBox.Show(msg, "Barcode Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                CoopMessageBox.Show(this, msg, "Barcode Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtBarcode.SelectAll();
             }
         }
@@ -488,13 +514,14 @@ namespace Login
                 row.Bind(item);
                 row.OnQuantityIncreased += itm => _cartController.IncrementItem(itm);
                 row.OnQuantityDecreased += itm => _cartController.DecrementItem(itm);
+                row.OnQuantityChanged += (itm, qty) => _cartController.SetItemQuantity(itm, qty);
                 flpCartItems.Controls.Add(row);
             }
 
             flpCartItems.ResumeLayout();
 
-            lblSubtotalValue.Text = $"₱{order.Subtotal:N0}";
-            lblTotalValue.Text = $"₱{order.Total:N0}";
+            lblSubtotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", order.Subtotal);
+            lblTotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", order.Total);
             btnHoldOrder.Text = _cartController.HeldOrders.Count > 0
                 ? $"Hold ({_cartController.HeldOrders.Count})"
                 : "Hold";
@@ -527,7 +554,7 @@ namespace Login
         {
             if (_cartController.HeldOrders.Count == 0)
             {
-                MessageBox.Show("No orders currently on hold.", "Held Orders", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CoopMessageBox.Show(this, "No orders currently on hold.", "Held Orders", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
