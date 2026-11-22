@@ -11,12 +11,9 @@ namespace Login
     // checks the credentials, then opens the main form or calls ShowError(...).
     public partial class LoginPage : Form
     {
-        private string _role = "Cashier";
-
-        // Raised when the user presses "Enter as ...". The controller reads the properties below.
+        // Raised when the user presses "Sign In". The controller or view reads the properties below.
         public event EventHandler LoginRequested;
 
-        public string SelectedRole { get { return _role; } }
         public string Username { get { return txtUser.Text.Trim(); } }
         public string Password { get { return txtPass.Text; } }
         public bool KeepSignedIn { get { return chkRemember.Checked; } }
@@ -43,12 +40,8 @@ namespace Login
             CenterVertically(txtPass);
             SetCue(txtUser, "Enter your username");
             SetCue(txtPass, "Enter your password");
-            SetRole("Cashier");
             ActiveControl = txtUser;
         }
-
-        private void btnCashier_Click(object sender, EventArgs e) { SetRole("Cashier"); }
-        private void btnAdmin_Click(object sender, EventArgs e) { SetRole("Admin"); }
 
         private void btnShowPass_Click(object sender, EventArgs e)
         {
@@ -66,30 +59,41 @@ namespace Login
             }
 
             var handler = LoginRequested;
-            if (handler != null) handler(this, EventArgs.Empty);
-        }
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+                return;
+            }
 
-        // ------------------------------------------------------------ role toggle
-
-        private void SetRole(string role)
-        {
-            _role = role;
-            bool cashier = role == "Cashier";
-
-            StyleRoleButton(btnCashier, cashier);
-            StyleRoleButton(btnAdmin, !cashier);
-
-            btnSignIn.Text = cashier ? "ENTER AS CASHIER" : "ENTER AS ADMIN";
-            lblRoleNote.Text = cashier
-                ? "Cashiers ring up sales and check stock."
-                : "Admins manage products, staffs and reports.";
-        }
-
-        private static void StyleRoleButton(RoundedButton b, bool selected)
-        {
-            b.FillTop = selected ? CoopTheme.Ink : Color.Transparent;
-            b.FillBottom = selected ? CoopTheme.Ink : Color.Transparent;
-            b.ForeColor = selected ? CoopTheme.Cream : CoopTheme.Brown;
+            // Direct fallback authentication
+            if (Username.Equals("admin", StringComparison.OrdinalIgnoreCase) && Password == "admin123")
+            {
+                this.Hide();
+                var adminForm = new AdminDB();
+                adminForm.StartPosition = FormStartPosition.CenterScreen;
+                adminForm.Show();
+                adminForm.FormClosed += (s, args) =>
+                {
+                    txtPass.Clear();
+                    this.Show();
+                };
+            }
+            else if (Username.Equals("staff", StringComparison.OrdinalIgnoreCase) && Password == "staff123")
+            {
+                this.Hide();
+                var staffForm = new Form2();
+                staffForm.StartPosition = FormStartPosition.CenterScreen;
+                staffForm.Show();
+                staffForm.FormClosed += (s, args) =>
+                {
+                    txtPass.Clear();
+                    this.Show();
+                };
+            }
+            else
+            {
+                ShowError("Invalid username or password. Please try again.");
+            }
         }
 
         // ------------------------------------------------------------ painting

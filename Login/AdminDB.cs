@@ -200,7 +200,7 @@ namespace Login
             // TODO: Palitan ng navigation papunta sa forms ng groupmates mo
             if (clicked == btnNavInventory)
             {
-                MessageBox.Show("Navigate to Inventory Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminInventory());
             }
             else if (clicked == btnNavTransactions)
             {
@@ -208,7 +208,7 @@ namespace Login
             }
             else if (clicked == btnNavReports)
             {
-                MessageBox.Show("Navigate to Reports Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminReports());
             }
             else if (clicked == btnNavSettings)
             {
@@ -229,7 +229,9 @@ namespace Login
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.CenterScreen;
+            targetForm.StartPosition = FormStartPosition.Manual;
+            targetForm.Location = this.Location;
+            targetForm.Size = this.Size;
             targetForm.Show();
             this.Hide();
             targetForm.FormClosed += (s, args) => this.Close();

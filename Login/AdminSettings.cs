@@ -229,6 +229,39 @@ namespace Login
 
             btnBackupNow.Paint += (s, e) => DrawGoldPillButton(e.Graphics, btnBackupNow, 14);
             btnBackupNow.Click += BtnBackupNow_Click;
+
+            // Numeric Input Placeholder for txtLowStock
+            string lastLowStock = string.IsNullOrWhiteSpace(txtLowStock.Text) ? "10" : txtLowStock.Text.Trim();
+            txtLowStock.Enter += (s, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(txtLowStock.Text))
+                {
+                    lastLowStock = txtLowStock.Text.Trim();
+                }
+                txtLowStock.Text = "";
+            };
+            txtLowStock.Leave += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(txtLowStock.Text))
+                {
+                    txtLowStock.Text = string.IsNullOrWhiteSpace(lastLowStock) ? "10" : lastLowStock;
+                }
+                else
+                {
+                    lastLowStock = txtLowStock.Text.Trim();
+                }
+            };
+            txtLowStock.KeyPress += (s, e) =>
+            {
+                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+                {
+                    e.Handled = true;
+                }
+            };
+
+            // Remove focus on background clicks
+            pnlConfigCard.Click += (s, e) => { this.ActiveControl = null; };
+            this.Click += (s, e) => { this.ActiveControl = null; };
         }
 
         // ==========================================================
@@ -242,14 +275,11 @@ namespace Login
 
             if (clicked == btnNavDashboard)
             {
-                AdminDB dash = new AdminDB();
-                dash.Show();
-                this.Hide();
-                dash.FormClosed += (s, args) => this.Close();
+                SwitchForm(new AdminDB());
             }
             else if (clicked == btnNavInventory)
             {
-                MessageBox.Show("Navigate to Inventory Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminInventory());
             }
             else if (clicked == btnNavTransactions)
             {
@@ -257,7 +287,7 @@ namespace Login
             }
             else if (clicked == btnNavReports)
             {
-                MessageBox.Show("Navigate to Reports Form", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SwitchForm(new AdminReports());
             }
         }
 
@@ -274,7 +304,9 @@ namespace Login
 
         private void SwitchForm(Form targetForm)
         {
-            targetForm.StartPosition = FormStartPosition.CenterScreen;
+            targetForm.StartPosition = FormStartPosition.Manual;
+            targetForm.Location = this.Location;
+            targetForm.Size = this.Size;
             targetForm.Show();
             this.Hide();
             targetForm.FormClosed += (s, args) => this.Close();
