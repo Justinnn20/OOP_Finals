@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using Login;
 using UMakCoop.Controllers;
 using UMakCoop.Models;
 using UMakCoop.Services;
@@ -248,7 +249,7 @@ namespace UMakCoop.Views
 
             if (receipt.Status == ReceiptStatus.Voided)
             {
-                MessageBox.Show(receipt.ReceiptNo + " is already voided.");
+                CoopMessageBox.Show(FindForm(), receipt.ReceiptNo + " is already voided.", "Void Order", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -262,7 +263,7 @@ namespace UMakCoop.Views
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException || ex is InvalidOperationException)
             {
-                MessageBox.Show(ex.Message);
+                CoopMessageBox.Show(FindForm(), ex.Message, "Void Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -280,7 +281,7 @@ namespace UMakCoop.Views
             IList<Receipt> rows = CurrentList();
             if (rows.Count == 0)
             {
-                MessageBox.Show("There are no transactions in the list to export.");
+                CoopMessageBox.Show(FindForm(), "There are no transactions in the list to export.", "Export Transactions", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -294,11 +295,11 @@ namespace UMakCoop.Views
                 try
                 {
                     CsvExporter.Write(dialog.FileName, rows);
-                    MessageBox.Show("Exported " + rows.Count + " transaction(s) to:\n" + dialog.FileName);
+                    CoopMessageBox.Show(FindForm(), "Exported " + rows.Count + " transaction(s) to:\n" + dialog.FileName, "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
                 {
-                    MessageBox.Show("Could not save the file. If it is open in Excel, close it and try again.\n\n" + ex.Message);
+                    CoopMessageBox.Show(FindForm(), "Could not save the file. If it is open in Excel, close it and try again.\n\n" + ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

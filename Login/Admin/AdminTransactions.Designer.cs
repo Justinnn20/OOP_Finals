@@ -709,7 +709,7 @@
             // 
             // pnlTxnList
             // 
-            this.pnlTxnList.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlTxnList.BackColor = System.Drawing.Color.Transparent;
             this.pnlTxnList.Location = new System.Drawing.Point(18, 118);
             this.pnlTxnList.Name = "pnlTxnList";
             this.pnlTxnList.Size = new System.Drawing.Size(800, 294);

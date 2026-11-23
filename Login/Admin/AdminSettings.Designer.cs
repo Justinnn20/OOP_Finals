@@ -465,7 +465,7 @@
             // 
             // pnlStaffList
             // 
-            this.pnlStaffList.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlStaffList.BackColor = System.Drawing.Color.Transparent;
             this.pnlStaffList.Location = new System.Drawing.Point(20, 134);
             this.pnlStaffList.Name = "pnlStaffList";
             this.pnlStaffList.Size = new System.Drawing.Size(716, 345);

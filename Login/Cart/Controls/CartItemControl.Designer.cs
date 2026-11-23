@@ -50,13 +50,13 @@ namespace Login.Controls
             // lblItemSubtotal
             // 
             lblItemSubtotal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            lblItemSubtotal.Font = new System.Drawing.Font("Georgia", 11.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            lblItemSubtotal.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             lblItemSubtotal.ForeColor = System.Drawing.Color.FromArgb(44, 16, 22);
             lblItemSubtotal.Location = new System.Drawing.Point(170, 8);
             lblItemSubtotal.Name = "lblItemSubtotal";
             lblItemSubtotal.Size = new System.Drawing.Size(114, 22);
             lblItemSubtotal.TabIndex = 2;
-            lblItemSubtotal.Text = "₱0";
+            lblItemSubtotal.Text = "₱  0";
             lblItemSubtotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnMinus

@@ -34,16 +34,18 @@ namespace Login.Models
             OrderId = customId;
         }
 
-        public OrderItem? FindItem(string sku)
+        public OrderItem? FindItem(string sku, string? variant = null)
         {
-            return Items.FirstOrDefault(i => string.Equals(i.Product.Sku, sku, StringComparison.OrdinalIgnoreCase));
+            return Items.FirstOrDefault(i =>
+                string.Equals(i.Product.Sku, sku, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(i.Product.Variant, variant, StringComparison.OrdinalIgnoreCase));
         }
 
         public void AddItem(Product product, int quantity = 1)
         {
             if (product == null || quantity <= 0) return;
 
-            var existing = FindItem(product.Sku);
+            var existing = FindItem(product.Sku, product.Variant);
             if (existing != null)
             {
                 existing.Increment(quantity);
