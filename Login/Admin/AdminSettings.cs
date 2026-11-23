@@ -31,7 +31,7 @@ namespace Login
         private string activeRoleFilter = "ALL";
         private bool isSearchPlaceholder = true;
         private int currentPage = 1;
-        private int pageSize = 5;
+        private const int PageSize = 5;
 
         // Toggle States
         private bool acceptGcash = true;
@@ -108,13 +108,13 @@ namespace Login
 
             int margin = 28;
             int gap = 16;
-            int availableWidth = Math.Max(980, this.ClientSize.Width) - (margin * 2);
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
 
             int topY = 144;
             int bottomMargin = 20;
             int availableHeight = Math.Max(520, this.ClientSize.Height - topY - bottomMargin);
 
-            int staffWidth = (int)(availableWidth * 0.60);
+            int staffWidth = (int)(availableWidth * 0.62);
             int rightWidth = availableWidth - staffWidth - gap;
 
             pnlStaffCard.Location = new Point(margin, topY);
@@ -130,50 +130,15 @@ namespace Login
             pnlSecurityCard.Size = new Size(rightWidth, secHeight);
 
             // Adjust children of pnlStaffCard
-            pnlStaffList.Location = new Point(20, 134);
-            pnlStaffList.Width = pnlStaffCard.Width - 40;
-            pnlStaffList.Height = Math.Max(200, pnlStaffCard.Height - 180);
+            pnlStaffList.Width = pnlStaffCard.Width - 36;
+            pnlStaffList.Height = Math.Max(200, pnlStaffCard.Height - 120);
 
-            pageSize = Math.Max(5, Math.Min(10, (pnlStaffList.Height - 10) / 68));
-
-            lblStaffTitle.Location = new Point(18, 14);
-            pnlSearchBox.Location = new Point(18, 44);
-            btnFilterAll.Location = new Point(pnlSearchBox.Right + 10, 45);
-            btnFilterCashier.Location = new Point(btnFilterAll.Right + 6, 45);
-            btnFilterStaff.Location = new Point(btnFilterCashier.Right + 6, 45);
-            btnAddStaff.Location = new Point(pnlStaffCard.Width - btnAddStaff.Width - 20, 42);
+            btnAddStaff.Location = new Point(pnlStaffCard.Width - btnAddStaff.Width - 18, 40);
 
             lblStaffShowing.Location = new Point(24, pnlStaffCard.Height - 34);
-            btnPageNext.Location = new Point(pnlStaffCard.Width - btnPageNext.Width - 20, pnlStaffCard.Height - 36);
+            btnPageNext.Location = new Point(pnlStaffCard.Width - btnPageNext.Width - 18, pnlStaffCard.Height - 36);
             lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlStaffCard.Height - 34);
             btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlStaffCard.Height - 36);
-
-            // Adjust children of pnlConfigCard
-            int cfgW = pnlConfigCard.Width - 40;
-            pnlStoreNameWrap.Width = cfgW;
-            txtStoreName.Width = cfgW - 20;
-
-            pnlReceiptFooterWrap.Width = cfgW;
-            txtReceiptFooter.Width = cfgW - 20;
-
-            int halfW = (cfgW - 16) / 2;
-            pnlLowStockWrap.Width = halfW;
-            txtLowStock.Width = halfW - 20;
-
-            lblTaxRate.Left = 20 + halfW + 16;
-            pnlTaxRateWrap.Left = 20 + halfW + 16;
-            pnlTaxRateWrap.Width = halfW;
-            txtTaxRate.Width = halfW - 20;
-
-            pnlToggleGcash.Left = pnlConfigCard.Width - pnlToggleGcash.Width - 24;
-            pnlToggleAutoPrint.Left = pnlConfigCard.Width - pnlToggleAutoPrint.Width - 24;
-
-            btnSaveSettings.Left = pnlConfigCard.Width - btnSaveSettings.Width - 24;
-
-            // Adjust children of pnlSecurityCard
-            btnChangePass.Left = pnlSecurityCard.Width - btnChangePass.Width - 24;
-            btnBackupNow.Left = pnlSecurityCard.Width - btnBackupNow.Width - 24;
-            pnlToggleLogs.Left = pnlSecurityCard.Width - pnlToggleLogs.Width - 24;
 
             RenderStaffTable();
             this.Invalidate(true);
@@ -311,7 +276,7 @@ namespace Login
             btnPageNext.Click += (s, e) =>
             {
                 int totalFiltered = GetFilteredStaff().Count;
-                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
+                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
                 if (currentPage < maxPage)
                 {
                     currentPage++;
@@ -498,11 +463,11 @@ namespace Login
 
             List<StaffAccount> filtered = GetFilteredStaff();
             int totalFiltered = filtered.Count;
-            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
             if (currentPage > totalPages) currentPage = totalPages;
 
-            int startIndex = (currentPage - 1) * pageSize;
-            int countToShow = Math.Min(pageSize, totalFiltered - startIndex);
+            int startIndex = (currentPage - 1) * PageSize;
+            int countToShow = Math.Min(PageSize, totalFiltered - startIndex);
 
             int rowHeight = 68;
 
@@ -522,18 +487,6 @@ namespace Login
             }
             else
             {
-                int totalW = pnlStaffList.Width;
-                int colNameW = (int)(totalW * 0.28);
-                int colUserW = (int)(totalW * 0.18);
-                int colRoleW = (int)(totalW * 0.16);
-                int colStatusW = (int)(totalW * 0.16);
-
-                int colNameX = 6;
-                int colUserX = colNameX + colNameW;
-                int colRoleX = colUserX + colUserW;
-                int colStatusX = colRoleX + colRoleW;
-                int colActionX = colStatusX + colStatusW;
-
                 for (int i = 0; i < countToShow; i++)
                 {
                     StaffAccount staff = filtered[startIndex + i];
@@ -542,7 +495,7 @@ namespace Login
                     Panel row = new Panel
                     {
                         Location = new Point(0, i * rowHeight),
-                        Size = new Size(totalW, rowHeight),
+                        Size = new Size(pnlStaffList.Width, rowHeight),
                         BackColor = clrParchment
                     };
 
@@ -551,27 +504,16 @@ namespace Login
                         Graphics g = e.Graphics;
                         g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                        // Status Pill Badge with wizardly styling
-                        int bW = 96;
-                        int bH = 26;
-                        Rectangle badgeRect = new Rectangle(colStatusX + (colStatusW - bW) / 2, 21, bW, bH);
+                        // Status Pill Badge
+                        Rectangle badgeRect = new Rectangle(376, 21, 86, 25);
                         Color bg = staff.IsActive ? clrActiveGreen : clrInactiveGray;
                         Color fg = staff.IsActive ? Color.White : clrTextDark;
-                        string statusTxt = staff.IsActive ? "✦ ACTIVE ✦" : "✦ INACTIVE ✦";
+                        string statusTxt = staff.IsActive ? "ACTIVE" : "INACTIVE";
 
                         using (GraphicsPath badgePath = GetRoundedRectPath(badgeRect, 12))
                         using (SolidBrush bBrush = new SolidBrush(bg))
                         {
                             g.FillPath(bBrush, badgePath);
-                        }
-
-                        if (staff.IsActive)
-                        {
-                            using (Pen goldBorder = new Pen(clrGold, 1.2f))
-                            using (GraphicsPath bp = GetRoundedRectPath(badgeRect, 12))
-                            {
-                                g.DrawPath(goldBorder, bp);
-                            }
                         }
 
                         TextRenderer.DrawText(g, statusTxt, new Font("Segoe UI", 7.5F, FontStyle.Bold),
@@ -592,8 +534,8 @@ namespace Login
                         Text = staff.FullName,
                         Font = new Font("Georgia", 10F, FontStyle.Regular),
                         ForeColor = clrTextDark,
-                        Location = new Point(colNameX, 23),
-                        Size = new Size(colNameW - 10, 22),
+                        Location = new Point(2, 23),
+                        Size = new Size(164, 22),
                         AutoEllipsis = true,
                         BackColor = Color.Transparent
                     };
@@ -603,8 +545,8 @@ namespace Login
                         Text = staff.Username,
                         Font = new Font("Georgia", 9.5F, FontStyle.Regular),
                         ForeColor = Color.FromArgb(68, 42, 34),
-                        Location = new Point(colUserX, 23),
-                        Size = new Size(colUserW - 10, 22),
+                        Location = new Point(172, 23),
+                        Size = new Size(116, 22),
                         AutoEllipsis = true,
                         BackColor = Color.Transparent
                     };
@@ -614,21 +556,21 @@ namespace Login
                         Text = staff.Role,
                         Font = new Font("Georgia", 9.5F, FontStyle.Regular),
                         ForeColor = clrTextDark,
-                        Location = new Point(colRoleX, 23),
-                        Size = new Size(colRoleW - 10, 22),
+                        Location = new Point(292, 23),
+                        Size = new Size(80, 22),
                         BackColor = Color.Transparent
                     };
 
                     Button btnEdit = new Button
                     {
-                        Text = "✦ EDIT",
+                        Text = "EDIT",
                         Font = new Font("Georgia", 8F, FontStyle.Bold),
                         ForeColor = clrTextDark,
                         BackColor = clrParchment,
                         FlatStyle = FlatStyle.Flat,
                         Cursor = Cursors.Hand,
-                        Location = new Point(colActionX + 6, 19),
-                        Size = new Size(74, 29)
+                        Location = new Point(496, 19),
+                        Size = new Size(86, 29)
                     };
                     btnEdit.FlatAppearance.BorderSize = 0;
                     btnEdit.Paint += (s, e) => DrawGoldPillButton(e.Graphics, btnEdit, 14);
@@ -636,14 +578,14 @@ namespace Login
 
                     Button btnDelete = new Button
                     {
-                        Text = "✕ DELETE",
+                        Text = "DELETE",
                         Font = new Font("Georgia", 8F, FontStyle.Bold),
                         ForeColor = Color.White,
                         BackColor = clrParchment,
                         FlatStyle = FlatStyle.Flat,
                         Cursor = Cursors.Hand,
-                        Location = new Point(colActionX + 86, 19),
-                        Size = new Size(88, 29)
+                        Location = new Point(592, 19),
+                        Size = new Size(104, 29)
                     };
                     btnDelete.FlatAppearance.BorderSize = 0;
                     btnDelete.Paint += (s, e) => DrawCrimsonPillButton(e.Graphics, btnDelete, 14);
@@ -849,7 +791,7 @@ namespace Login
             card.Controls.Add(btnCancel);
             card.Controls.Add(btnSave);
 
-            modal.ShowDialog(this);
+            modal.ShowDialog(this.TopLevelControl ?? this);
         }
 
         private TextBox CreateModalInput(Panel parent, string labelText, string initialValue, int yPos)
@@ -996,7 +938,7 @@ namespace Login
 
             card.Controls.Add(lblHeader);
             card.Controls.Add(btnSave);
-            modal.ShowDialog(this);
+            modal.ShowDialog(this.TopLevelControl ?? this);
         }
 
         private void BtnBackupNow_Click(object sender, EventArgs e)
@@ -1048,35 +990,22 @@ namespace Login
             Graphics g = e.Graphics;
             DrawParchmentCard(g, pnlStaffCard.ClientRectangle, 16);
 
-            // Calculate dynamic column headers matching row layout
-            int listW = pnlStaffList.Width;
-            int colNameW = (int)(listW * 0.28);
-            int colUserW = (int)(listW * 0.18);
-            int colRoleW = (int)(listW * 0.16);
-            int colStatusW = (int)(listW * 0.16);
-
-            int colNameX = 20 + 6;
-            int colUserX = colNameX + colNameW;
-            int colRoleX = colUserX + colUserW;
-            int colStatusX = colRoleX + colRoleW;
-            int colActionX = colStatusX + colStatusW;
-
             // Table Column Headers
             using (Font hdrFont = new Font("Georgia", 8.5F, FontStyle.Bold))
-            using (SolidBrush hdrBrush = new SolidBrush(clrMaroon))
+            using (SolidBrush hdrBrush = new SolidBrush(clrTextDark))
             {
-                g.DrawString("STAFF NAME", hdrFont, hdrBrush, colNameX, 106);
-                g.DrawString("USERNAME", hdrFont, hdrBrush, colUserX, 106);
-                g.DrawString("ROLE", hdrFont, hdrBrush, colRoleX, 106);
-                g.DrawString("STATUS", hdrFont, hdrBrush, colStatusX + 16, 106);
-                g.DrawString("ACTIONS", hdrFont, hdrBrush, colActionX + 24, 106);
+                g.DrawString("STAFF NAME", hdrFont, hdrBrush, 22, 106);
+                g.DrawString("USERNAME", hdrFont, hdrBrush, 192, 106);
+                g.DrawString("ROLE", hdrFont, hdrBrush, 312, 106);
+                g.DrawString("STATUS", hdrFont, hdrBrush, 404, 106);
+                g.DrawString("ACTIONS", hdrFont, hdrBrush, 566, 106);
             }
 
             // Header & Footer Dividers
             using (Pen divPen = new Pen(clrDivider, 1.2f))
             {
                 g.DrawLine(divPen, 20, 129, pnlStaffCard.Width - 20, 129);
-                g.DrawLine(divPen, 20, pnlStaffCard.Height - 48, pnlStaffCard.Width - 20, pnlStaffCard.Height - 48);
+                g.DrawLine(divPen, 20, 484, pnlStaffCard.Width - 20, 484);
             }
         }
 
@@ -1085,51 +1014,12 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
 
-            // Illuminated Parchment Gradient
-            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
-                rect,
-                Color.FromArgb(252, 244, 222),
-                Color.FromArgb(238, 220, 180),
-                LinearGradientMode.Vertical))
+            using (GraphicsPath path = GetRoundedRectPath(rect, radius))
+            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
+            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
             {
-                using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-                {
-                    g.FillPath(bgBrush, path);
-                    using (Pen borderPen = new Pen(clrGoldBorder, 1.8f))
-                    {
-                        g.DrawPath(borderPen, path);
-                    }
-                }
-            }
-
-            // Inset Fine Gold Filigree Border & Corner Diamonds
-            if (bounds.Width > 50 && bounds.Height > 50)
-            {
-                Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
-                using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
-                using (Pen innerPen = new Pen(Color.FromArgb(215, 180, 100), 1f))
-                {
-                    g.DrawPath(innerPen, innerPath);
-                }
-
-                DrawCornerDiamond(g, 9, 9);
-                DrawCornerDiamond(g, bounds.Width - 10, 9);
-                DrawCornerDiamond(g, 9, bounds.Height - 10);
-                DrawCornerDiamond(g, bounds.Width - 10, bounds.Height - 10);
-            }
-        }
-
-        private void DrawCornerDiamond(Graphics g, int cx, int cy)
-        {
-            using (SolidBrush b = new SolidBrush(Color.FromArgb(196, 152, 54)))
-            {
-                Point[] pts = {
-                    new Point(cx, cy - 3),
-                    new Point(cx + 3, cy),
-                    new Point(cx, cy + 3),
-                    new Point(cx - 3, cy)
-                };
-                g.FillPolygon(b, pts);
+                g.FillPath(bgBrush, path);
+                g.DrawPath(borderPen, path);
             }
         }
 

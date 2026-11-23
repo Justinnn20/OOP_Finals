@@ -47,7 +47,7 @@ namespace Login
 
         // Pagination
         private int currentPage = 1;
-        private int pageSize = 6;
+        private const int PageSize = 6;
 
         public AdminInventory()
         {
@@ -136,8 +136,6 @@ namespace Login
             pnlItemList.Width = pnlCatalogCard.Width - 36;
             pnlItemList.Height = Math.Max(200, pnlCatalogCard.Height - 120);
 
-            pageSize = Math.Max(6, Math.Min(12, (pnlItemList.Height - 10) / 48));
-
             btnAddItemModal.Location = new Point(pnlCatalogCard.Width - btnAddItemModal.Width - 18, 40);
             cmbFilterCategory.Location = new Point(btnAddItemModal.Left - cmbFilterCategory.Width - 10, 42);
 
@@ -146,112 +144,8 @@ namespace Login
             lblPageNum.Location = new Point(btnPageNext.Left - lblPageNum.Width - 4, pnlCatalogCard.Height - 34);
             btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlCatalogCard.Height - 36);
 
-            LayoutDetailCard();
             RenderInventoryTable();
             this.Invalidate(true);
-        }
-
-        private void LayoutDetailCard()
-        {
-            if (pnlDetailCard == null) return;
-
-            int cardW = pnlDetailCard.Width;
-            int cardH = pnlDetailCard.Height;
-            int padX = 22;
-            int innerW = Math.Max(260, cardW - (padX * 2));
-
-            lblDetailTitle.Font = new Font("Georgia", 11.5F, FontStyle.Bold);
-            lblDetailTitle.Location = new Point(padX, 15);
-
-            Font labelFont = new Font("Georgia", 8.5F, FontStyle.Bold);
-            Font inputFont = new Font("Georgia", 9.5F);
-
-            lblSku.Font = labelFont;
-            lblName.Font = labelFont;
-            lblCategory.Font = labelFont;
-            lblPrice.Font = labelFont;
-            lblStock.Font = labelFont;
-            lblReorder.Font = labelFont;
-
-            txtSku.Font = inputFont;
-            txtName.Font = inputFont;
-            cmbCategory.Font = inputFont;
-            txtPrice.Font = inputFont;
-            txtStock.Font = inputFont;
-            txtReorder.Font = inputFont;
-
-            txtSku.Width = innerW;
-            txtName.Width = innerW;
-            cmbCategory.Width = innerW;
-
-            txtSku.Height = 24;
-            txtName.Height = 24;
-            txtPrice.Height = 24;
-            txtStock.Height = 24;
-            txtReorder.Height = 24;
-
-            int colGap = 10;
-            int colW = (innerW - (colGap * 2)) / 3;
-            lblPrice.Left = padX;
-            txtPrice.Left = padX;
-            txtPrice.Width = colW;
-
-            lblStock.Left = padX + colW + colGap;
-            txtStock.Left = padX + colW + colGap;
-            txtStock.Width = colW;
-
-            lblReorder.Left = padX + (colW + colGap) * 2;
-            txtReorder.Left = padX + (colW + colGap) * 2;
-            txtReorder.Width = innerW - (colW + colGap) * 2;
-
-            btnSaveItem.Width = innerW;
-            btnQuickRestock.Width = innerW;
-            btnSaveItem.Left = padX;
-            btnQuickRestock.Left = padX;
-
-            int btnGap = 10;
-            int halfBtnW = (innerW - btnGap) / 2;
-            btnDeleteItem.Left = padX;
-            btnDeleteItem.Width = halfBtnW;
-            btnClearFields.Left = padX + halfBtnW + btnGap;
-            btnClearFields.Width = innerW - halfBtnW - btnGap;
-
-            btnSaveItem.Height = 38;
-            btnQuickRestock.Height = 36;
-            btnDeleteItem.Height = 34;
-            btnClearFields.Height = 34;
-
-            btnSaveItem.Font = new Font("Georgia", 9F, FontStyle.Bold);
-            btnQuickRestock.Font = new Font("Georgia", 8.5F, FontStyle.Bold);
-            btnDeleteItem.Font = new Font("Georgia", 8F, FontStyle.Bold);
-            btnClearFields.Font = new Font("Georgia", 8F, FontStyle.Bold);
-
-            // Dynamic vertical distribution down the card to fit available height gracefully
-            int vGap = Math.Clamp((cardH - 370) / 7, 6, 22);
-
-            int y = 54;
-            lblSku.Location = new Point(padX, y); y += 18;
-            txtSku.Location = new Point(padX, y); y += txtSku.Height + vGap;
-
-            lblName.Location = new Point(padX, y); y += 18;
-            txtName.Location = new Point(padX, y); y += txtName.Height + vGap;
-
-            lblCategory.Location = new Point(padX, y); y += 18;
-            cmbCategory.Location = new Point(padX, y); y += cmbCategory.Height + vGap;
-
-            lblPrice.Top = y;
-            lblStock.Top = y;
-            lblReorder.Top = y;
-            y += 18;
-            txtPrice.Top = y;
-            txtStock.Top = y;
-            txtReorder.Top = y;
-            y += txtPrice.Height + vGap + 4;
-
-            btnSaveItem.Location = new Point(padX, y); y += btnSaveItem.Height + vGap;
-            btnQuickRestock.Location = new Point(padX, y); y += btnQuickRestock.Height + vGap;
-            btnDeleteItem.Top = y;
-            btnClearFields.Top = y;
         }
 
         private void EnableDoubleBuffering(Control control)
@@ -327,7 +221,7 @@ namespace Login
                 DrawParchmentCard(e.Graphics, pnlDetailCard.ClientRectangle, 16);
                 using (Pen divPen = new Pen(clrDivider, 1f))
                 {
-                    e.Graphics.DrawLine(divPen, 18, 46, pnlDetailCard.Width - 18, 46);
+                    e.Graphics.DrawLine(divPen, 18, 42, pnlDetailCard.Width - 18, 42);
                 }
             };
 
@@ -425,7 +319,7 @@ namespace Login
             btnPageNext.Click += (s, e) =>
             {
                 var filtered = GetFilteredItems();
-                int totalPages = Math.Max(1, (int)Math.Ceiling((double)filtered.Count / pageSize));
+                int totalPages = Math.Max(1, (int)Math.Ceiling((double)filtered.Count / PageSize));
                 if (currentPage < totalPages)
                 {
                     currentPage++;
@@ -550,11 +444,11 @@ namespace Login
 
             List<InventoryItem> filtered = GetFilteredItems();
             int totalFiltered = filtered.Count;
-            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
             if (currentPage > totalPages) currentPage = totalPages;
 
-            int startIndex = (currentPage - 1) * pageSize;
-            int countToShow = Math.Min(pageSize, totalFiltered - startIndex);
+            int startIndex = (currentPage - 1) * PageSize;
+            int countToShow = Math.Min(PageSize, totalFiltered - startIndex);
 
             lblCatalogShowing.Text = $"Showing {countToShow} of {totalFiltered} items";
             lblPageNum.Text = $"{currentPage} / {totalPages}";
@@ -805,7 +699,7 @@ namespace Login
         {
             if (selectedItem == null) return;
             selectedItem.Stock += 20;
-                CoopDatabase.SetStock(selectedItem.Sku, selectedItem.Stock);
+            CoopDatabase.SetStock(selectedItem.Sku, selectedItem.Stock);
             txtStock.Text = selectedItem.Stock.ToString();
             UpdateKpiCards();
             RenderInventoryTable();
@@ -913,19 +807,19 @@ namespace Login
 
             if (clicked == btnNavDashboard)
             {
-                SwitchForm(new AdminDB());
+                SwitchForm(AdminShell.GetPage<AdminDB>());
             }
             else if (clicked == btnNavTransactions)
             {
-                SwitchForm(new AdminTransactions());
+                SwitchForm(AdminShell.GetPage<AdminTransactions>());
             }
             else if (clicked == btnNavReports)
             {
-                SwitchForm(new AdminReports());
+                SwitchForm(AdminShell.GetPage<AdminReports>());
             }
             else if (clicked == btnNavSettings)
             {
-                SwitchForm(new AdminSettings());
+                SwitchForm(AdminShell.GetPage<AdminSettings>());
             }
         }
 
@@ -1097,51 +991,12 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
 
-            // Illuminated Parchment Gradient
-            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
-                rect,
-                Color.FromArgb(252, 244, 222),
-                Color.FromArgb(238, 220, 180),
-                LinearGradientMode.Vertical))
+            using (GraphicsPath path = GetRoundedRectPath(rect, radius))
+            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
+            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
             {
-                using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-                {
-                    g.FillPath(bgBrush, path);
-                    using (Pen borderPen = new Pen(clrGoldBorder, 1.8f))
-                    {
-                        g.DrawPath(borderPen, path);
-                    }
-                }
-            }
-
-            // Inset Fine Gold Filigree Border & Corner Diamonds
-            if (bounds.Width > 50 && bounds.Height > 50)
-            {
-                Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
-                using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
-                using (Pen innerPen = new Pen(Color.FromArgb(215, 180, 100), 1f))
-                {
-                    g.DrawPath(innerPen, innerPath);
-                }
-
-                DrawCornerDiamond(g, 9, 9);
-                DrawCornerDiamond(g, bounds.Width - 10, 9);
-                DrawCornerDiamond(g, 9, bounds.Height - 10);
-                DrawCornerDiamond(g, bounds.Width - 10, bounds.Height - 10);
-            }
-        }
-
-        private void DrawCornerDiamond(Graphics g, int cx, int cy)
-        {
-            using (SolidBrush b = new SolidBrush(Color.FromArgb(196, 152, 54)))
-            {
-                Point[] pts = {
-                    new Point(cx, cy - 3),
-                    new Point(cx + 3, cy),
-                    new Point(cx, cy + 3),
-                    new Point(cx - 3, cy)
-                };
-                g.FillPolygon(b, pts);
+                g.FillPath(bgBrush, path);
+                g.DrawPath(borderPen, path);
             }
         }
 

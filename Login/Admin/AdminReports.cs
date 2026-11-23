@@ -29,7 +29,7 @@ namespace Login
         private Button activeNavButton;
         private string activePeriodFilter = "WEEK"; // TODAY, WEEK, MONTH, ALL
         private int currentPage = 1;
-        private int pageSize = 6;
+        private const int PageSize = 6;
 
         // Models
         public class AuditReportRow
@@ -96,7 +96,7 @@ namespace Login
 
             int margin = 28;
             int gap = 16;
-            int availableWidth = Math.Max(980, this.ClientSize.Width) - (margin * 2);
+            int availableWidth = Math.Max(1200, this.ClientSize.Width) - (margin * 2);
 
             // 4 KPI Cards across top
             int cardWidth = (availableWidth - (gap * 3)) / 4;
@@ -117,7 +117,7 @@ namespace Login
             int bottomMargin = 20;
             int availableHeight = Math.Max(420, this.ClientSize.Height - topY - bottomMargin);
 
-            int auditWidth = (int)(availableWidth * 0.62);
+            int auditWidth = (int)(availableWidth * 0.63);
             int rightWidth = availableWidth - auditWidth - gap;
 
             pnlAuditCard.Location = new Point(margin, topY);
@@ -136,19 +136,7 @@ namespace Login
             pnlAuditList.Width = pnlAuditCard.Width - 36;
             pnlAuditList.Height = Math.Max(200, pnlAuditCard.Height - 120);
 
-            pageSize = Math.Max(6, Math.Min(12, (pnlAuditList.Height - 38) / 46));
-
-            lblAuditTitle.AutoSize = true;
-            lblAuditTitle.Location = new Point(18, 14);
-
-            int pillY = 10;
-            int filterX = Math.Max(210, lblAuditTitle.Right + 14);
-            btnFilterToday.Location = new Point(filterX, pillY);
-            btnFilterWeek.Location = new Point(btnFilterToday.Right + 6, pillY);
-            btnFilterMonth.Location = new Point(btnFilterWeek.Right + 6, pillY);
-            btnFilterAllPeriods.Location = new Point(btnFilterMonth.Right + 6, pillY);
-
-            btnExportAudit.Location = new Point(pnlAuditCard.Width - btnExportAudit.Width - 18, pillY);
+            btnExportAudit.Location = new Point(pnlAuditCard.Width - btnExportAudit.Width - 18, 10);
 
             lblAuditShowing.Location = new Point(24, pnlAuditCard.Height - 34);
             btnPageNext.Location = new Point(pnlAuditCard.Width - btnPageNext.Width - 18, pnlAuditCard.Height - 36);
@@ -158,29 +146,6 @@ namespace Login
             // Adjust children of right panels
             pnlTopSellingList.Width = pnlTopSellingCard.Width - 36;
             pnlTopSellingList.Height = Math.Max(120, pnlTopSellingCard.Height - 65);
-
-            int sumPad = 18;
-            int sumInnerW = pnlSummaryCard.Width - (sumPad * 2);
-            lblSummaryTitle.Left = sumPad;
-            lblAvgOrderTag.Left = sumPad;
-            lblUnitsSoldTag.Left = sumPad;
-            lblVoidRateTag.Left = sumPad;
-            lblAvgOrderVal.Left = pnlSummaryCard.Width - lblAvgOrderVal.Width - sumPad;
-            lblUnitsSoldVal.Left = pnlSummaryCard.Width - lblUnitsSoldVal.Width - sumPad;
-            lblVoidRateVal.Left = pnlSummaryCard.Width - lblVoidRateVal.Width - sumPad;
-            btnPrintAudit.Left = sumPad;
-            btnPrintAudit.Width = sumInnerW;
-            btnCsvAudit.Left = sumPad;
-            btnCsvAudit.Width = sumInnerW;
-
-            int sumCardH = pnlSummaryCard.Height;
-            int sumY = 46;
-            int sumGap = Math.Clamp((sumCardH - 190) / 4, 4, 16);
-            lblAvgOrderTag.Top = sumY; lblAvgOrderVal.Top = sumY - 2; sumY += 20 + sumGap;
-            lblUnitsSoldTag.Top = sumY; lblUnitsSoldVal.Top = sumY - 2; sumY += 20 + sumGap;
-            lblVoidRateTag.Top = sumY; lblVoidRateVal.Top = sumY - 2; sumY += 20 + sumGap;
-            btnPrintAudit.Top = sumY; sumY += btnPrintAudit.Height + 8;
-            btnCsvAudit.Top = sumY;
 
             RenderAuditTable();
             this.Invalidate(true);
@@ -305,7 +270,7 @@ namespace Login
             btnPageNext.Click += (s, e) =>
             {
                 var filtered = GetFilteredRecords();
-                int totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)pageSize));
+                int totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)PageSize));
                 if (currentPage < totalPages)
                 {
                     currentPage++;
@@ -351,19 +316,19 @@ namespace Login
 
             if (clicked == btnNavDashboard)
             {
-                SwitchForm(new AdminDB());
+                SwitchForm(AdminShell.GetPage<AdminDB>());
             }
             else if (clicked == btnNavInventory)
             {
-                SwitchForm(new AdminInventory());
+                SwitchForm(AdminShell.GetPage<AdminInventory>());
             }
             else if (clicked == btnNavTransactions)
             {
-                SwitchForm(new AdminTransactions());
+                SwitchForm(AdminShell.GetPage<AdminTransactions>());
             }
             else if (clicked == btnNavSettings)
             {
-                SwitchForm(new AdminSettings());
+                SwitchForm(AdminShell.GetPage<AdminSettings>());
             }
         }
 
@@ -513,7 +478,7 @@ namespace Login
             lblGcashSalesSub.Text = $"{((totalNet > 0) ? (totalGcash / totalNet * 100m) : 0):F0}% digital cashless";
 
             lblDiscVal.Text = $"₱ {totalDiscounts:N0}";
-            lblDiscSub.Text = "Senior & PWD allowances";
+            lblDiscSub.Text = "Scholar & Staff allowances";
         }
 
         private void RenderAuditTable()
@@ -524,49 +489,32 @@ namespace Login
             pnlAuditList.Controls.Clear();
             var filtered = GetFilteredRecords();
 
-            int totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)pageSize));
+            int totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)PageSize));
             if (currentPage > totalPages) currentPage = totalPages;
 
-            int skip = (currentPage - 1) * pageSize;
-            var pageRecords = filtered.Skip(skip).Take(pageSize).ToList();
+            int skip = (currentPage - 1) * PageSize;
+            var pageRecords = filtered.Skip(skip).Take(PageSize).ToList();
 
             lblAuditShowing.Text = $"Showing {pageRecords.Count} of {filtered.Count} audit records";
             lblPageNum.Text = $"{currentPage} / {totalPages}";
             btnPagePrev.Enabled = currentPage > 1;
             btnPageNext.Enabled = currentPage < totalPages;
 
-            // Render Header Row with responsive columns
-            int totalW = pnlAuditList.Width;
-            int colPeriodW = Math.Max(125, (int)(totalW * 0.23));
-            int colOrdersW = Math.Max(55, (int)(totalW * 0.08));
-            int colGrossW = Math.Max(75, (int)(totalW * 0.13));
-            int colDiscW = Math.Max(65, (int)(totalW * 0.10));
-            int colNetW = Math.Max(90, (int)(totalW * 0.14));
-            int colCashW = Math.Max(120, (int)(totalW * 0.17));
-
-            int colPeriodX = 14;
-            int colOrdersX = colPeriodX + colPeriodW;
-            int colGrossX = colOrdersX + colOrdersW;
-            int colDiscX = colGrossX + colGrossW;
-            int colNetX = colDiscX + colDiscW;
-            int colCashX = colNetX + colNetW;
-            int colStatusX = colCashX + colCashW;
-            int colStatusW = Math.Max(80, totalW - colStatusX - 14);
-
+            // Render Header Row
             Panel pnlHeader = new Panel
             {
                 Location = new Point(0, 0),
-                Size = new Size(totalW, 28),
+                Size = new Size(pnlAuditList.Width, 28),
                 BackColor = Color.FromArgb(236, 216, 164)
             };
 
-            AddTableLabel(pnlHeader, "PERIOD / DATE", colPeriodX, 6, colPeriodW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "ORDERS", colOrdersX, 6, colOrdersW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "GROSS", colGrossX, 6, colGrossW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "DISC.", colDiscX, 6, colDiscW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "NET REVENUE", colNetX, 6, colNetW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "CASH / GCASH", colCashX, 6, colCashW - 6, ContentAlignment.MiddleLeft);
-            AddTableLabel(pnlHeader, "STATUS", colStatusX, 6, colStatusW, ContentAlignment.MiddleCenter);
+            AddTableLabel(pnlHeader, "PERIOD / DATE", 16, 6, 125, true);
+            AddTableLabel(pnlHeader, "ORDERS", 146, 6, 65, true);
+            AddTableLabel(pnlHeader, "GROSS", 216, 6, 80, true);
+            AddTableLabel(pnlHeader, "DISC.", 302, 6, 70, true);
+            AddTableLabel(pnlHeader, "NET REVENUE", 378, 6, 100, true);
+            AddTableLabel(pnlHeader, "CASH / GCASH", 488, 6, 150, true);
+            AddTableLabel(pnlHeader, "STATUS", 650, 6, 90, true);
 
             pnlAuditList.Controls.Add(pnlHeader);
 
@@ -578,7 +526,7 @@ namespace Login
                 Panel row = new Panel
                 {
                     Location = new Point(0, y),
-                    Size = new Size(totalW, rowHeight),
+                    Size = new Size(pnlAuditList.Width, rowHeight),
                     BackColor = (y / rowHeight) % 2 == 0 ? clrParchment : Color.FromArgb(249, 237, 202)
                 };
 
@@ -596,19 +544,17 @@ namespace Login
                     Text = rec.PeriodName,
                     Font = new Font("Georgia", 8.5F, FontStyle.Bold),
                     ForeColor = clrTextDark,
-                    Location = new Point(colPeriodX, 5),
-                    Size = new Size(colPeriodW - 6, 18),
-                    AutoEllipsis = true,
+                    Location = new Point(16, 5),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 Label lblDateSub = new Label
                 {
                     Text = rec.Date.ToString("MMM dd, yyyy"),
-                    Font = new Font("Georgia", 7.5F, FontStyle.Italic),
+                    Font = new Font("Segoe UI", 7.5F, FontStyle.Regular),
                     ForeColor = clrMuted,
-                    Location = new Point(colPeriodX, 23),
-                    Size = new Size(colPeriodW - 6, 16),
-                    AutoEllipsis = true,
+                    Location = new Point(16, 23),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblPeriod);
@@ -620,9 +566,8 @@ namespace Login
                     Text = rec.TransactionsCount.ToString(),
                     Font = new Font("Georgia", 8.5F, FontStyle.Bold),
                     ForeColor = clrTextDark,
-                    Location = new Point(colOrdersX, 13),
-                    Size = new Size(colOrdersW - 6, 20),
-                    TextAlign = ContentAlignment.MiddleLeft,
+                    Location = new Point(146, 13),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblOrders);
@@ -633,9 +578,8 @@ namespace Login
                     Text = $"₱ {rec.GrossSales:N0}",
                     Font = new Font("Georgia", 8.5F, FontStyle.Regular),
                     ForeColor = clrTextDark,
-                    Location = new Point(colGrossX, 13),
-                    Size = new Size(colGrossW - 6, 20),
-                    TextAlign = ContentAlignment.MiddleLeft,
+                    Location = new Point(216, 13),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblGross);
@@ -646,9 +590,8 @@ namespace Login
                     Text = $"-₱ {rec.Discounts:N0}",
                     Font = new Font("Georgia", 8.5F, FontStyle.Regular),
                     ForeColor = clrCrimson,
-                    Location = new Point(colDiscX, 13),
-                    Size = new Size(colDiscW - 6, 20),
-                    TextAlign = ContentAlignment.MiddleLeft,
+                    Location = new Point(302, 13),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblDisc);
@@ -659,9 +602,8 @@ namespace Login
                     Text = $"₱ {rec.NetSales:N0}",
                     Font = new Font("Georgia", 9F, FontStyle.Bold),
                     ForeColor = clrMaroon,
-                    Location = new Point(colNetX, 12),
-                    Size = new Size(colNetW - 6, 22),
-                    TextAlign = ContentAlignment.MiddleLeft,
+                    Location = new Point(378, 12),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblNet);
@@ -672,38 +614,22 @@ namespace Login
                     Text = $"₱{rec.CashSales:N0} / ₱{rec.GcashSales:N0}",
                     Font = new Font("Segoe UI", 8F, FontStyle.Regular),
                     ForeColor = clrMuted,
-                    Location = new Point(colCashX, 13),
-                    Size = new Size(colCashW - 6, 20),
-                    TextAlign = ContentAlignment.MiddleLeft,
+                    Location = new Point(488, 13),
+                    AutoSize = true,
                     BackColor = Color.Transparent
                 };
                 row.Controls.Add(lblBreakdown);
 
-                // Status Badge (Wizardly gilded pill)
-                int badgeW = 90;
-                int badgeH = 24;
-                int badgeX = colStatusX + Math.Max(0, (colStatusW - badgeW) / 2);
+                // Status Badge
                 Label lblBadge = new Label
                 {
-                    Text = rec.AuditStatus == "VERIFIED" ? "✦ VERIFIED ✦" : "✦ AUDITED ✦",
+                    Text = rec.AuditStatus,
                     Font = new Font("Segoe UI", 7F, FontStyle.Bold),
                     ForeColor = Color.White,
                     BackColor = rec.AuditStatus == "VERIFIED" ? clrActiveGreen : clrMaroon,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    Location = new Point(badgeX, 11),
-                    Size = new Size(badgeW, badgeH)
-                };
-                lblBadge.Paint += (s, e) =>
-                {
-                    using (Pen bPen = new Pen(clrGold, 1.2f))
-                    {
-                        Rectangle bRect = new Rectangle(0, 0, lblBadge.Width - 1, lblBadge.Height - 1);
-                        using (GraphicsPath bPath = GetRoundedRectPath(bRect, 8))
-                        {
-                            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                            e.Graphics.DrawPath(bPen, bPath);
-                        }
-                    }
+                    Location = new Point(650, 11),
+                    Size = new Size(82, 22)
                 };
                 row.Controls.Add(lblBadge);
 
@@ -714,18 +640,17 @@ namespace Login
             pnlAuditList.ResumeLayout();
         }
 
-        private void AddTableLabel(Panel parent, string text, int x, int y, int width, ContentAlignment align = ContentAlignment.MiddleLeft)
+        private void AddTableLabel(Panel parent, string text, int x, int y, int width, bool bold)
         {
             Label lbl = new Label
             {
                 Text = text,
-                Font = new Font("Georgia", 8F, FontStyle.Bold),
+                Font = new Font("Georgia", 8F, bold ? FontStyle.Bold : FontStyle.Regular),
                 ForeColor = clrMaroon,
                 Location = new Point(x, y),
-                Size = new Size(width, 18),
-                TextAlign = align,
-                BackColor = Color.Transparent,
-                AutoEllipsis = true
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                BackColor = Color.Transparent
             };
             parent.Controls.Add(lbl);
         }
@@ -945,51 +870,12 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
 
-            // Illuminated Parchment Gradient
-            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
-                rect,
-                Color.FromArgb(252, 244, 222),
-                Color.FromArgb(238, 220, 180),
-                LinearGradientMode.Vertical))
+            using (GraphicsPath path = GetRoundedRectPath(rect, radius))
+            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
+            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
             {
-                using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-                {
-                    g.FillPath(bgBrush, path);
-                    using (Pen borderPen = new Pen(clrGoldBorder, 1.8f))
-                    {
-                        g.DrawPath(borderPen, path);
-                    }
-                }
-            }
-
-            // Inset Fine Gold Filigree Border & Corner Diamonds
-            if (bounds.Width > 50 && bounds.Height > 50)
-            {
-                Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
-                using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
-                using (Pen innerPen = new Pen(Color.FromArgb(215, 180, 100), 1f))
-                {
-                    g.DrawPath(innerPen, innerPath);
-                }
-
-                DrawCornerDiamond(g, 9, 9);
-                DrawCornerDiamond(g, bounds.Width - 10, 9);
-                DrawCornerDiamond(g, 9, bounds.Height - 10);
-                DrawCornerDiamond(g, bounds.Width - 10, bounds.Height - 10);
-            }
-        }
-
-        private void DrawCornerDiamond(Graphics g, int cx, int cy)
-        {
-            using (SolidBrush b = new SolidBrush(Color.FromArgb(196, 152, 54)))
-            {
-                Point[] pts = {
-                    new Point(cx, cy - 3),
-                    new Point(cx + 3, cy),
-                    new Point(cx, cy + 3),
-                    new Point(cx - 3, cy)
-                };
-                g.FillPolygon(b, pts);
+                g.FillPath(bgBrush, path);
+                g.DrawPath(borderPen, path);
             }
         }
 

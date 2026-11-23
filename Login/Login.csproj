@@ -1,16 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="UserRepository.cs" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="UserRepository.cs" />
+		<!-- These two files are code-only; stop Visual Studio's stray .resx files from breaking the build -->
+		<EmbeddedResource Remove="**/Form2.TransactionLogs.resx" />
+		<EmbeddedResource Remove="**/AdminShell.resx" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+	</ItemGroup>
 
 </Project>

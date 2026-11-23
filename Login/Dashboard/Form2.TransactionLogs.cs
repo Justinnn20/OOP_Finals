@@ -209,6 +209,22 @@ namespace Login
             if (pnlLogs != null) pnlLogs.Visible = false;
         }
 
+        /// <summary>
+        /// Loads the saved orders from the database so the logs always show every
+        /// transaction (also from earlier sessions). Falls back to the in-memory list.
+        /// </summary>
+        private static List<TransactionRecord> GetLogRecords()
+        {
+            try
+            {
+                return CoopDatabase.LoadTransactionRecords();
+            }
+            catch
+            {
+                return TransactionStore.Records.ToList();
+            }
+        }
+
         private void RefreshCashierFilter()
         {
             if (cboCashierFilter == null) return;
@@ -217,7 +233,7 @@ namespace Login
 
             cboCashierFilter.Items.Clear();
             cboCashierFilter.Items.Add(AllCashiers);
-            foreach (var name in TransactionStore.Records
+            foreach (var name in GetLogRecords()
                                                  .Select(r => r.CashierName)
                                                  .Distinct()
                                                  .OrderBy(n => n))
@@ -236,7 +252,7 @@ namespace Login
                 dgvOrders == null || lblLogsSummary == null)
                 return;
 
-            IEnumerable<TransactionRecord> query = TransactionStore.Records;
+            IEnumerable<TransactionRecord> query = GetLogRecords();
 
             string? selectedCashier = cboCashierFilter.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(selectedCashier) && selectedCashier != AllCashiers)
@@ -252,7 +268,9 @@ namespace Login
                 OrderNo = r.OrderNo,
                 Date = r.OrderDate.ToString("MMM dd, yyyy hh:mm tt"),
                 Cashier = r.CashierName,
-                Student = string.IsNullOrEmpty(r.StudentId) ? "-" : r.StudentId,
+                Student = string.IsNullOrWhiteSpace(r.StudentName) ? (string.IsNullOrEmpty(r.StudentId) ? "-" : r.StudentId) : r.StudentName,
+                College = string.IsNullOrWhiteSpace(r.College) ? "-" : r.College,
+                Year = string.IsNullOrWhiteSpace(r.YearLevel) ? "-" : r.YearLevel,
                 Discount = r.DiscountType,
                 Payment = r.PaymentMethod,
                 Total = "\u20B1" + r.Total.ToString("N2")
@@ -267,13 +285,13 @@ namespace Login
         /// </summary>
         private void ShowOrderDetails(string? orderNo)
         {
-            var record = TransactionStore.Records.FirstOrDefault(r => r.OrderNo == orderNo);
+            var record = GetLogRecords().FirstOrDefault(r => r.OrderNo == orderNo);
             if (record == null) return;
 
             using var win = new Form
             {
                 Text = $"Order {record.OrderNo}",
-                Size = new Size(560, 460),
+                Size = new Size(560, 540),
                 StartPosition = FormStartPosition.CenterParent,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 MaximizeBox = false,
@@ -311,7 +329,9 @@ namespace Login
 
             AddInfoRow(info, "Date", record.OrderDate.ToString("MMM dd, yyyy hh:mm tt"));
             AddInfoRow(info, "Cashier", record.CashierName);
-            AddInfoRow(info, "Student ID", string.IsNullOrEmpty(record.StudentId) ? "-" : record.StudentId);
+            AddInfoRow(info, "Student", string.IsNullOrWhiteSpace(record.StudentName) ? (string.IsNullOrEmpty(record.StudentId) ? "-" : record.StudentId) : record.StudentName);
+            AddInfoRow(info, "College", string.IsNullOrWhiteSpace(record.College) ? "-" : record.College);
+            AddInfoRow(info, "Year level", string.IsNullOrWhiteSpace(record.YearLevel) ? "-" : record.YearLevel);
             AddInfoRow(info, "Discount", record.DiscountType);
             AddInfoRow(info, "Payment", record.PaymentMethod);
             AddInfoRow(info, "Subtotal", "\u20B1" + record.Subtotal.ToString("N2"));

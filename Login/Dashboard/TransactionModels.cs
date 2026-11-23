@@ -17,6 +17,9 @@ namespace Login
         public DateTime OrderDate { get; set; }
         public string CashierName { get; set; }
         public string StudentId { get; set; }
+        public string StudentName { get; set; } = string.Empty;
+        public string College { get; set; } = string.Empty;
+        public string YearLevel { get; set; } = string.Empty;
         public string DiscountType { get; set; }
         public string PaymentMethod { get; set; }
         public decimal Subtotal { get; set; }

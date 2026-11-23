@@ -31,7 +31,7 @@ namespace Login
         private string activeMethodFilter = "ALL";
         private bool isSearchPlaceholder = true;
         private int currentPage = 1;
-        private int pageSize = 6;
+        private const int PageSize = 6;
 
         private class ReceiptLineItem
         {
@@ -46,6 +46,9 @@ namespace Login
             public string DateLabel { get; set; }
             public string TimeLabel { get; set; }
             public string Cashier { get; set; }
+            public string StudentName { get; set; } = string.Empty;
+            public string College { get; set; } = string.Empty;
+            public string YearLevel { get; set; } = string.Empty;
             public string Method { get; set; } // "Cash" or "GCash"
             public string RefNo { get; set; }
             public decimal Subtotal { get; set; }
@@ -135,8 +138,6 @@ namespace Login
             pnlTxnList.Width = pnlHistoryCard.Width - 36;
             pnlTxnList.Height = Math.Max(200, pnlHistoryCard.Height - 120);
 
-            pageSize = Math.Max(6, Math.Min(12, (pnlTxnList.Height - 10) / 49));
-
             btnExport.Location = new Point(pnlHistoryCard.Width - btnExport.Width - 18, 40);
 
             lblHistoryShowing.Location = new Point(24, pnlHistoryCard.Height - 34);
@@ -145,13 +146,12 @@ namespace Login
             btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlHistoryCard.Height - 36);
 
             // Adjust children of pnlReceiptCard
-            pnlReceiptBody.Location = new Point(18, 44);
             pnlReceiptBody.Width = pnlReceiptCard.Width - 36;
-            pnlReceiptBody.Height = Math.Max(200, pnlReceiptCard.Height - 110);
-            btnPrintReceipt.Location = new Point(18, pnlReceiptCard.Height - 46);
-            btnPrintReceipt.Width = (pnlReceiptCard.Width - 44) / 2;
-            btnVoidSale.Location = new Point(btnPrintReceipt.Right + 8, pnlReceiptCard.Height - 46);
-            btnVoidSale.Width = pnlReceiptCard.Width - btnPrintReceipt.Right - 26;
+            pnlReceiptBody.Height = Math.Max(200, pnlReceiptCard.Height - 130);
+            btnPrintReceipt.Location = new Point(22, pnlReceiptCard.Height - 44);
+            btnPrintReceipt.Width = (pnlReceiptCard.Width - 52) / 2;
+            btnVoidSale.Location = new Point(btnPrintReceipt.Right + 8, pnlReceiptCard.Height - 44);
+            btnVoidSale.Width = pnlReceiptCard.Width - btnPrintReceipt.Right - 30;
 
             RenderTransactionTable();
             this.Invalidate(true);
@@ -177,6 +177,9 @@ namespace Login
                 DateLabel = record.OrderDate.ToString("MMM dd, yyyy"),
                 TimeLabel = record.OrderDate.ToString("hh:mm tt"),
                 Cashier = record.CashierName,
+                StudentName = record.StudentName,
+                College = record.College,
+                YearLevel = record.YearLevel,
                 Method = record.PaymentMethod,
                 RefNo = string.Empty,
                 Subtotal = record.Subtotal,
@@ -316,7 +319,7 @@ namespace Login
             btnPageNext.Click += (s, e) =>
             {
                 int totalFiltered = GetFilteredTransactions().Count;
-                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
+                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
                 if (currentPage < maxPage)
                 {
                     currentPage++;
@@ -510,6 +513,8 @@ namespace Login
                 bool matchesSearch = string.IsNullOrEmpty(query) ||
                     t.ReceiptNo.ToLower().Contains(query) ||
                     t.Cashier.ToLower().Contains(query) ||
+                    t.StudentName.ToLower().Contains(query) ||
+                    t.College.ToLower().Contains(query) ||
                     t.Method.ToLower().Contains(query);
 
                 if (matchesMethod && matchesSearch)
@@ -530,11 +535,11 @@ namespace Login
 
             List<TransactionRecord> filtered = GetFilteredTransactions();
             int totalFiltered = filtered.Count;
-            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
             if (currentPage > totalPages) currentPage = totalPages;
 
-            int startIndex = (currentPage - 1) * pageSize;
-            int countToShow = Math.Min(pageSize, totalFiltered - startIndex);
+            int startIndex = (currentPage - 1) * PageSize;
+            int countToShow = Math.Min(PageSize, totalFiltered - startIndex);
 
             int rowHeight = 49;
 
@@ -705,16 +710,26 @@ namespace Login
                 g.DrawString(string.Format("{0} · {1}", selectedTxn.DateLabel, selectedTxn.TimeLabel), metaFont, mutedBrush, 4, 34);
                 g.DrawString(string.Format("Cashier: {0}", selectedTxn.Cashier), metaFont, darkBrush, 4, 54);
 
+                // Student details (name, college, year level)
+                RectangleF studentRect = new RectangleF(4, 72, w - 8, 18);
+                RectangleF collegeRect = new RectangleF(4, 90, w - 8, 18);
+                using (StringFormat trim = new StringFormat { Trimming = StringTrimming.EllipsisCharacter, FormatFlags = StringFormatFlags.NoWrap })
+                {
+                    g.DrawString("Student: " + DisplayOrDash(selectedTxn.StudentName), metaFont, darkBrush, studentRect, trim);
+                    g.DrawString(string.Format("College: {0}  ·  Year: {1}", DisplayOrDash(selectedTxn.College), DisplayOrDash(selectedTxn.YearLevel)),
+                        metaFont, darkBrush, collegeRect, trim);
+                }
+
                 string payText = selectedTxn.Method.Equals("GCash", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(selectedTxn.RefNo)
                     ? string.Format("Payment: GCash (Ref: {0})", selectedTxn.RefNo)
                     : string.Format("Payment: {0}", selectedTxn.Method);
-                g.DrawString(payText, metaFont, darkBrush, 4, 74);
+                g.DrawString(payText, metaFont, darkBrush, 4, 108);
 
                 // Divider 1
-                g.DrawLine(divPen, 4, 102, w - 4, 102);
+                g.DrawLine(divPen, 4, 134, w - 4, 134);
 
                 // Itemized Lines
-                int y = 114;
+                int y = 146;
                 foreach (ReceiptLineItem line in selectedTxn.Items)
                 {
                     string leftTxt = string.Format("{0}x {1}", line.Qty, line.ItemName);
@@ -728,7 +743,7 @@ namespace Login
                 }
 
                 // Divider 2
-                int div2Y = Math.Max(214, y + 10);
+                int div2Y = Math.Max(238, y + 10);
                 g.DrawLine(divPen, 4, div2Y, w - 4, div2Y);
 
                 // Totals
@@ -749,6 +764,8 @@ namespace Login
             }
         }
 
+        private static string DisplayOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim();
+
         private void BtnPrintReceipt_Click(object sender, EventArgs e)
         {
             if (selectedTxn == null)
@@ -763,6 +780,9 @@ namespace Login
             sb.AppendLine("Receipt #: " + selectedTxn.ReceiptNo);
             sb.AppendLine("Date/Time: " + selectedTxn.DateLabel + " · " + selectedTxn.TimeLabel);
             sb.AppendLine("Cashier:   " + selectedTxn.Cashier);
+            sb.AppendLine("Student:   " + DisplayOrDash(selectedTxn.StudentName));
+            sb.AppendLine("College:   " + DisplayOrDash(selectedTxn.College));
+            sb.AppendLine("Year:      " + DisplayOrDash(selectedTxn.YearLevel));
             sb.AppendLine("Payment:   " + selectedTxn.Method + (string.IsNullOrEmpty(selectedTxn.RefNo) ? "" : " (Ref: " + selectedTxn.RefNo + ")"));
             sb.AppendLine("Status:    " + (selectedTxn.IsVoid ? "VOID" : "PAID"));
             sb.AppendLine("----------------------------------------");
@@ -822,11 +842,11 @@ namespace Login
                     {
                         using (StreamWriter sw = new StreamWriter(sfd.FileName, false, Encoding.UTF8))
                         {
-                            sw.WriteLine("ReceiptNo,Date,Time,Cashier,Method,RefNo,Subtotal,Discount,Total,Status");
+                            sw.WriteLine("ReceiptNo,Date,Time,Cashier,Student,College,Year,Method,RefNo,Subtotal,Discount,Total,Status");
                             foreach (TransactionRecord t in filtered)
                             {
-                                sw.WriteLine(string.Format("\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",{6:F2},{7:F2},{8:F2},\"{9}\"",
-                                    t.ReceiptNo, t.DateLabel, t.TimeLabel, t.Cashier, t.Method, t.RefNo,
+                                sw.WriteLine(string.Format("\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",{9:F2},{10:F2},{11:F2},\"{12}\"",
+                                    t.ReceiptNo, t.DateLabel, t.TimeLabel, t.Cashier, t.StudentName, t.College, t.YearLevel, t.Method, t.RefNo,
                                     t.Subtotal, t.Discount, t.Total, t.IsVoid ? "VOID" : "PAID"));
                             }
                         }
@@ -875,51 +895,12 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
 
-            // Illuminated Parchment Gradient
-            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
-                rect,
-                Color.FromArgb(252, 244, 222),
-                Color.FromArgb(238, 220, 180),
-                LinearGradientMode.Vertical))
+            using (GraphicsPath path = GetRoundedRectPath(rect, radius))
+            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
+            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
             {
-                using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-                {
-                    g.FillPath(bgBrush, path);
-                    using (Pen borderPen = new Pen(clrGoldBorder, 1.8f))
-                    {
-                        g.DrawPath(borderPen, path);
-                    }
-                }
-            }
-
-            // Inset Fine Gold Filigree Border & Corner Diamonds
-            if (bounds.Width > 50 && bounds.Height > 50)
-            {
-                Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
-                using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
-                using (Pen innerPen = new Pen(Color.FromArgb(215, 180, 100), 1f))
-                {
-                    g.DrawPath(innerPen, innerPath);
-                }
-
-                DrawCornerDiamond(g, 9, 9);
-                DrawCornerDiamond(g, bounds.Width - 10, 9);
-                DrawCornerDiamond(g, 9, bounds.Height - 10);
-                DrawCornerDiamond(g, bounds.Width - 10, bounds.Height - 10);
-            }
-        }
-
-        private void DrawCornerDiamond(Graphics g, int cx, int cy)
-        {
-            using (SolidBrush b = new SolidBrush(Color.FromArgb(196, 152, 54)))
-            {
-                Point[] pts = {
-                    new Point(cx, cy - 3),
-                    new Point(cx + 3, cy),
-                    new Point(cx, cy + 3),
-                    new Point(cx - 3, cy)
-                };
-                g.FillPolygon(b, pts);
+                g.FillPath(bgBrush, path);
+                g.DrawPath(borderPen, path);
             }
         }
 

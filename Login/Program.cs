@@ -64,6 +64,20 @@ namespace Login
 
         public void SwitchForm(Form nextForm)
         {
+            // Admin tabs live inside ONE AdminShell window: swap the page, don't open a new window.
+            if (AdminShell.IsAdminPage(nextForm))
+            {
+                if (CurrentForm is AdminShell existingShell)
+                {
+                    existingShell.ShowPage(nextForm);
+                    return;
+                }
+
+                AdminShell shell = new AdminShell();
+                shell.ShowPage(nextForm);
+                nextForm = shell;
+            }
+
             Form? oldForm = CurrentForm;
 
             if (oldForm != null)

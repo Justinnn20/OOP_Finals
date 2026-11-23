@@ -24,8 +24,10 @@ namespace Login
             {
                 if (owner != null && owner is Form f && f.Visible)
                 {
+                    // Pages embedded in AdminShell aren't top-level, so use the real window as owner.
+                    IWin32Window realOwner = f.TopLevelControl ?? f;
                     dlg.StartPosition = FormStartPosition.CenterParent;
-                    return dlg.ShowDialog(owner);
+                    return dlg.ShowDialog(realOwner);
                 }
                 else
                 {
@@ -52,31 +54,24 @@ namespace Login
             this.FormBorderStyle = FormBorderStyle.None;
             this.ShowInTaskbar = false;
             this.DoubleBuffered = true;
-            this.AutoScaleMode = AutoScaleMode.None;
-            this.ClientSize = new Size(460, 205);
+            this.ClientSize = new Size(460, 230);
+            this.Padding = new Padding(3); // keeps the gold border visible around the docked panels
+            int contentWidth = this.ClientSize.Width - this.Padding.Horizontal;
             this.BackColor = clrParchment;
 
             // Header Panel
             Panel pnlHeader = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 42,
+                Height = 44,
                 BackColor = clrWineDark
             };
             pnlHeader.Paint += (s, e) =>
             {
                 Graphics g = e.Graphics;
-                // Bottom header divider
                 using (Pen p = new Pen(clrGold, 1.5f))
                 {
                     g.DrawLine(p, 0, pnlHeader.Height - 1, pnlHeader.Width, pnlHeader.Height - 1);
-                }
-                // Outer gold border continuation on top, left, right
-                using (Pen borderPen = new Pen(clrGold, 2.5f))
-                {
-                    g.DrawLine(borderPen, 1, 1, pnlHeader.Width - 2, 1);
-                    g.DrawLine(borderPen, 1, 1, 1, pnlHeader.Height);
-                    g.DrawLine(borderPen, pnlHeader.Width - 2, 1, pnlHeader.Width - 2, pnlHeader.Height);
                 }
             };
 
@@ -85,7 +80,7 @@ namespace Login
                 Text = title.ToUpperInvariant(),
                 Font = new Font("Georgia", 10.5F, FontStyle.Bold),
                 ForeColor = clrGold,
-                Location = new Point(18, 11),
+                Location = new Point(18, 12),
                 AutoSize = true,
                 BackColor = Color.Transparent
             };
@@ -100,7 +95,7 @@ namespace Login
                 BackColor = Color.Transparent,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(32, 28),
-                Location = new Point(this.ClientSize.Width - 38, 7),
+                Location = new Point(contentWidth - 40, 8),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Cursor = Cursors.Hand
             };
@@ -114,89 +109,11 @@ namespace Login
             pnlHeader.Controls.Add(btnClose);
             this.Controls.Add(pnlHeader);
 
-            // Bottom button container
-            Panel pnlButtons = new Panel
-            {
-                Dock = DockStyle.Bottom,
-                Height = 58,
-                Width = this.ClientSize.Width,
-                BackColor = Color.FromArgb(238, 222, 178)
-            };
-            pnlButtons.Paint += (s, e) =>
-            {
-                Graphics g = e.Graphics;
-                // Top divider
-                using (Pen p = new Pen(clrGold, 1.2f))
-                {
-                    g.DrawLine(p, 0, 0, pnlButtons.Width, 0);
-                }
-                // Outer gold border continuation on left, right, bottom
-                using (Pen borderPen = new Pen(clrGold, 2.5f))
-                {
-                    g.DrawLine(borderPen, 1, 0, 1, pnlButtons.Height - 1);
-                    g.DrawLine(borderPen, pnlButtons.Width - 2, 0, pnlButtons.Width - 2, pnlButtons.Height - 1);
-                    g.DrawLine(borderPen, 1, pnlButtons.Height - 2, pnlButtons.Width - 2, pnlButtons.Height - 2);
-                }
-            };
-            this.Controls.Add(pnlButtons);
-
-            // Button layout
-            int btnWidth = 105;
-            int btnHeight = 35;
-            int btnTop = 11;
-            int rightMargin = 20;
-            int gap = 12;
-
-            if (buttons == MessageBoxButtons.YesNo)
-            {
-                Button btnYes = CreateDialogButton("YES", isPrimary: true, width: btnWidth, height: btnHeight);
-                btnYes.Location = new Point(this.ClientSize.Width - rightMargin - (btnWidth * 2) - gap, btnTop);
-                btnYes.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnYes.Click += (s, e) => { this.DialogResult = DialogResult.Yes; this.Close(); };
-
-                Button btnNo = CreateDialogButton("NO", isPrimary: false, width: btnWidth, height: btnHeight);
-                btnNo.Location = new Point(this.ClientSize.Width - rightMargin - btnWidth, btnTop);
-                btnNo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnNo.Click += (s, e) => { this.DialogResult = DialogResult.No; this.Close(); };
-
-                pnlButtons.Controls.Add(btnYes);
-                pnlButtons.Controls.Add(btnNo);
-                this.AcceptButton = btnYes;
-                this.CancelButton = btnNo;
-            }
-            else if (buttons == MessageBoxButtons.OKCancel)
-            {
-                Button btnOk = CreateDialogButton("OK", isPrimary: true, width: btnWidth, height: btnHeight);
-                btnOk.Location = new Point(this.ClientSize.Width - rightMargin - (btnWidth * 2) - gap, btnTop);
-                btnOk.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnOk.Click += (s, e) => { this.DialogResult = DialogResult.OK; this.Close(); };
-
-                Button btnCancel = CreateDialogButton("CANCEL", isPrimary: false, width: btnWidth, height: btnHeight);
-                btnCancel.Location = new Point(this.ClientSize.Width - rightMargin - btnWidth, btnTop);
-                btnCancel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
-
-                pnlButtons.Controls.Add(btnOk);
-                pnlButtons.Controls.Add(btnCancel);
-                this.AcceptButton = btnOk;
-                this.CancelButton = btnCancel;
-            }
-            else
-            {
-                Button btnOk = CreateDialogButton("OK", isPrimary: true, width: btnWidth, height: btnHeight);
-                btnOk.Location = new Point(this.ClientSize.Width - rightMargin - btnWidth, btnTop);
-                btnOk.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                btnOk.Click += (s, e) => { this.DialogResult = DialogResult.OK; this.Close(); };
-
-                pnlButtons.Controls.Add(btnOk);
-                this.AcceptButton = btnOk;
-            }
-
             // Icon Panel
             Panel pnlIcon = new Panel
             {
-                Location = new Point(24, 58),
-                Size = new Size(50, 50),
+                Location = new Point(24, 64),
+                Size = new Size(54, 54),
                 BackColor = Color.Transparent
             };
             pnlIcon.Paint += (s, e) =>
@@ -204,7 +121,7 @@ namespace Login
                 Graphics g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                Rectangle r = new Rectangle(2, 2, 45, 45);
+                Rectangle r = new Rectangle(2, 2, 48, 48);
                 using (SolidBrush b = new SolidBrush(icon == MessageBoxIcon.Question ? Color.FromArgb(44, 14, 22) :
                                                     (icon == MessageBoxIcon.Warning || icon == MessageBoxIcon.Error) ? clrCrimson :
                                                     Color.FromArgb(174, 134, 40)))
@@ -222,7 +139,7 @@ namespace Login
                 using (SolidBrush textBrush = new SolidBrush(clrParchment))
                 using (StringFormat sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
                 {
-                    g.DrawString(symbol, f, textBrush, new RectangleF(2, 2, 45, 45), sf);
+                    g.DrawString(symbol, f, textBrush, new RectangleF(2, 2, 48, 48), sf);
                 }
             };
             this.Controls.Add(pnlIcon);
@@ -231,14 +148,70 @@ namespace Login
             Label lblMsg = new Label
             {
                 Text = message,
-                Font = new Font("Georgia", 11F, FontStyle.Regular),
+                Font = new Font("Georgia", 10.5F, FontStyle.Regular),
                 ForeColor = clrInkDark,
-                Location = new Point(88, 52),
-                Size = new Size(350, 68),
-                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(90, 64),
+                Size = new Size(346, 85),
                 BackColor = Color.Transparent
             };
             this.Controls.Add(lblMsg);
+
+            // Button container
+            Panel pnlButtons = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                BackColor = Color.FromArgb(238, 222, 178)
+            };
+            pnlButtons.Paint += (s, e) =>
+            {
+                using (Pen p = new Pen(clrGoldBorder, 1f))
+                {
+                    e.Graphics.DrawLine(p, 0, 0, pnlButtons.Width, 0);
+                }
+            };
+
+            if (buttons == MessageBoxButtons.YesNo)
+            {
+                Button btnYes = CreateDialogButton("YES", clrWineDark, clrParchment, 110);
+                btnYes.Location = new Point(contentWidth - 240, 14);
+                btnYes.Click += (s, e) => { this.DialogResult = DialogResult.Yes; this.Close(); };
+
+                Button btnNo = CreateDialogButton("NO", Color.FromArgb(226, 206, 162), clrInkDark, 100);
+                btnNo.Location = new Point(contentWidth - 120, 14);
+                btnNo.Click += (s, e) => { this.DialogResult = DialogResult.No; this.Close(); };
+
+                pnlButtons.Controls.Add(btnYes);
+                pnlButtons.Controls.Add(btnNo);
+                this.AcceptButton = btnYes;
+                this.CancelButton = btnNo;
+            }
+            else if (buttons == MessageBoxButtons.OKCancel)
+            {
+                Button btnOk = CreateDialogButton("OK", clrWineDark, clrParchment, 110);
+                btnOk.Location = new Point(contentWidth - 240, 14);
+                btnOk.Click += (s, e) => { this.DialogResult = DialogResult.OK; this.Close(); };
+
+                Button btnCancel = CreateDialogButton("CANCEL", Color.FromArgb(226, 206, 162), clrInkDark, 100);
+                btnCancel.Location = new Point(contentWidth - 120, 14);
+                btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
+
+                pnlButtons.Controls.Add(btnOk);
+                pnlButtons.Controls.Add(btnCancel);
+                this.AcceptButton = btnOk;
+                this.CancelButton = btnCancel;
+            }
+            else
+            {
+                Button btnOk = CreateDialogButton("OK", clrWineDark, clrParchment, 110);
+                btnOk.Location = new Point(contentWidth - 130, 14);
+                btnOk.Click += (s, e) => { this.DialogResult = DialogResult.OK; this.Close(); };
+
+                pnlButtons.Controls.Add(btnOk);
+                this.AcceptButton = btnOk;
+            }
+
+            this.Controls.Add(pnlButtons);
 
             // Drag by header
             bool isDragging = false;
@@ -271,18 +244,15 @@ namespace Login
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Outer gold border for the middle parchment area
+            // Outer gold border
             using (Pen borderPen = new Pen(clrGold, 2.5f))
             {
-                g.DrawLine(borderPen, 1, 0, 1, this.Height);
-                g.DrawLine(borderPen, this.Width - 2, 0, this.Width - 2, this.Height);
+                g.DrawRectangle(borderPen, 1, 1, this.ClientSize.Width - 3, this.ClientSize.Height - 3);
             }
 
-            // Wizardly decorative corner flourishes in parchment area
-            DrawCornerFiligree(g, 8, 48);
-            DrawCornerFiligree(g, this.Width - 22, 48);
-            DrawCornerFiligree(g, 8, this.Height - 66);
-            DrawCornerFiligree(g, this.Width - 22, this.Height - 66);
+            // Wizardly decorative corner flourishes
+            DrawCornerFiligree(g, 6, 50);
+            DrawCornerFiligree(g, this.Width - 20, 50);
         }
 
         private void DrawCornerFiligree(Graphics g, int x, int y)
@@ -294,91 +264,21 @@ namespace Login
             }
         }
 
-        private static GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)
-        {
-            var path = new GraphicsPath();
-            int diameter = radius * 2;
-            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
-            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
-            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
-        private Button CreateDialogButton(string text, bool isPrimary, int width = 105, int height = 35)
+        private Button CreateDialogButton(string text, Color bg, Color fg, int width)
         {
             Button btn = new Button
             {
                 Text = text,
-                Font = new Font("Georgia", 9.5F, FontStyle.Bold),
-                Size = new Size(width, height),
+                Font = new Font("Georgia", 9F, FontStyle.Bold),
+                ForeColor = fg,
+                BackColor = bg,
                 FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                BackColor = isPrimary ? Color.FromArgb(229, 181, 58) : Color.FromArgb(238, 222, 178)
+                Size = new Size(width, 32),
+                Cursor = Cursors.Hand
             };
-            btn.FlatAppearance.BorderSize = 0;
-
-            btn.Paint += (s, e) =>
-            {
-                var b = (Button)s!;
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-
-                var rect = new Rectangle(0, 0, b.Width - 1, b.Height - 1);
-                using var path = CreateRoundedRectanglePath(rect, 6);
-
-                bool isHover = b.ClientRectangle.Contains(b.PointToClient(Cursor.Position));
-
-                if (isPrimary)
-                {
-                    // Radiant Antique Gold gradient button
-                    Color top = isHover ? Color.FromArgb(255, 220, 80) : Color.FromArgb(232, 184, 52);
-                    Color bot = isHover ? Color.FromArgb(240, 180, 30) : Color.FromArgb(200, 146, 22);
-                    using (var brush = new LinearGradientBrush(rect, top, bot, LinearGradientMode.Vertical))
-                    {
-                        e.Graphics.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(isHover ? Color.FromArgb(255, 245, 160) : Color.FromArgb(245, 205, 90), 1.2f))
-                    {
-                        e.Graphics.DrawPath(pen, path);
-                    }
-                    TextRenderer.DrawText(
-                        e.Graphics,
-                        b.Text,
-                        b.Font,
-                        rect,
-                        Color.FromArgb(38, 10, 18),
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-                }
-                else
-                {
-                    // Refined warm parchment chip button
-                    Color bg = isHover ? Color.FromArgb(250, 240, 218) : Color.FromArgb(232, 212, 172);
-                    using (var brush = new SolidBrush(bg))
-                    {
-                        e.Graphics.FillPath(brush, path);
-                    }
-                    using (var pen = new Pen(isHover ? Color.FromArgb(210, 165, 65) : Color.FromArgb(178, 138, 55), 1.2f))
-                    {
-                        e.Graphics.DrawPath(pen, path);
-                    }
-                    TextRenderer.DrawText(
-                        e.Graphics,
-                        b.Text,
-                        b.Font,
-                        rect,
-                        Color.FromArgb(44, 14, 22),
-                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-                }
-            };
-
-            btn.MouseEnter += (s, e) => btn.Invalidate();
-            btn.MouseLeave += (s, e) => btn.Invalidate();
-
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = clrGoldBorder;
             return btn;
         }
     }
 }
-

@@ -7,7 +7,6 @@ CREATE TABLE dbo.Users (
     UserId     INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
     Username   NVARCHAR(50)  NOT NULL UNIQUE,
     [Password] NVARCHAR(100) NOT NULL,
-    [Role]     NVARCHAR(10)  NOT NULL CHECK ([Role] IN (N'Admin', N'Staff')),
     CreatedAt  DATETIME2     NOT NULL DEFAULT SYSDATETIME()
 );
 GO
