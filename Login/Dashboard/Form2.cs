@@ -23,7 +23,7 @@ namespace Login
         private Button? _hotTab;
         private readonly Font _sideFont = AppFonts.Heading(10f, FontStyle.Bold);
         private const float SideTracking = 1.6f;
-        private const int SideWidth = 60;
+        private const int SideWidth = 66;
         private const int SideTabWidth = 44;
         private readonly CartController _cartController = new();
         private decimal _totalSalesToday = 0m;
@@ -46,10 +46,49 @@ namespace Login
             SetupCartEvents();
             SetupPillRadioPaint();
             SetupActionButtonsPaint();
+            SetupCheckoutPaint();
             SetupBarcodeAndInputs();
             BuildTransactionLogsPanel();
+
+            lblLogo.Text = string.Empty;
+            lblLogo.BackColor = Color.Transparent;
+            lblLogo.Paint += (s, e) =>
+            {
+                Graphics g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                Point[] shieldPoints =
+                {
+                    new Point(19, 3),
+                    new Point(34, 8),
+                    new Point(33, 25),
+                    new Point(19, 38),
+                    new Point(5, 25),
+                    new Point(4, 8)
+                };
+
+                using (SolidBrush fill = new SolidBrush(Color.FromArgb(52, 16, 26)))
+                using (Pen goldPen = new Pen(CoopTheme.GoldBright, 1.8f))
+                {
+                    g.FillPolygon(fill, shieldPoints);
+                    g.DrawPolygon(goldPen, shieldPoints);
+                }
+
+                TextRenderer.DrawText(g, "U", new Font("Georgia", 13F, FontStyle.Bold),
+                    new Rectangle(0, 2, 38, 34), CoopTheme.GoldBright,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
+
+            lblTotalCaption.Font = new Font("Georgia", 13F, FontStyle.Bold);
+            lblTotalValue.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
+            lblSubtotalCaption.Font = new Font("Georgia", 11F, FontStyle.Regular);
+            lblSubtotalValue.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+
             LoadInitialDemoCart();
 
+            btnSignOut.Paint += BtnSignOut_Paint;
+            btnSignOut.MouseEnter += (s, e) => { isSignOutHover = true; btnSignOut.Invalidate(); };
+            btnSignOut.MouseLeave += (s, e) => { isSignOutHover = false; btnSignOut.Invalidate(); };
             btnSignOut.Click += (s, e) =>
             {
                 DialogResult dr = CoopMessageBox.Show(this, "Sign out from Cashier session?", "Sign Out",
@@ -82,11 +121,19 @@ namespace Login
             pnlSide.MinimumSize = new Size(SideWidth, 0);
             pnlSide.MaximumSize = new Size(SideWidth, 0);
             pnlSide.Width = SideWidth;
-            pnlSide.BackColor = Color.FromArgb(42, 15, 24);
+            pnlSide.BackColor = Color.FromArgb(20, 6, 12);
             pnlSide.Paint += (s, e) =>
             {
-                using var line = new Pen(Color.FromArgb(160, CoopTheme.GoldBright), 2f);
-                e.Graphics.DrawLine(line, 0, 1, pnlSide.Width, 1);
+                var g = e.Graphics;
+                using (var line = new Pen(Color.FromArgb(160, CoopTheme.GoldBright), 2f))
+                {
+                    g.DrawLine(line, 0, 1, pnlSide.Width, 1);
+                }
+
+                using (var border = new Pen(Color.FromArgb(196, 148, 32), 2f))
+                {
+                    g.DrawLine(border, pnlSide.Width - 1, 0, pnlSide.Width - 1, pnlSide.Height);
+                }
             };
 
             tabs = new[] { btnTabAll, btnTabBooks, btnTabUniforms, btnTabSupplies, btnTransactionLogs };
@@ -243,7 +290,7 @@ namespace Login
 
         private void SetupPillRadioPaint()
         {
-            RadioButton[] pills = { rbNone, rbScholar, rbStaff, rbCash, rbGCash };
+            RadioButton[] pills = { rbNone, rbSenior, rbPwd, rbCash, rbGCash };
             foreach (var rb in pills)
             {
                 rb.Paint += (s, e) =>
@@ -273,6 +320,32 @@ namespace Login
             }
         }
 
+        private bool isSignOutHover = false;
+
+        private void BtnSignOut_Paint(object? sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.Clear(TopBarBg);
+
+            Rectangle rect = new Rectangle(1, 1, btnSignOut.Width - 3, btnSignOut.Height - 3);
+            using (GraphicsPath path = CreateRoundedRectanglePath(rect, 18))
+            {
+                Color borderClr = isSignOutHover ? Color.FromArgb(240, 196, 75) : Color.FromArgb(196, 152, 54);
+                Color fillClr = isSignOutHover ? Color.FromArgb(52, 16, 26) : Color.FromArgb(35, 8, 16);
+                using (SolidBrush fillBrush = new SolidBrush(fillClr))
+                using (Pen borderPen = new Pen(borderClr, 1.4f))
+                {
+                    g.FillPath(fillBrush, path);
+                    g.DrawPath(borderPen, path);
+                }
+            }
+
+            Color txtClr = isSignOutHover ? Color.FromArgb(255, 220, 110) : Color.FromArgb(230, 184, 64);
+            TextRenderer.DrawText(g, btnSignOut.Text, btnSignOut.Font, rect, txtClr,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+
         private void SetupActionButtonsPaint()
         {
             Button[] actionBtns = { btnHoldOrder, btnClearOrder };
@@ -296,6 +369,54 @@ namespace Login
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 };
             }
+        }
+
+        private void SetupCheckoutPaint()
+        {
+            pnlCashInput.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                var rect = new Rectangle(0, 0, pnlCashInput.Width - 1, pnlCashInput.Height - 1);
+                using var path = CreateRoundedRectanglePath(rect, 6);
+                using var brush = new SolidBrush(ChipBg);
+                using var pen = new Pen(Color.FromArgb(212, 160, 23), 1.4f);
+                e.Graphics.FillPath(brush, path);
+                e.Graphics.DrawPath(pen, path);
+            };
+
+            pnlCashInput.Click += (s, e) =>
+            {
+                txtCash.Focus();
+                txtCash.SelectAll();
+            };
+
+            btnCheckout.MouseEnter += (s, e) => btnCheckout.Invalidate();
+            btnCheckout.MouseLeave += (s, e) => btnCheckout.Invalidate();
+
+            btnCheckout.Paint += (s, e) =>
+            {
+                var btn = (Button)s!;
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                e.Graphics.Clear(ParchmentBg);
+
+                var rect = new Rectangle(0, 0, btn.Width - 1, btn.Height - 1);
+                using var path = CreateRoundedRectanglePath(rect, 8);
+
+                bool isHover = btn.ClientRectangle.Contains(btn.PointToClient(Cursor.Position));
+                Color topGold = isHover ? Color.FromArgb(248, 215, 105) : Color.FromArgb(237, 195, 88);
+                Color bottomGold = isHover ? Color.FromArgb(218, 168, 38) : Color.FromArgb(196, 142, 18);
+                Color borderColor = isHover ? Color.FromArgb(180, 130, 25) : Color.FromArgb(145, 105, 20);
+
+                using var brush = new LinearGradientBrush(rect, topGold, bottomGold, LinearGradientMode.Vertical);
+                using var borderPen = new Pen(borderColor, 1.2f);
+
+                e.Graphics.FillPath(brush, path);
+                e.Graphics.DrawPath(borderPen, path);
+
+                TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, rect,
+                    Color.FromArgb(42, 15, 26),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
         }
 
         // ---------------------------------------------------------------
@@ -352,13 +473,13 @@ namespace Login
             {
                 if (rbNone.Checked) _cartController.ApplyDiscount(0m, "None");
             };
-            rbScholar.CheckedChanged += (s, e) =>
+            rbSenior.CheckedChanged += (s, e) =>
             {
-                if (rbScholar.Checked) _cartController.ApplyDiscount(0.10m, "Scholar 10%");
+                if (rbSenior.Checked) _cartController.ApplyDiscount(0.20m, "Senior 20%");
             };
-            rbStaff.CheckedChanged += (s, e) =>
+            rbPwd.CheckedChanged += (s, e) =>
             {
-                if (rbStaff.Checked) _cartController.ApplyDiscount(0.15m, "Staff 15%");
+                if (rbPwd.Checked) _cartController.ApplyDiscount(0.20m, "PWD 20%");
             };
 
             // Payment methods
@@ -442,8 +563,8 @@ namespace Login
 
         private string GetDiscountLabel()
         {
-            if (rbScholar.Checked) return "Scholar 10%";
-            if (rbStaff.Checked) return "Staff 15%";
+            if (rbSenior.Checked) return "Senior 20%";
+            if (rbPwd.Checked) return "PWD 20%";
             return "None";
         }
 
@@ -492,7 +613,6 @@ namespace Login
         {
             if (string.IsNullOrWhiteSpace(studentId)) return;
             txtStudentId.Text = studentId;
-            rbScholar.Checked = true;
         }
 
         // ---------------------------------------------------------------
@@ -520,8 +640,8 @@ namespace Login
 
             flpCartItems.ResumeLayout();
 
-            lblSubtotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", order.Subtotal);
-            lblTotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", order.Total);
+            lblSubtotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱  {0:N0}", order.Subtotal);
+            lblTotalValue.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱  {0:N0}", order.Total);
             btnHoldOrder.Text = _cartController.HeldOrders.Count > 0
                 ? $"Hold ({_cartController.HeldOrders.Count})"
                 : "Hold";
@@ -605,57 +725,176 @@ namespace Login
             flpProducts.ResumeLayout();
         }
 
+        private sealed class ProductCardPanel : Panel
+        {
+            [Browsable(false)]
+            [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+            public bool IsHovered { get; set; }
+
+            public ProductCardPanel()
+            {
+                DoubleBuffered = true;
+                SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            }
+
+            protected override void OnPaint(PaintEventArgs e)
+            {
+                base.OnPaint(e);
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                var rect = new Rectangle(0, 0, Width - 1, Height - 1);
+                using var path = CreateRoundedRectanglePath(rect, 8);
+
+                // 1. Wizardly card background gradient (deep wine to dark mystical velvet)
+                Color topColor = IsHovered ? Color.FromArgb(78, 28, 44) : Color.FromArgb(56, 19, 30);
+                Color botColor = IsHovered ? Color.FromArgb(52, 18, 30) : Color.FromArgb(38, 13, 22);
+                using (var brush = new LinearGradientBrush(rect, topColor, botColor, LinearGradientMode.Vertical))
+                {
+                    g.FillPath(brush, path);
+                }
+
+                // 2. Wizardly inner gold frame (inset 4px)
+                var innerRect = new Rectangle(4, 4, Width - 9, Height - 9);
+                using var innerPath = CreateRoundedRectanglePath(innerRect, 6);
+                using (var innerPen = new Pen(IsHovered ? Color.FromArgb(135, 212, 160, 23) : Color.FromArgb(75, 200, 150, 40), 1f))
+                {
+                    g.DrawPath(innerPen, innerPath);
+                }
+
+                // 3. Antique Gold outer border
+                using (var borderPen = new Pen(IsHovered ? Color.FromArgb(245, 195, 65) : Color.FromArgb(195, 148, 48), 1.6f))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+
+                // 4. Wizardly corner diamond filigree accents
+                using var dotBrush = new SolidBrush(IsHovered ? Color.FromArgb(255, 225, 100) : Color.FromArgb(212, 160, 23));
+                // Top-left
+                g.FillPolygon(dotBrush, new[] { new Point(7, 4), new Point(9, 7), new Point(7, 10), new Point(5, 7) });
+                // Top-right
+                g.FillPolygon(dotBrush, new[] { new Point(Width - 8, 4), new Point(Width - 6, 7), new Point(Width - 8, 10), new Point(Width - 10, 7) });
+                // Bottom-left
+                g.FillPolygon(dotBrush, new[] { new Point(7, Height - 10), new Point(9, Height - 7), new Point(7, Height - 4), new Point(5, Height - 7) });
+                // Bottom-right
+                g.FillPolygon(dotBrush, new[] { new Point(Width - 8, Height - 10), new Point(Width - 6, Height - 7), new Point(Width - 8, Height - 4), new Point(Width - 10, Height - 7) });
+            }
+        }
+
         private Panel CreateProductCard(Product product)
         {
-            var pnl = new Panel
+            var pnl = new ProductCardPanel
             {
-                Size = new Size(190, 114),
-                BackColor = Color.FromArgb(38, 14, 20),
-                Margin = new Padding(4),
+                Size = new Size(230, 138),
+                BackColor = Color.FromArgb(56, 19, 30),
+                Margin = new Padding(6),
                 Cursor = Cursors.Hand
             };
 
             var lblName = new Label
             {
                 Text = product.Name,
-                Font = new Font("Georgia", 9.5F, FontStyle.Bold),
-                ForeColor = Color.FromArgb(255, 213, 79),
-                Location = new Point(8, 8),
-                Size = new Size(174, 34),
-                AutoEllipsis = true
+                Font = new Font("Georgia", 11F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(255, 225, 130),
+                BackColor = Color.Transparent,
+                Location = new Point(14, 12),
+                Size = new Size(202, 42),
+                AutoEllipsis = true,
+                Cursor = Cursors.Hand
             };
 
             var lblDetail = new Label
             {
-                Text = product.DisplayDetails,
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Regular),
-                ForeColor = Color.FromArgb(200, 170, 120),
-                Location = new Point(8, 44),
-                Size = new Size(174, 18),
-                AutoEllipsis = true
+                Text = $"₱  {product.Price:N0} each",
+                Font = new Font("Segoe UI", 10F, FontStyle.Regular),
+                ForeColor = Color.FromArgb(240, 218, 175),
+                BackColor = Color.Transparent,
+                Location = new Point(14, 58),
+                Size = new Size(202, 24),
+                AutoEllipsis = true,
+                Cursor = Cursors.Hand
             };
 
             var lblSku = new Label
             {
                 Text = product.Sku,
-                Font = new Font("Segoe UI", 8F, FontStyle.Italic),
-                ForeColor = Color.FromArgb(160, 130, 100),
-                Location = new Point(8, 78),
-                Size = new Size(80, 18)
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                ForeColor = Color.FromArgb(195, 160, 120),
+                BackColor = Color.Transparent,
+                Location = new Point(14, 94),
+                Size = new Size(100, 30),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Cursor = Cursors.Hand
             };
 
             var btnAdd = new Button
             {
                 Text = "+ Add",
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                 BackColor = Color.FromArgb(212, 160, 23),
-                ForeColor = Color.FromArgb(60, 20, 25),
+                ForeColor = Color.FromArgb(42, 12, 18),
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(100, 72),
-                Size = new Size(80, 28),
+                Location = new Point(122, 90),
+                Size = new Size(94, 34),
                 Cursor = Cursors.Hand
             };
             btnAdd.FlatAppearance.BorderSize = 0;
+
+            btnAdd.Paint += (s, e) =>
+            {
+                var btn = (Button)s!;
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                var rect = new Rectangle(0, 0, btn.Width - 1, btn.Height - 1);
+                using var path = CreateRoundedRectanglePath(rect, 7);
+
+                bool isHover = btn.ClientRectangle.Contains(btn.PointToClient(Cursor.Position));
+                Color topGrad = isHover ? Color.FromArgb(255, 215, 65) : Color.FromArgb(228, 175, 35);
+                Color botGrad = isHover ? Color.FromArgb(235, 175, 25) : Color.FromArgb(195, 140, 15);
+
+                using (var brush = new LinearGradientBrush(rect, topGrad, botGrad, LinearGradientMode.Vertical))
+                {
+                    e.Graphics.FillPath(brush, path);
+                }
+
+                using (var pen = new Pen(isHover ? Color.FromArgb(255, 240, 150) : Color.FromArgb(240, 200, 80), 1f))
+                {
+                    e.Graphics.DrawPath(pen, path);
+                }
+
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    "+ Add",
+                    btn.Font,
+                    rect,
+                    Color.FromArgb(42, 12, 18),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
+            btnAdd.MouseEnter += (s, e) => btnAdd.Invalidate();
+            btnAdd.MouseLeave += (s, e) => btnAdd.Invalidate();
+
+            // Hover state handling for entire card
+            void UpdateCardHover()
+            {
+                bool hovered = pnl.ClientRectangle.Contains(pnl.PointToClient(Cursor.Position));
+                if (pnl.IsHovered != hovered)
+                {
+                    pnl.IsHovered = hovered;
+                    pnl.Invalidate();
+                }
+            }
+
+            pnl.MouseEnter += (s, e) => UpdateCardHover();
+            pnl.MouseLeave += (s, e) => UpdateCardHover();
+            lblName.MouseEnter += (s, e) => UpdateCardHover();
+            lblName.MouseLeave += (s, e) => UpdateCardHover();
+            lblDetail.MouseEnter += (s, e) => UpdateCardHover();
+            lblDetail.MouseLeave += (s, e) => UpdateCardHover();
+            lblSku.MouseEnter += (s, e) => UpdateCardHover();
+            lblSku.MouseLeave += (s, e) => UpdateCardHover();
 
             // Uniforms: kailangang pumili muna ng size
             Action addAction = product.Category == "Uniforms"
@@ -692,14 +931,14 @@ namespace Login
 
         private void LoadInitialDemoCart()
         {
-            var p1 = _cartController.FindProduct("UM-001"); // PE Uniform (Size M, ₱350)
+            var p1 = _cartController.FindProduct("UM-001"); // PE Uniform (₱350)
             var p2 = _cartController.FindProduct("UM-002"); // ID Holder (₱45)
-            var p3 = _cartController.FindProduct("UM-003"); // UMak Polo (Size L, ₱450)
+            var p3 = _cartController.FindProduct("UM-003"); // UMak Polo (₱450)
             var p4 = _cartController.FindProduct("UM-004"); // UMak Lanyard (₱60)
 
-            if (p1 != null) _cartController.AddItem(p1, 2); // 700
+            if (p1 != null) _cartController.AddUniformItem(p1, "M", 2); // 700
             if (p2 != null) _cartController.AddItem(p2, 1); // 45
-            if (p3 != null) _cartController.AddItem(p3, 1); // 450
+            if (p3 != null) _cartController.AddUniformItem(p3, "L", 1); // 450
             if (p4 != null) _cartController.AddItem(p4, 1); // 60
         }
 

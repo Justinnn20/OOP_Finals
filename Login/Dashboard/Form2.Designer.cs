@@ -75,9 +75,11 @@ namespace Login
             btnClearOrder = new Button();
             flpCartItems = new FlowLayoutPanel();
             lblBlank = new Label();
+            pnlDiscounts = new Panel();
             rbNone = new RadioButton();
-            rbScholar = new RadioButton();
-            rbStaff = new RadioButton();
+            rbSenior = new RadioButton();
+            rbPwd = new RadioButton();
+            pnlPayments = new Panel();
             rbCash = new RadioButton();
             rbGCash = new RadioButton();
             pnlLine = new Panel();
@@ -86,6 +88,7 @@ namespace Login
             lblTotalCaption = new Label();
             lblTotalValue = new Label();
             lblCashCaption = new Label();
+            pnlCashInput = new Panel();
             txtCash = new TextBox();
             btnCheckout = new Button();
 
@@ -282,20 +285,20 @@ namespace Login
             btnSignOut.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnSignOut.BackColor = TopBarBg;
             btnSignOut.Cursor = Cursors.Hand;
-            btnSignOut.FlatAppearance.BorderColor = GoldAccent;
+            btnSignOut.FlatAppearance.BorderSize = 0;
             btnSignOut.FlatStyle = FlatStyle.Flat;
-            btnSignOut.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnSignOut.ForeColor = CreamText;
-            btnSignOut.Location = new Point(1094, 20);
+            btnSignOut.Font = new Font("Georgia", 8.25F, FontStyle.Bold);
+            btnSignOut.ForeColor = Color.Transparent;
+            btnSignOut.Location = new Point(1080, 18);
             btnSignOut.Name = "btnSignOut";
-            btnSignOut.Size = new Size(94, 30);
+            btnSignOut.Size = new Size(108, 36);
             btnSignOut.TabIndex = 13;
-            btnSignOut.Text = "Sign out";
+            btnSignOut.Text = "SIGN OUT";
             btnSignOut.UseVisualStyleBackColor = false;
             // 
             // pnlSide
             // 
-            pnlSide.BackColor = TopBarBg;
+            pnlSide.BackColor = Color.FromArgb(20, 6, 12);
             pnlSide.Controls.Add(btnTabAll);
             pnlSide.Controls.Add(btnTabBooks);
             pnlSide.Controls.Add(btnTabUniforms);
@@ -305,7 +308,7 @@ namespace Login
             pnlSide.Dock = DockStyle.Left;
             pnlSide.Location = new Point(0, 72);
             pnlSide.Name = "pnlSide";
-            pnlSide.Size = new Size(210, 688);
+            pnlSide.Size = new Size(66, 688);
             pnlSide.TabIndex = 2;
             // 
             // btnTabAll
@@ -358,18 +361,21 @@ namespace Login
             pnlOrder.Controls.Add(btnClearOrder);
             pnlOrder.Controls.Add(flpCartItems);
             pnlOrder.Controls.Add(lblBlank);
-            pnlOrder.Controls.Add(rbNone);
-            pnlOrder.Controls.Add(rbScholar);
-            pnlOrder.Controls.Add(rbStaff);
-            pnlOrder.Controls.Add(rbCash);
-            pnlOrder.Controls.Add(rbGCash);
+            pnlDiscounts.Controls.Add(rbNone);
+            pnlDiscounts.Controls.Add(rbSenior);
+            pnlDiscounts.Controls.Add(rbPwd);
+            pnlPayments.Controls.Add(rbCash);
+            pnlPayments.Controls.Add(rbGCash);
+            pnlOrder.Controls.Add(pnlDiscounts);
+            pnlOrder.Controls.Add(pnlPayments);
             pnlOrder.Controls.Add(pnlLine);
             pnlOrder.Controls.Add(lblSubtotalCaption);
             pnlOrder.Controls.Add(lblSubtotalValue);
             pnlOrder.Controls.Add(lblTotalCaption);
             pnlOrder.Controls.Add(lblTotalValue);
             pnlOrder.Controls.Add(lblCashCaption);
-            pnlOrder.Controls.Add(txtCash);
+            pnlCashInput.Controls.Add(txtCash);
+            pnlOrder.Controls.Add(pnlCashInput);
             pnlOrder.Controls.Add(btnCheckout);
             pnlOrder.Dock = DockStyle.Right;
             pnlOrder.Location = new Point(860, 72);
@@ -446,46 +452,59 @@ namespace Login
             lblBlank.Text = "The scroll is blank.\nChoose a tome to begin.";
             lblBlank.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // rbNone, rbScholar, rbStaff (row 1)
+            // pnlDiscounts
             // 
-            SetChipStyle(rbNone, 16, 428, 72, true);
-            rbNone.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            pnlDiscounts.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlDiscounts.BackColor = ParchmentBg;
+            pnlDiscounts.Location = new Point(20, 426);
+            pnlDiscounts.Name = "pnlDiscounts";
+            pnlDiscounts.Size = new Size(300, 32);
+            pnlDiscounts.TabIndex = 2;
+            // 
+            // rbNone, rbSenior, rbPwd (row 1 - Discounts)
+            // 
+            SetChipStyle(rbNone, 0, 2, 74, true);
             rbNone.Name = "rbNone";
-            rbNone.TabIndex = 2;
+            rbNone.TabIndex = 0;
             rbNone.TabStop = true;
             rbNone.Text = "None";
-            SetChipStyle(rbScholar, 94, 428, 110, false);
-            rbScholar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            rbScholar.Name = "rbScholar";
-            rbScholar.TabIndex = 3;
-            rbScholar.Text = "Scholar 10%";
-            SetChipStyle(rbStaff, 210, 428, 110, false);
-            rbStaff.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            rbStaff.Name = "rbStaff";
-            rbStaff.TabIndex = 4;
-            rbStaff.Text = "Staff 15%";
+            SetChipStyle(rbSenior, 82, 2, 110, false);
+            rbSenior.Name = "rbSenior";
+            rbSenior.TabIndex = 1;
+            rbSenior.Text = "Senior 20%";
+            SetChipStyle(rbPwd, 200, 2, 100, false);
+            rbPwd.Name = "rbPwd";
+            rbPwd.TabIndex = 2;
+            rbPwd.Text = "PWD 20%";
             // 
-            // rbCash, rbGCash (row 2)
+            // pnlPayments
             // 
-            SetChipStyle(rbCash, 16, 464, 76, true);
-            rbCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            pnlPayments.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlPayments.BackColor = ParchmentBg;
+            pnlPayments.Location = new Point(20, 462);
+            pnlPayments.Name = "pnlPayments";
+            pnlPayments.Size = new Size(300, 32);
+            pnlPayments.TabIndex = 3;
+            // 
+            // rbCash, rbGCash (row 2 - Payment Methods)
+            // 
+            SetChipStyle(rbCash, 0, 2, 145, true);
             rbCash.Name = "rbCash";
-            rbCash.TabIndex = 5;
+            rbCash.TabIndex = 0;
             rbCash.TabStop = true;
             rbCash.Text = "Cash";
-            SetChipStyle(rbGCash, 98, 464, 84, false);
-            rbGCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            SetChipStyle(rbGCash, 155, 2, 145, false);
             rbGCash.Name = "rbGCash";
-            rbGCash.TabIndex = 6;
+            rbGCash.TabIndex = 1;
             rbGCash.Text = "GCash";
             // 
             // pnlLine
             // 
             pnlLine.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pnlLine.BackColor = GoldAccent;
-            pnlLine.Location = new Point(16, 502);
+            pnlLine.Location = new Point(20, 502);
             pnlLine.Name = "pnlLine";
-            pnlLine.Size = new Size(308, 1);
+            pnlLine.Size = new Size(300, 1);
             pnlLine.TabIndex = 7;
             // 
             // lblSubtotalCaption
@@ -503,13 +522,13 @@ namespace Login
             // lblSubtotalValue
             // 
             lblSubtotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblSubtotalValue.Font = new Font("Georgia", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSubtotalValue.Font = new Font("Segoe UI", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblSubtotalValue.ForeColor = DarkText;
             lblSubtotalValue.Location = new Point(130, 512);
             lblSubtotalValue.Name = "lblSubtotalValue";
             lblSubtotalValue.Size = new Size(190, 22);
             lblSubtotalValue.TabIndex = 9;
-            lblSubtotalValue.Text = "₱ 0";
+            lblSubtotalValue.Text = "₱  0";
             lblSubtotalValue.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblTotalCaption
@@ -518,7 +537,7 @@ namespace Login
             lblTotalCaption.AutoSize = true;
             lblTotalCaption.Font = new Font("Georgia", 13F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTotalCaption.ForeColor = DarkText;
-            lblTotalCaption.Location = new Point(20, 544);
+            lblTotalCaption.Location = new Point(20, 546);
             lblTotalCaption.Name = "lblTotalCaption";
             lblTotalCaption.Size = new Size(76, 21);
             lblTotalCaption.TabIndex = 10;
@@ -527,38 +546,46 @@ namespace Login
             // lblTotalValue
             // 
             lblTotalValue.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblTotalValue.Font = new Font("Georgia", 22F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTotalValue.ForeColor = PriceRed;
-            lblTotalValue.Location = new Point(110, 536);
+            lblTotalValue.Font = new Font("Segoe UI", 20F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotalValue.ForeColor = DarkText;
+            lblTotalValue.Location = new Point(100, 538);
             lblTotalValue.Name = "lblTotalValue";
-            lblTotalValue.Size = new Size(210, 38);
+            lblTotalValue.Size = new Size(220, 36);
             lblTotalValue.TabIndex = 11;
-            lblTotalValue.Text = "₱ 0";
+            lblTotalValue.Text = "₱  0";
             lblTotalValue.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblCashCaption
             // 
             lblCashCaption.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCashCaption.AutoSize = true;
-            lblCashCaption.Font = new Font("Georgia", 10.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblCashCaption.Font = new Font("Georgia", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblCashCaption.ForeColor = DarkText;
-            lblCashCaption.Location = new Point(20, 592);
+            lblCashCaption.Location = new Point(20, 590);
             lblCashCaption.Name = "lblCashCaption";
-            lblCashCaption.Size = new Size(99, 17);
+            lblCashCaption.Size = new Size(105, 18);
             lblCashCaption.TabIndex = 12;
             lblCashCaption.Text = "Cash received";
             // 
+            // pnlCashInput
+            // 
+            pnlCashInput.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            pnlCashInput.BackColor = ChipBg;
+            pnlCashInput.Location = new Point(160, 584);
+            pnlCashInput.Name = "pnlCashInput";
+            pnlCashInput.Size = new Size(160, 30);
+            pnlCashInput.TabIndex = 13;
+            // 
             // txtCash
             // 
-            txtCash.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             txtCash.BackColor = ChipBg;
-            txtCash.BorderStyle = BorderStyle.FixedSingle;
-            txtCash.Font = new Font("Georgia", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            txtCash.BorderStyle = BorderStyle.None;
+            txtCash.Font = new Font("Segoe UI", 11.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
             txtCash.ForeColor = DarkText;
-            txtCash.Location = new Point(170, 588);
+            txtCash.Location = new Point(8, 5);
             txtCash.Name = "txtCash";
-            txtCash.Size = new Size(150, 25);
-            txtCash.TabIndex = 13;
+            txtCash.Size = new Size(140, 20);
+            txtCash.TabIndex = 0;
             txtCash.Text = "0";
             txtCash.TextAlign = HorizontalAlignment.Right;
             // 
@@ -572,7 +599,7 @@ namespace Login
             btnCheckout.FlatStyle = FlatStyle.Flat;
             btnCheckout.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCheckout.ForeColor = DarkText;
-            btnCheckout.Location = new Point(20, 630);
+            btnCheckout.Location = new Point(20, 628);
             btnCheckout.Name = "btnCheckout";
             btnCheckout.Size = new Size(300, 44);
             btnCheckout.TabIndex = 14;
@@ -852,9 +879,11 @@ namespace Login
         private Button btnClearOrder;
         private FlowLayoutPanel flpCartItems;
         private Label lblBlank;
+        private Panel pnlDiscounts;
         private RadioButton rbNone;
-        private RadioButton rbScholar;
-        private RadioButton rbStaff;
+        private RadioButton rbSenior;
+        private RadioButton rbPwd;
+        private Panel pnlPayments;
         private RadioButton rbCash;
         private RadioButton rbGCash;
         private Panel pnlLine;
@@ -863,6 +892,7 @@ namespace Login
         private Label lblTotalCaption;
         private Label lblTotalValue;
         private Label lblCashCaption;
+        private Panel pnlCashInput;
         private TextBox txtCash;
         private Button btnCheckout;
 

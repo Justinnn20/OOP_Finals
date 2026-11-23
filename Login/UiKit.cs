@@ -425,9 +425,13 @@ namespace Login
             container.Click += Defocus;
             foreach (Control child in container.Controls)
             {
-                if (child is Panel || child is Label)
+                if (child is Panel || child is Label || child is FlowLayoutPanel || child is GroupBox)
                 {
                     child.Click += Defocus;
+                    if (child.HasChildren)
+                    {
+                        EnableClickToDefocus(child);
+                    }
                 }
             }
         }

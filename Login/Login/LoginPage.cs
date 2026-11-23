@@ -61,47 +61,47 @@ namespace Login
 
             // Dimensions:
             // Hero section width (strictly constrained so it never spills over)
-            int heroW = isLarge ? 460 : 380;
-            // Scroll card width and height
-            int scrollW = isLarge ? 460 : 390;
-            int scrollH = isLarge ? 490 : 440;
+            int heroW = isLarge ? 480 : 400;
+            // Scroll card width and height (sufficient width for all controls without clipping)
+            int scrollW = isLarge ? 480 : 440;
+            int scrollH = isLarge ? 510 : 480;
 
             // Compute gap and horizontal positions
             int remainingW = clientW - (heroW + scrollW);
-            int gap = Math.Max(28, Math.Min(isLarge ? 90 : 54, remainingW / 3));
+            int gap = Math.Max(24, Math.Min(isLarge ? 80 : 48, remainingW / 3));
 
             int totalW = heroW + gap + scrollW;
-            int startX = Math.Max(28, (clientW - totalW) / 2);
+            int startX = Math.Max(24, (clientW - totalW) / 2);
 
             // Crucial: scrollX is guaranteed to be strictly to the right of heroW + gap
             // Even if the form is shrunk down, scrollX will never intersect heroW
-            int scrollX = Math.Max(startX + heroW + gap, clientW - scrollW - Math.Max(24, startX));
+            int scrollX = Math.Max(startX + heroW + gap, clientW - scrollW - Math.Max(20, startX));
 
             int availH = clientH - pnlHeader.Height - lblFooter.Height;
-            int startY = pnlHeader.Height + Math.Max(16, (availH - scrollH) / 2);
+            int startY = pnlHeader.Height + Math.Max(12, (availH - scrollH) / 2);
 
-            // Left Hero Positioning - strictly bounded to heroW
-            lblEyebrow.Location = new Point(startX, startY + 12);
-            lblEyebrow.Size = new Size(heroW, 24);
+            // Left Hero Positioning - strictly bounded to heroW with ample vertical height
+            lblEyebrow.Location = new Point(startX, startY + 8);
+            lblEyebrow.Size = new Size(heroW, 26);
             lblEyebrow.Font = new Font("Cinzel", isLarge ? 11F : 10F, FontStyle.Bold);
 
-            lblHeroTitle.Location = new Point(startX - 2, startY + 42);
-            lblHeroTitle.Size = new Size(heroW, isLarge ? 112 : 96);
-            lblHeroTitle.Font = new Font("Cinzel", isLarge ? 38F : 32F, FontStyle.Bold);
+            lblHeroTitle.Location = new Point(startX - 2, startY + 38);
+            lblHeroTitle.Size = new Size(heroW, isLarge ? 140 : 125);
+            lblHeroTitle.Font = new Font("Cinzel", isLarge ? 40F : 34F, FontStyle.Bold);
 
-            lblHeroText.Location = new Point(startX, lblHeroTitle.Bottom + 12);
-            lblHeroText.Size = new Size(heroW, isLarge ? 88 : 74);
-            lblHeroText.Font = new Font("Cormorant Garamond", isLarge ? 16F : 14.5F, FontStyle.Regular);
+            lblHeroText.Location = new Point(startX, lblHeroTitle.Bottom + 10);
+            lblHeroText.Size = new Size(heroW, isLarge ? 120 : 105);
+            lblHeroText.Font = new Font("Cormorant Garamond", isLarge ? 17F : 15.5F, FontStyle.Regular);
 
             // 4 Department Badges / Chips
-            int chipH = isLarge ? 34 : 30;
+            int chipH = isLarge ? 36 : 32;
             int chipsY = lblHeroText.Bottom + (isLarge ? 24 : 18);
             int chipGap = isLarge ? 10 : 8;
 
-            int chipBooksW = isLarge ? 90 : 76;
-            int chipUniformsW = isLarge ? 108 : 92;
-            int chipSuppliesW = isLarge ? 102 : 88;
-            int chipMerchW = isLarge ? 84 : 72;
+            int chipBooksW = isLarge ? 96 : 80;
+            int chipUniformsW = isLarge ? 116 : 96;
+            int chipSuppliesW = isLarge ? 110 : 92;
+            int chipMerchW = isLarge ? 90 : 76;
 
             pnlChipBooks.Size = new Size(chipBooksW, chipH);
             pnlChipUniforms.Size = new Size(chipUniformsW, chipH);
@@ -121,54 +121,58 @@ namespace Login
             pnlRod.Location = new Point(scrollX - 14, startY - 18);
 
             // Internal controls inside pnlScroll
-            int pad = isLarge ? 34 : 26;
+            int pad = isLarge ? 36 : 30;
             int fieldW = scrollW - (pad * 2);
 
             lblSignIn.Location = new Point(pad, 22);
+            lblSignIn.Size = new Size(fieldW, 32);
             lblSignIn.UseMnemonic = false;
-            lblSignIn.Font = new Font("Cinzel", isLarge ? 20F : 18F, FontStyle.Bold);
+            lblSignIn.Font = new Font("Cinzel", isLarge ? 22F : 20F, FontStyle.Bold);
 
             lblSignInSub.Location = new Point(pad, 58);
-            lblSignInSub.Size = new Size(fieldW, 24);
-            lblSignInSub.Font = new Font("Cormorant Garamond", isLarge ? 13F : 12F, FontStyle.Italic);
+            lblSignInSub.Size = new Size(fieldW, isLarge ? 44 : 40);
+            lblSignInSub.Font = new Font("Cormorant Garamond", isLarge ? 13.5F : 12.5F, FontStyle.Italic);
 
-            lblUser.Location = new Point(pad, 92);
+            lblUser.Location = new Point(pad, 106);
+            lblUser.Size = new Size(fieldW, 18);
             lblUser.Font = new Font("Cinzel", 8.5F, FontStyle.Bold);
 
-            pnlUser.Location = new Point(pad, 114);
-            pnlUser.Size = new Size(fieldW, 44);
+            pnlUser.Location = new Point(pad, 128);
+            pnlUser.Size = new Size(fieldW, 46);
             txtUser.Location = new Point(14, 10);
-            txtUser.Size = new Size(fieldW - 28, 24);
+            txtUser.Size = new Size(fieldW - 28, 26);
             CenterVertically(txtUser);
 
-            lblPass.Location = new Point(pad, 168);
+            lblPass.Location = new Point(pad, 184);
+            lblPass.Size = new Size(fieldW, 18);
             lblPass.Font = new Font("Cinzel", 8.5F, FontStyle.Bold);
 
-            pnlPass.Location = new Point(pad, 190);
-            pnlPass.Size = new Size(fieldW, 44);
-            btnShowPass.Size = new Size(64, 30);
-            btnShowPass.Location = new Point(fieldW - 72, 7);
+            pnlPass.Location = new Point(pad, 206);
+            pnlPass.Size = new Size(fieldW, 46);
+            btnShowPass.Size = new Size(66, 32);
+            btnShowPass.Location = new Point(fieldW - 74, 7);
             txtPass.Location = new Point(14, 10);
-            txtPass.Size = new Size(fieldW - 90, 24);
+            txtPass.Size = new Size(fieldW - 92, 26);
             CenterVertically(txtPass);
 
-            int checkY = 246;
+            int checkY = 264;
             chkRemember.Location = new Point(pad, checkY);
-            chkRemember.Size = new Size(155, 24);
+            chkRemember.Size = new Size(168, 24);
             chkRemember.Font = new Font("Cormorant Garamond", isLarge ? 12.5F : 11.5F, FontStyle.Regular);
 
-            lblForgot.Location = new Point(pad + 160, checkY);
-            lblForgot.Size = new Size(fieldW - 160, 24);
+            lblForgot.Location = new Point(pad + 172, checkY);
+            lblForgot.Size = new Size(fieldW - 172, 24);
             lblForgot.TextAlign = ContentAlignment.MiddleRight;
             lblForgot.Font = new Font("Cormorant Garamond", isLarge ? 12F : 11F, FontStyle.Italic);
 
-            btnSignIn.Location = new Point(pad, 284);
-            btnSignIn.Size = new Size(fieldW, isLarge ? 48 : 44);
-            btnSignIn.Font = new Font("Cinzel", isLarge ? 12.5F : 11.5F, FontStyle.Bold);
+            btnSignIn.Location = new Point(pad, 306);
+            btnSignIn.Size = new Size(fieldW, isLarge ? 52 : 48);
+            btnSignIn.Font = new Font("Cinzel", isLarge ? 13F : 12F, FontStyle.Bold);
 
-            lblRoleNote.Location = new Point(pad, btnSignIn.Bottom + 12);
-            lblRoleNote.Size = new Size(fieldW, 22);
+            lblRoleNote.Location = new Point(pad, btnSignIn.Bottom + 16);
+            lblRoleNote.Size = new Size(fieldW, 24);
             lblRoleNote.Font = new Font("Cormorant Garamond", isLarge ? 12.5F : 11.5F, FontStyle.Italic);
+            lblRoleNote.TextAlign = ContentAlignment.MiddleCenter;
 
             this.Invalidate();
         }

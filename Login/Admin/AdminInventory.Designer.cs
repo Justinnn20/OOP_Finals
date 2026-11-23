@@ -659,7 +659,7 @@ namespace Login
             this.btnAddItemModal.UseVisualStyleBackColor = false;
 
             // pnlItemList
-            this.pnlItemList.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlItemList.BackColor = System.Drawing.Color.Transparent;
             this.pnlItemList.Location = new System.Drawing.Point(18, 114);
             this.pnlItemList.Name = "pnlItemList";
             this.pnlItemList.Size = new System.Drawing.Size(792, 292);

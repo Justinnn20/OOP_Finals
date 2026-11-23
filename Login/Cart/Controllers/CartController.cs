@@ -33,11 +33,11 @@ namespace Login.Controllers
 
         private void SeedCatalog()
         {
-            _catalog.Add(new Product("UM-001", "PE Uniform", "Uniforms", 350m, "Size M", 100));
+            _catalog.Add(new Product("UM-001", "PE Uniform", "Uniforms", 350m, null, 100));
             _catalog.Add(new Product("UM-002", "ID Holder", "School Supplies", 45m, null, 150));
-            _catalog.Add(new Product("UM-003", "UMak Polo", "Uniforms", 450m, "Size L", 80));
+            _catalog.Add(new Product("UM-003", "UMak Polo", "Uniforms", 450m, null, 80));
             _catalog.Add(new Product("UM-004", "UMak Lanyard", "School Supplies", 60m, null, 200));
-            _catalog.Add(new Product("UM-005", "PE Jogging Pants", "Uniforms", 400m, "Size M", 90));
+            _catalog.Add(new Product("UM-005", "PE Jogging Pants", "Uniforms", 400m, null, 90));
             _catalog.Add(new Product("UM-006", "College Manual", "Books & Manuals", 280m, null, 50));
             _catalog.Add(new Product("UM-007", "UMak Spiral Notebook", "School Supplies", 35m, null, 300));
             _catalog.Add(new Product("UM-008", "Ballpen Set (3pcs)", "School Supplies", 65m, null, 120));
@@ -45,7 +45,7 @@ namespace Login.Controllers
             _catalog.Add(new Product("UM-010", "Computer Programming Book", "Books & Manuals", 550m, null, 40));
             _catalog.Add(new Product("UM-011", "Calculus Textbook", "Books & Manuals", 450m, null, 35));
             _catalog.Add(new Product("UM-012", "CCIS Lab Manual", "Books & Manuals", 120m, null, 60));
-            _catalog.Add(new Product("UM-013", "Blouse (Female)", "Uniforms", 380m, "Size M", 75));
+            _catalog.Add(new Product("UM-013", "Blouse (Female)", "Uniforms", 380m, null, 75));
             _catalog.Add(new Product("UM-014", "Yellow Pad (80 leaves)", "School Supplies", 30m, null, 200));
             _catalog.Add(new Product("UM-015", "Blue Book Exam Notebook", "School Supplies", 20m, null, 500));
         }
@@ -71,8 +71,9 @@ namespace Login.Controllers
         {
             if (product == null || string.IsNullOrWhiteSpace(size)) return;
 
-            // Iisang product lang ang nasa cart kahit ilang size ang piliin.
-            AddItem(product, qty);
+            string variantText = size.StartsWith("Size ", StringComparison.OrdinalIgnoreCase) ? size : $"Size {size}";
+            var itemWithChosenSize = new Product(product.Sku, product.Name, product.Category, product.Price, variantText, product.StockQuantity);
+            AddItem(itemWithChosenSize, qty);
         }
 
         public bool AddItemByBarcode(string input, out string message)

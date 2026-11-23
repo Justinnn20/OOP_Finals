@@ -57,6 +57,11 @@ namespace Login
         private string activeLogFilter = "ALL";
         private bool isInitialized = false;
 
+        private WizardScrollBar scrollRestock = null!;
+        private WizardScrollBar scrollActivity = null!;
+        private Panel pnlRestockInner = null!;
+        private Panel pnlActivityInner = null!;
+
         public AdminDB()
         {
             InitializeComponent();
@@ -68,6 +73,28 @@ namespace Login
             activeNavButton = btnNavDashboard;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
+            pnlRestockInner = new Panel
+            {
+                Location = new Point(0, 0),
+                Width = Math.Max(100, pnlRestockList.Width - 14),
+                BackColor = Color.Transparent
+            };
+            pnlRestockList.Controls.Add(pnlRestockInner);
+
+            scrollRestock = new WizardScrollBar();
+            pnlRestock.Controls.Add(scrollRestock);
+
+            pnlActivityInner = new Panel
+            {
+                Location = new Point(0, 0),
+                Width = Math.Max(100, pnlActivityList.Width - 14),
+                BackColor = Color.Transparent
+            };
+            pnlActivityList.Controls.Add(pnlActivityInner);
+
+            scrollActivity = new WizardScrollBar();
+            pnlActivityLog.Controls.Add(scrollActivity);
+
             InitSampleRestockData();
             InitSampleActivityLogs();
             WireEvents();
@@ -77,6 +104,7 @@ namespace Login
             AlignSalesSubtitle();
 
             isInitialized = true;
+            this.AutoScroll = false;
             this.Load += (s, e) => { AlignSalesSubtitle(); LayoutResponsive(); };
         }
 
@@ -115,7 +143,8 @@ namespace Login
             // 2 Middle Panels (Sales Overview & Restock)
             int topY = 276;
             int bottomMargin = 24;
-            int midHeight = 310;
+            int availableHeight = Math.Max(580, this.ClientSize.Height - topY - bottomMargin);
+            int midHeight = Math.Max(280, (int)(availableHeight * 0.48));
 
             int salesWidth = (int)(availableWidth * 0.59);
             int restockWidth = availableWidth - salesWidth - gap;
@@ -127,24 +156,50 @@ namespace Login
             pnlRestock.Size = new Size(restockWidth, midHeight);
 
             // Adjust children of pnlRestock
-            pnlRestockList.Width = pnlRestock.Width - 36;
+            pnlRestockList.Location = new Point(18, 48);
+            pnlRestockList.Width = pnlRestock.Width - 36 - 14;
             pnlRestockList.Height = Math.Max(160, pnlRestock.Height - 85);
+            if (scrollRestock != null)
+            {
+                scrollRestock.Location = new Point(pnlRestock.Width - 22, 48);
+                scrollRestock.Height = pnlRestockList.Height;
+                scrollRestock.Width = 10;
+            }
+            if (pnlRestockInner != null)
+            {
+                pnlRestockInner.Width = pnlRestockList.Width;
+            }
             lblViewAll.Location = new Point(pnlRestock.Width - lblViewAll.Width - 18, pnlRestock.Height - 34);
 
             // Bottom Panel: System Activity Log Table spanning full available width
             int logY = topY + midHeight + 14;
-            int logHeight = Math.Max(260, this.ClientSize.Height - logY - bottomMargin);
+            int logHeight = Math.Max(260, availableHeight - midHeight - 14);
 
             pnlActivityLog.Location = new Point(margin, logY);
             pnlActivityLog.Size = new Size(availableWidth, logHeight);
 
-            pnlActivityList.Width = pnlActivityLog.Width - 36;
-            pnlActivityList.Height = Math.Max(140, pnlActivityLog.Height - 85);
+            pnlActivityList.Location = new Point(18, 76);
+            pnlActivityList.Width = pnlActivityLog.Width - 36 - 14;
+            pnlActivityList.Height = Math.Max(140, pnlActivityLog.Height - 92);
+            if (scrollActivity != null)
+            {
+                scrollActivity.Location = new Point(pnlActivityLog.Width - 22, 76);
+                scrollActivity.Height = pnlActivityList.Height;
+                scrollActivity.Width = 10;
+            }
+            if (pnlActivityInner != null)
+            {
+                pnlActivityInner.Width = pnlActivityList.Width;
+            }
 
             btnLogAdmin.Location = new Point(pnlActivityLog.Width - btnLogAdmin.Width - 18, 12);
             btnLogStaff.Location = new Point(btnLogAdmin.Left - btnLogStaff.Width - 8, 12);
             btnLogAll.Location = new Point(btnLogStaff.Left - btnLogAll.Width - 8, 12);
 
+            lblActivityTitle.AutoSize = true;
+            lblActivitySub.Left = lblActivityTitle.Right + 12;
+
+            PopulateRestockList();
             RenderActivityLogTable();
             AlignSalesSubtitle();
             this.Invalidate(true);
@@ -211,7 +266,7 @@ namespace Login
                 new ActivityLogRecord { Timestamp = "11:42 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Completed Order #1004 (₱ 1,255.00 · 4 items)", Status = "SUCCESS" },
                 new ActivityLogRecord { Timestamp = "11:15 AM", User = "Admin", Role = "Admin", Module = "Inventory", Action = "Restocked +20 units for 'Calculus Textbook' (New Stock: 20)", Status = "RESTOCKED" },
                 new ActivityLogRecord { Timestamp = "10:50 AM", User = "Admin", Role = "Admin", Module = "Inventory", Action = "Updated unit price for 'PE Uniform (M)' to ₱ 350.00", Status = "UPDATED" },
-                new ActivityLogRecord { Timestamp = "10:32 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Completed Order #1003 (₱ 450.00 · Scholar 10% applied)", Status = "SUCCESS" },
+                new ActivityLogRecord { Timestamp = "10:32 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Completed Order #1003 (₱ 450.00 · Senior 20% applied)", Status = "SUCCESS" },
                 new ActivityLogRecord { Timestamp = "10:14 AM", User = "Ana", Role = "Staff", Module = "POS", Action = "Voided sale #1002 (Reason: Wrong uniform size chosen)", Status = "VOIDED" },
                 new ActivityLogRecord { Timestamp = "09:45 AM", User = "Admin", Role = "Admin", Module = "Accounts", Action = "Created new staff login account for 'Carlos Mendoza'", Status = "CREATED" },
                 new ActivityLogRecord { Timestamp = "08:50 AM", User = "Admin", Role = "Admin", Module = "Settings", Action = "Exported weekly transactions database backup archive", Status = "BACKUP" },
@@ -427,10 +482,10 @@ namespace Login
 
         private void PopulateRestockList()
         {
-            if (restockItems == null || pnlRestockList == null) return;
+            if (restockItems == null || pnlRestockList == null || pnlRestockInner == null) return;
 
-            pnlRestockList.SuspendLayout();
-            pnlRestockList.Controls.Clear();
+            pnlRestockInner.SuspendLayout();
+            pnlRestockInner.Controls.Clear();
 
             int yOffset = 0;
             int rowHeight = 47;
@@ -443,9 +498,9 @@ namespace Login
                 Panel row = new Panel
                 {
                     Location = new Point(0, yOffset),
-                    Size = new Size(pnlRestockList.Width, rowHeight),
+                    Size = new Size(pnlRestockInner.Width, rowHeight),
                     Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                    BackColor = clrParchment
+                    BackColor = Color.Transparent
                 };
 
                 row.Paint += (s, e) =>
@@ -538,7 +593,7 @@ namespace Login
                     Text = "RESTOCK",
                     Font = new Font("Georgia", 7.5F, FontStyle.Bold),
                     ForeColor = clrTextDark,
-                    BackColor = clrParchment,
+                    BackColor = Color.Transparent,
                     FlatStyle = FlatStyle.Flat,
                     Cursor = Cursors.Hand,
                     Location = new Point(row.Width - 100, 9),
@@ -551,18 +606,21 @@ namespace Login
                 {
                     Graphics g = e.Graphics;
                     g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.Clear(clrParchment);
 
                     Rectangle rect = new Rectangle(0, 0, btnRestockItem.Width - 1, btnRestockItem.Height - 1);
                     using (GraphicsPath path = GetRoundedRectPath(rect, 6))
-                    using (SolidBrush fill = new SolidBrush(clrGold))
-                    using (Pen border = new Pen(clrGoldBorder, 1f))
                     {
-                        g.FillPath(fill, path);
-                        g.DrawPath(border, path);
+                        using (var brush = new LinearGradientBrush(rect, Color.FromArgb(238, 192, 60), Color.FromArgb(208, 150, 25), LinearGradientMode.Vertical))
+                        {
+                            g.FillPath(brush, path);
+                        }
+                        using (Pen border = new Pen(Color.FromArgb(250, 220, 110), 1f))
+                        {
+                            g.DrawPath(border, path);
+                        }
                     }
                     TextRenderer.DrawText(g, btnRestockItem.Text, btnRestockItem.Font,
-                        rect, clrTextDark, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                        rect, Color.FromArgb(38, 10, 18), TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 };
 
                 btnRestockItem.Click += (s, e) =>
@@ -585,11 +643,17 @@ namespace Login
                 row.Controls.Add(lblLeft);
                 row.Controls.Add(btnRestockItem);
 
-                pnlRestockList.Controls.Add(row);
+                pnlRestockInner.Controls.Add(row);
                 yOffset += rowHeight;
             }
 
-            pnlRestockList.ResumeLayout();
+            pnlRestockInner.Height = yOffset;
+            pnlRestockInner.ResumeLayout();
+
+            if (scrollRestock != null)
+            {
+                scrollRestock.BindTo(pnlRestockList, pnlRestockInner);
+            }
         }
 
         private void PnlActivityLog_Paint(object? sender, PaintEventArgs e)
@@ -651,10 +715,10 @@ namespace Login
 
         private void RenderActivityLogTable()
         {
-            if (activityLogs == null || pnlActivityList == null) return;
+            if (activityLogs == null || pnlActivityList == null || pnlActivityInner == null) return;
 
-            pnlActivityList.SuspendLayout();
-            pnlActivityList.Controls.Clear();
+            pnlActivityInner.SuspendLayout();
+            pnlActivityInner.Controls.Clear();
 
             var filtered = activityLogs.Where(a =>
             {
@@ -672,9 +736,17 @@ namespace Login
                 Panel row = new Panel
                 {
                     Location = new Point(0, yOffset),
-                    Size = new Size(pnlActivityList.Width, rowHeight),
+                    Size = new Size(pnlActivityInner.Width, rowHeight),
                     Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                    BackColor = (i % 2 == 0) ? Color.FromArgb(246, 233, 196) : Color.FromArgb(241, 227, 187)
+                    BackColor = (i % 2 == 0) ? Color.FromArgb(24, 180, 140, 60) : Color.Transparent
+                };
+
+                row.Paint += (s, e) =>
+                {
+                    using (Pen divPen = new Pen(clrDivider, 0.8f))
+                    {
+                        e.Graphics.DrawLine(divPen, 0, rowHeight - 1, row.Width, rowHeight - 1);
+                    }
                 };
 
                 int rowW = row.Width;
@@ -805,11 +877,17 @@ namespace Login
                 row.Controls.Add(lblAction);
                 row.Controls.Add(pnlStatusBadge);
 
-                pnlActivityList.Controls.Add(row);
+                pnlActivityInner.Controls.Add(row);
                 yOffset += rowHeight;
             }
 
-            pnlActivityList.ResumeLayout();
+            pnlActivityInner.Height = yOffset;
+            pnlActivityInner.ResumeLayout();
+
+            if (scrollActivity != null)
+            {
+                scrollActivity.BindTo(pnlActivityList, pnlActivityInner);
+            }
         }
 
         private void UpdateKpiCounts()
@@ -842,7 +920,13 @@ namespace Login
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            g.Clear(clrParchment);
+            using (var bgBrush = new LinearGradientBrush(pnlChartCanvas.ClientRectangle,
+                Color.FromArgb(249, 237, 204),
+                Color.FromArgb(241, 222, 178),
+                LinearGradientMode.Vertical))
+            {
+                g.FillRectangle(bgBrush, pnlChartCanvas.ClientRectangle);
+            }
 
             string[] labels = isDailyView ? dailyLabels : weeklyLabels;
             float[] values = isDailyView ? dailyValues : weeklyValues;
@@ -947,14 +1031,52 @@ namespace Login
         private void DrawParchmentCard(Graphics g, Rectangle bounds, int radius)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
+            Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
             using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
-            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
             {
-                g.FillPath(bgBrush, path);
-                g.DrawPath(borderPen, path);
+                // 1. Rich illuminated parchment gradient
+                using (var bgBrush = new LinearGradientBrush(rect,
+                    Color.FromArgb(249, 237, 204),
+                    Color.FromArgb(241, 222, 178),
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillPath(bgBrush, path);
+                }
+
+                // 2. Inner concentric gold hairline frame (inset 4px)
+                if (bounds.Width > 20 && bounds.Height > 20)
+                {
+                    Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
+                    using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
+                    using (Pen innerPen = new Pen(Color.FromArgb(90, 196, 152, 54), 1f))
+                    {
+                        g.DrawPath(innerPen, innerPath);
+                    }
+                }
+
+                // 3. Antique Gold outer border
+                using (Pen borderPen = new Pen(Color.FromArgb(212, 162, 48), 1.6f))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+
+                // 4. Subtle corner diamond filigree accents
+                if (bounds.Width >= 120 && bounds.Height >= 60)
+                {
+                    using (SolidBrush dotBrush = new SolidBrush(Color.FromArgb(185, 142, 52)))
+                    {
+                        // Top-left
+                        g.FillPolygon(dotBrush, new[] { new Point(8, 5), new Point(10, 7), new Point(8, 9), new Point(6, 7) });
+                        // Top-right
+                        g.FillPolygon(dotBrush, new[] { new Point(bounds.Width - 9, 5), new Point(bounds.Width - 7, 7), new Point(bounds.Width - 9, 9), new Point(bounds.Width - 11, 7) });
+                        // Bottom-left
+                        g.FillPolygon(dotBrush, new[] { new Point(8, bounds.Height - 10), new Point(10, bounds.Height - 8), new Point(8, bounds.Height - 6), new Point(6, bounds.Height - 8) });
+                        // Bottom-right
+                        g.FillPolygon(dotBrush, new[] { new Point(bounds.Width - 9, bounds.Height - 10), new Point(bounds.Width - 7, bounds.Height - 8), new Point(bounds.Width - 9, bounds.Height - 6), new Point(bounds.Width - 11, bounds.Height - 8) });
+                    }
+                }
             }
         }
 
@@ -1011,17 +1133,21 @@ namespace Login
             {
                 if (isActive)
                 {
-                    using (SolidBrush fill = new SolidBrush(clrBgDark))
+                    using (var fill = new LinearGradientBrush(rect, Color.FromArgb(52, 14, 24), Color.FromArgb(32, 8, 16), LinearGradientMode.Vertical))
                         g.FillPath(fill, path);
+                    using (Pen border = new Pen(Color.FromArgb(212, 162, 48), 1.4f))
+                        g.DrawPath(border, path);
                 }
                 else
                 {
-                    using (Pen border = new Pen(clrMuted, 1.2f))
+                    using (var fill = new SolidBrush(Color.FromArgb(235, 216, 175)))
+                        g.FillPath(fill, path);
+                    using (Pen border = new Pen(Color.FromArgb(195, 160, 110), 1.2f))
                         g.DrawPath(border, path);
                 }
             }
 
-            Color txtColor = isActive ? Color.FromArgb(245, 232, 200) : clrTextDark;
+            Color txtColor = isActive ? Color.FromArgb(255, 225, 120) : clrTextDark;
             TextRenderer.DrawText(g, btn.Text, btn.Font, rect, txtColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
@@ -1105,20 +1231,36 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             Rectangle circle = new Rectangle(2, 2, bounds.Width - 5, bounds.Height - 5);
-            using (SolidBrush darkBrush = new SolidBrush(Color.FromArgb(46, 14, 22)))
-            using (Pen goldPen = new Pen(clrGoldBorder, 1.5f))
+
+            Color topColor = iconType == "out" ? Color.FromArgb(140, 24, 34) :
+                             iconType == "warning" ? Color.FromArgb(74, 26, 20) :
+                             Color.FromArgb(56, 16, 26);
+            Color botColor = iconType == "out" ? Color.FromArgb(88, 16, 22) :
+                             iconType == "warning" ? Color.FromArgb(48, 14, 18) :
+                             Color.FromArgb(34, 10, 18);
+
+            using (LinearGradientBrush darkBrush = new LinearGradientBrush(circle, topColor, botColor, LinearGradientMode.Vertical))
+            using (Pen goldPen = new Pen(clrGold, 1.8f))
             {
                 g.FillEllipse(darkBrush, circle);
                 g.DrawEllipse(goldPen, circle);
             }
 
-            using (Pen iconPen = new Pen(clrGold, 1.8f))
+            // Inset thin gold ring
+            Rectangle innerCircle = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
+            using (Pen innerPen = new Pen(Color.FromArgb(80, clrGold), 1f))
+            {
+                g.DrawEllipse(innerPen, innerCircle);
+            }
+
+            Color iconColor = Color.FromArgb(255, 225, 110);
+            using (Pen iconPen = new Pen(iconColor, 2f))
             {
                 if (iconType == "peso")
                 {
                     g.DrawEllipse(iconPen, 16, 16, 20, 20);
-                    TextRenderer.DrawText(g, "₱", new Font("Segoe UI", 9F, FontStyle.Bold),
-                        new Rectangle(16, 15, 20, 22), clrGold,
+                    TextRenderer.DrawText(g, "₱", new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                        new Rectangle(16, 15, 20, 22), iconColor,
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                 }
                 else if (iconType == "receipt")
@@ -1133,7 +1275,7 @@ namespace Login
                     Point[] tri = { new Point(26, 15), new Point(36, 34), new Point(16, 34) };
                     g.DrawPolygon(iconPen, tri);
                     g.DrawLine(iconPen, 26, 22, 26, 28);
-                    using (SolidBrush dot = new SolidBrush(clrGold))
+                    using (SolidBrush dot = new SolidBrush(iconColor))
                         g.FillEllipse(dot, 25, 30, 2.5f, 2.5f);
                 }
                 else if (iconType == "out")

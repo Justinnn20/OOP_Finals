@@ -677,7 +677,7 @@
             this.pnlChartCanvas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlChartCanvas.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlChartCanvas.BackColor = System.Drawing.Color.Transparent;
             this.pnlChartCanvas.Location = new System.Drawing.Point(18, 86);
             this.pnlChartCanvas.Name = "pnlChartCanvas";
             this.pnlChartCanvas.Size = new System.Drawing.Size(696, 320);
@@ -726,8 +726,8 @@
             // 
             // pnlRestockList
             // 
-            this.pnlRestockList.AutoScroll = true;
-            this.pnlRestockList.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlRestockList.AutoScroll = false;
+            this.pnlRestockList.BackColor = System.Drawing.Color.Transparent;
             this.pnlRestockList.Location = new System.Drawing.Point(18, 48);
             this.pnlRestockList.Name = "pnlRestockList";
             this.pnlRestockList.Size = new System.Drawing.Size(434, 336);
@@ -777,12 +777,12 @@
             // lblActivityTitle
             // 
             this.lblActivityTitle.AutoSize = true;
+            this.lblActivityTitle.AutoSize = true;
             this.lblActivityTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblActivityTitle.Font = new System.Drawing.Font("Georgia", 11.5F, System.Drawing.FontStyle.Bold);
             this.lblActivityTitle.ForeColor = System.Drawing.Color.FromArgb(44, 14, 22);
             this.lblActivityTitle.Location = new System.Drawing.Point(18, 14);
             this.lblActivityTitle.Name = "lblActivityTitle";
-            this.lblActivityTitle.Size = new System.Drawing.Size(206, 18);
             this.lblActivityTitle.TabIndex = 0;
             this.lblActivityTitle.Text = "SYSTEM ACTIVITY LOG";
             // 
@@ -851,7 +851,7 @@
             this.pnlActivityList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlActivityList.AutoScroll = true;
+            this.pnlActivityList.AutoScroll = false;
             this.pnlActivityList.BackColor = System.Drawing.Color.Transparent;
             this.pnlActivityList.Location = new System.Drawing.Point(18, 76);
             this.pnlActivityList.Name = "pnlActivityList";

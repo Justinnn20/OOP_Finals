@@ -127,16 +127,16 @@ namespace Login
             this.lblHeroTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(246)))), ((int)(((byte)(230)))), ((int)(((byte)(184)))));
             this.lblHeroTitle.Location = new System.Drawing.Point(68, 244);
             this.lblHeroTitle.Name = "lblHeroTitle";
-            this.lblHeroTitle.Size = new System.Drawing.Size(380, 110);
+            this.lblHeroTitle.Size = new System.Drawing.Size(400, 125);
             this.lblHeroTitle.TabIndex = 11;
             this.lblHeroTitle.Text = "Unlock the\r\nshelves.";
 
             this.lblHeroText.BackColor = System.Drawing.Color.Transparent;
             this.lblHeroText.Font = new System.Drawing.Font("Cormorant Garamond", 15.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblHeroText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(233)))), ((int)(((byte)(217)))), ((int)(((byte)(173)))));
-            this.lblHeroText.Location = new System.Drawing.Point(72, 365);
+            this.lblHeroText.Location = new System.Drawing.Point(72, 380);
             this.lblHeroText.Name = "lblHeroText";
-            this.lblHeroText.Size = new System.Drawing.Size(380, 75);
+            this.lblHeroText.Size = new System.Drawing.Size(400, 105);
             this.lblHeroText.TabIndex = 12;
             this.lblHeroText.Text = "Sign in to ring up sales, restock\r\nthe tomes, and keep the coop\'s\r\nrecords true.";
 
@@ -243,7 +243,7 @@ namespace Login
             this.lblSignInSub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(63)))), ((int)(((byte)(51)))));
             this.lblSignInSub.Location = new System.Drawing.Point(36, 58);
             this.lblSignInSub.Name = "lblSignInSub";
-            this.lblSignInSub.Size = new System.Drawing.Size(340, 24);
+            this.lblSignInSub.Size = new System.Drawing.Size(370, 40);
             this.lblSignInSub.TabIndex = 1;
             this.lblSignInSub.Text = "Enter your credentials to access the bookstore.";
 

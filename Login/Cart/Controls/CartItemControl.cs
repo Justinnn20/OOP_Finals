@@ -17,6 +17,7 @@ namespace Login.Controls
         public CartItemControl()
         {
             InitializeComponent();
+            lblItemSubtotal.Font = new Font("Segoe UI", 11.5F, FontStyle.Bold);
             SetupCustomStyles();
         }
 
@@ -115,7 +116,7 @@ namespace Login.Controls
             lblItemName.Text = CurrentItem.Product.Name;
             lblItemDetail.Text = CurrentItem.Product.DisplayDetails;
             txtItemQty.Text = CurrentItem.Quantity.ToString();
-            lblItemSubtotal.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱ {0:N0}", CurrentItem.TotalPrice);
+            lblItemSubtotal.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, "₱  {0:N0}", CurrentItem.TotalPrice);
         }
 
         private static GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)

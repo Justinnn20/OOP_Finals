@@ -24,8 +24,8 @@ namespace Login.Models
         }
 
         public string DisplayDetails => !string.IsNullOrWhiteSpace(Variant)
-            ? $"{Variant} · ₱{Price:N0} each"
-            : $"₱{Price:N0} each";
+            ? $"{Variant} · ₱  {Price:N0} each"
+            : $"₱  {Price:N0} each";
     }
 }
 

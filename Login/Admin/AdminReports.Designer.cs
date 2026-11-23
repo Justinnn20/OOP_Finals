@@ -510,7 +510,7 @@ namespace Login
             this.lblDiscSub.Name = "lblDiscSub";
             this.lblDiscSub.Size = new System.Drawing.Size(132, 14);
             this.lblDiscSub.TabIndex = 3;
-            this.lblDiscSub.Text = "Scholar & Staff discount";
+            this.lblDiscSub.Text = "Senior & PWD discount";
 
             // 
             // pnlAuditCard (Left Table)
@@ -610,7 +610,7 @@ namespace Login
             this.btnExportAudit.UseVisualStyleBackColor = false;
 
             // pnlAuditList
-            this.pnlAuditList.BackColor = System.Drawing.Color.FromArgb(244, 227, 178);
+            this.pnlAuditList.BackColor = System.Drawing.Color.Transparent;
             this.pnlAuditList.Location = new System.Drawing.Point(18, 48);
             this.pnlAuditList.Name = "pnlAuditList";
             this.pnlAuditList.Size = new System.Drawing.Size(792, 358);

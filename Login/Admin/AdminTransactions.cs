@@ -30,7 +30,7 @@ namespace Login
         private string activeMethodFilter = "ALL";
         private bool isSearchPlaceholder = true;
         private int currentPage = 1;
-        private const int PageSize = 6;
+        private int pageSize = 6;
 
         private class ReceiptLineItem
         {
@@ -134,6 +134,8 @@ namespace Login
             pnlTxnList.Width = pnlHistoryCard.Width - 36;
             pnlTxnList.Height = Math.Max(200, pnlHistoryCard.Height - 120);
 
+            pageSize = Math.Max(6, Math.Min(12, (pnlTxnList.Height - 10) / 49));
+
             btnExport.Location = new Point(pnlHistoryCard.Width - btnExport.Width - 18, 40);
 
             lblHistoryShowing.Location = new Point(24, pnlHistoryCard.Height - 34);
@@ -142,12 +144,13 @@ namespace Login
             btnPagePrev.Location = new Point(lblPageNum.Left - btnPagePrev.Width - 4, pnlHistoryCard.Height - 36);
 
             // Adjust children of pnlReceiptCard
+            pnlReceiptBody.Location = new Point(18, 44);
             pnlReceiptBody.Width = pnlReceiptCard.Width - 36;
-            pnlReceiptBody.Height = Math.Max(200, pnlReceiptCard.Height - 130);
-            btnPrintReceipt.Location = new Point(22, pnlReceiptCard.Height - 44);
-            btnPrintReceipt.Width = (pnlReceiptCard.Width - 52) / 2;
-            btnVoidSale.Location = new Point(btnPrintReceipt.Right + 8, pnlReceiptCard.Height - 44);
-            btnVoidSale.Width = pnlReceiptCard.Width - btnPrintReceipt.Right - 30;
+            pnlReceiptBody.Height = Math.Max(200, pnlReceiptCard.Height - 110);
+            btnPrintReceipt.Location = new Point(18, pnlReceiptCard.Height - 46);
+            btnPrintReceipt.Width = (pnlReceiptCard.Width - 44) / 2;
+            btnVoidSale.Location = new Point(btnPrintReceipt.Right + 8, pnlReceiptCard.Height - 46);
+            btnVoidSale.Width = pnlReceiptCard.Width - btnPrintReceipt.Right - 26;
 
             RenderTransactionTable();
             this.Invalidate(true);
@@ -401,7 +404,7 @@ namespace Login
             btnPageNext.Click += (s, e) =>
             {
                 int totalFiltered = GetFilteredTransactions().Count;
-                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
+                int maxPage = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
                 if (currentPage < maxPage)
                 {
                     currentPage++;
@@ -615,11 +618,11 @@ namespace Login
 
             List<TransactionRecord> filtered = GetFilteredTransactions();
             int totalFiltered = filtered.Count;
-            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / PageSize));
+            int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalFiltered / pageSize));
             if (currentPage > totalPages) currentPage = totalPages;
 
-            int startIndex = (currentPage - 1) * PageSize;
-            int countToShow = Math.Min(PageSize, totalFiltered - startIndex);
+            int startIndex = (currentPage - 1) * pageSize;
+            int countToShow = Math.Min(pageSize, totalFiltered - startIndex);
 
             int rowHeight = 49;
 
@@ -960,12 +963,51 @@ namespace Login
             g.SmoothingMode = SmoothingMode.AntiAlias;
             Rectangle rect = new Rectangle(0, 0, bounds.Width - 1, bounds.Height - 1);
 
-            using (GraphicsPath path = GetRoundedRectPath(rect, radius))
-            using (SolidBrush bgBrush = new SolidBrush(clrParchment))
-            using (Pen borderPen = new Pen(clrGoldBorder, 1.5f))
+            // Illuminated Parchment Gradient
+            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
+                rect,
+                Color.FromArgb(252, 244, 222),
+                Color.FromArgb(238, 220, 180),
+                LinearGradientMode.Vertical))
             {
-                g.FillPath(bgBrush, path);
-                g.DrawPath(borderPen, path);
+                using (GraphicsPath path = GetRoundedRectPath(rect, radius))
+                {
+                    g.FillPath(bgBrush, path);
+                    using (Pen borderPen = new Pen(clrGoldBorder, 1.8f))
+                    {
+                        g.DrawPath(borderPen, path);
+                    }
+                }
+            }
+
+            // Inset Fine Gold Filigree Border & Corner Diamonds
+            if (bounds.Width > 50 && bounds.Height > 50)
+            {
+                Rectangle innerRect = new Rectangle(4, 4, bounds.Width - 9, bounds.Height - 9);
+                using (GraphicsPath innerPath = GetRoundedRectPath(innerRect, Math.Max(2, radius - 3)))
+                using (Pen innerPen = new Pen(Color.FromArgb(215, 180, 100), 1f))
+                {
+                    g.DrawPath(innerPen, innerPath);
+                }
+
+                DrawCornerDiamond(g, 9, 9);
+                DrawCornerDiamond(g, bounds.Width - 10, 9);
+                DrawCornerDiamond(g, 9, bounds.Height - 10);
+                DrawCornerDiamond(g, bounds.Width - 10, bounds.Height - 10);
+            }
+        }
+
+        private void DrawCornerDiamond(Graphics g, int cx, int cy)
+        {
+            using (SolidBrush b = new SolidBrush(Color.FromArgb(196, 152, 54)))
+            {
+                Point[] pts = {
+                    new Point(cx, cy - 3),
+                    new Point(cx + 3, cy),
+                    new Point(cx, cy + 3),
+                    new Point(cx - 3, cy)
+                };
+                g.FillPolygon(b, pts);
             }
         }
 
