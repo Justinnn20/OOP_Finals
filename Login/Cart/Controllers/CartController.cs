@@ -29,9 +29,6 @@ namespace Login.Controllers
 
         public CartController()
         {
-<<<<<<< HEAD
-            _catalog.AddRange(CoopDatabase.LoadProducts());
-=======
             SeedCatalog();
         }
 
@@ -52,7 +49,6 @@ namespace Login.Controllers
             _catalog.Add(new Product("UM-013", "Blouse (Female)", "Uniforms", 380m, null, 75));
             _catalog.Add(new Product("UM-014", "Yellow Pad (80 leaves)", "School Supplies", 30m, null, 200));
             _catalog.Add(new Product("UM-015", "Blue Book Exam Notebook", "School Supplies", 20m, null, 500));
->>>>>>> origin/FinalBranch
         }
 
         public Product? FindProduct(string sku)

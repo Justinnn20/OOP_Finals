@@ -50,9 +50,6 @@ namespace Login
             SetupCheckoutPaint();
             SetupBarcodeAndInputs();
             BuildTransactionLogsPanel();
-<<<<<<< HEAD
-            LoadDatabaseTransactions();
-=======
 
             lblLogo.Text = string.Empty;
             lblLogo.BackColor = Color.Transparent;
@@ -88,7 +85,6 @@ namespace Login
             lblSubtotalCaption.Font = new Font("Georgia", 11F, FontStyle.Regular);
             lblSubtotalValue.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
 
->>>>>>> origin/FinalBranch
             LoadInitialDemoCart();
 
             btnSignOut.Paint += BtnSignOut_Paint;

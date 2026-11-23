@@ -74,10 +74,6 @@ namespace Login
             activeNavButton = btnNavDashboard;
             lblDate.Text = DateTime.Now.ToString("dddd · MMM dd, yyyy").ToUpper();
 
-<<<<<<< HEAD
-            LoadDatabaseRestockData();
-            activityLogs = new List<ActivityLogRecord>();
-=======
             pnlRestockInner = new Panel
             {
                 Location = new Point(0, 0),
@@ -102,7 +98,6 @@ namespace Login
 
             InitSampleRestockData();
             InitSampleActivityLogs();
->>>>>>> origin/FinalBranch
             WireEvents();
             PopulateRestockList();
             RenderActivityLogTable();
